@@ -1,0 +1,278 @@
+﻿-> v4.0.3 [under construction]
+	- Bugfix: Tier füttern: Null bleibt stehen bei onfocus
+	+ max. Fähigkeitspunkte eintragen [todo]
+	+ erweitere Infos zur Selbstheilung [todo]
+
+-> v4.0.2
+	- Bugfix: Script bricht ab, wenn Menu "Ausrüstung" fehlt
+	- Bugfix: Script bricht ab, wenn Menu "Tier" fehlt
+
+-> v4.0.1
+	- Bugfix: Auswahl für zusätzliche Arbeitslinks in Optionen verschoben
+	- Neue Standard-QuickLinks für Alles Ab-/Anlegen
+	- Kolosseum: Textfelder auf Zahlen umgestellt (type=number)
+	- Informationen zur Selbstheilung erweitert ("Reduzierung pro Heilung" in h)
+
+-> v4.0.0
+	- Zusätzliche Informationen zur Selbstheilung (siehe neuen Eintrag in Optionen)
+	- Bugfix: Gewinnspiel: vorgegebene Null entfernt für einfachere Eingabe
+
+-> v3.9.9
+	- Bugfix: Stadtlager -> Informationen wirft undefined-Fehler, da kein Textfeld vorhanden
+	- Charakter: Textfeld auf Zahlen umgestellt (type=number)
+	- Tier füttern: Textfeld auf Zahlen umgestellt (type=number)
+	- Gewinnspiel: Textfeld auf Zahlen umgestellt (type=number)
+	- Warnungen bei weniger als 10 Futter und Tier lebt weniger als 5 Tage
+
+-> v3.9.8
+	- Arbeiten: Dropdownlisten (Gebäude-/Item-Rep, Heilen/Buffen) vergrößert
+	- Stadtlager: Textfelder für Mengen auf Zahlen umgestellt (type=number)
+	- Übertragen: Textfelder für Mengen auf Zahlen umgestellt (type=number)
+	- Marktplatz: Textfelder für Mengen auf Zahlen umgestellt (type=number)
+
+-> v3.9.7
+	- Änderung der externen Statistiken von maxi.4tone.de auf goe.klaxi.de
+
+-> v3.9.6
+	- Update der Liste
+
+-> v3.9.5
+	- Bugfix: Bugfix beim Rausnehmen und Unterstellen von Tieren
+	- Bugfix: Config, wenn nicht eingeloggt
+
+-> v3.9.4
+	- kleiner Bugfix beim Bauer (braucht kein Esel zum Futter herstellen)
+	- Einige Kommentare hinzugefügt
+
+-> v3.9.3
+	- Bugfix: Stadtkampf-Seite bei nur noch einem Hinrundengegner kaputt (Versuch 2)
+
+-> v3.9.2
+	- Bugfix: Stadtkampf-Seite bei nur noch einem Hinrundengegner kaputt
+
+-> v3.9.1
+	- Tierwarnung auch bei Gerüchten
+	- Knappsack: Optimierung bei den Gewichten (mal sehen ob es jetzt besser wird)
+
+-> v3.9.0
+	- Tierwarnung etwas nach unten verschoben.
+
+-> v3.8.9
+	- Bugfix: Knappsack und Erweiterung des Stadtprofils gingen nicht mehr.
+
+-> v3.8.8
+	- Bugfix beim Alchemit und 'Zaubern'
+
+-> v3.8.7
+   - In den Script Optionen kann / sollte der aktuelle Beruf eingestellt werden.
+	  Diese Option wird bisher nur für die Tierwarnung verwendet.
+	- Anzeige einer Warnung, wenn ein Arbeitsgang ohne / mit oder dem falschen
+	  Tier angetreten wird.
+	- Bauer: Die letzte Auswahl der Zutaten beim Futter herstellen wird jetzt
+	  automatisch gespeichert. Die Option in den Einstellungen wurde wieder
+	  entfernt.
+	- Alchemist: Bugfix beim 'Heilen' über die Direktwahl im Menu.
+	             Die letzte Auswahl beim 'Zaubern' wird automatisch gespeichert.
+					 Die letzte Auswahl beim 'Pillen herstellen' wird automatisch
+					 gespeichert.
+	- Allgemein: Einige Javascript Warnungen entfernt.
+
+-> v3.8.6
+	- Bugfix für Mobilen Firefox (Versuch 2 und letzter ;))
+	- Vorauswahl des ersten Reparieren-Eintrags für Gebäude/Items
+
+-> v3.8.5
+	- Optionen zum Entfernen der Arbeitslinks (Jagen und Wasser holen)
+	- Bugfix für Mobilen Firefox und "Antworten" Knopf im Forum. (Versuch 1 ;-))
+
+-> v3.8.4
+	- Bauer: Kann jetzt einstellen welche Zutaten bei "Futter herstellen"
+	  vorausgewählt sein sollen.
+
+-> v3.8.3
+	- Bugfix: Trennlinie zwischen Hin-/Rückrunde (Stadtkampf)
+
+-> v3.8.2
+	- Stadtprofil: externe Statistiklinks hinzugefügt
+	- Stadtkampf: Trennlinie zwischen Hin-/Rückrunde
+	- Stadtkampf: bekannte Hinrundengegner in Rückrunde eintragen
+
+-> v3.8.1
+	- Arbeiten: weitere show-Links für Arbeitsseiten
+	- Stadtkampf: fullHP + farbliche Abstufung hinzugefügt
+	- Userprofil: externe Statistiken hinzugefügt
+	-- neue Option: "Externe Statistiken einbinden" (Standard: false)
+
+-> v3.8.0
+	- einige Warnings beseitigt
+	- Rechtschreibkorrektur
+	- Anzeige der Sterbedaten von den Tieren funktioniert jetzt auch im Firefox
+
+-> v3.7.9
+	- Anpassung bei der Angabe der Heilung / Stunde (FAQ falsch!) 
+	  HeilungProStunde = int(maxHP * 0.002 + 1) * 6
+
+-> v3.7.8
+	- Umlaute bei den Items die in die andere Liste verschoben werden geändert.
+	- Anpassung bei der Angabe der Heilung / Stunde (FAQ falsch?)
+
+-> v3.7.7
+	- Bugfix: Seite "User-Statistiken" wirft undefined-Fehler, da behandelt wie Userprofil
+
+-> v3.7.6
+	- Menügruppe "Event Items" in "Items" umbenannt
+	- Bier, Schnaps, Elemente, Pillen, Elixiere in Items aufgenommen
+
+-> v3.7.5
+	- Bugfix: fehlende BB-CodeBar beim Editieren von Beiträgen im (Stadt-) Forum
+	- Stadtforum: Größe des Textfelds beim Editieren von Beiträgen angepasst
+
+-> v3.7.4
+	- Bugfix (Firefox only): Farbangaben sind case sensitive (LightGreen != lightgreen)
+
+-> v3.7.3
+	- Der Knopf um die Script Optionen zu speichern, kann jetzt seine Farbe 
+	  wechseln ;-)
+-> v3.7.2
+	- Beim "Heilen" wird ein Info Text angezeigt wie viele Heilungen ausstehen
+	  und wie viele User verletzt sind.
+
+-> v3.7.1
+	- Schreibfehler ausgebessert
+
+-> v3.7.0
+	- Kleiner Bugfix bei der Berechnung der noch ausstehenden Arbeitsgänge bis
+	  ein Gebäude repariert werden muss (+/- 0.1 - jetzt aber).
+
+-> v3.6.9
+	- Kleiner Bugfix bei der Berechnung der noch ausstehenden Arbeitsgänge bis
+	  ein Gebäude repariert werden muss (float Genauigkeit -> also hat ein + 0.1
+	  gefeht).
+
+-> v3.6.8
+	- Neuer Button bei der Stadtübersicht + Knapsack um eine Nachricht an alle
+	  für den Kampf ausgewählten User zu schicken.
+	- Kleiner Bugfix bei der Berechnung der noch ausstehenden Arbeitsgänge bis
+	  ein Gebäude repariert werden muss (da hat ein '+ 1' gefehlt ;-) ).
+
+-> v3.6.7
+	- Kleine Änderungen ..
+	  - "/" durch "|" ersetzt
+	  - "Ü" durch "\u00DC" ersetzt
+	  - Der Logout Link ist wieder der letzte unten rechts ;-)
+
+-> v3.6.6
+	- Stadtlager: Anzeigegrenzen in title-Attribut
+	- Ereignisse (User) unter "Start" verschoben
+	- Spieloptionen, Werben, Credits unter "Benutzer" verschoben
+	- Stadtprofil: Button zur Vorselektierung und Summe der selektierten EP
+
+-> v3.6.5
+	- Ein dritter konfigurierbarer zusätzlicher Arbeitslink
+
+-> v3.6.4
+	- Weitere Anpassungen für die wählbaren Styles der Seite
+
+-> v3.6.3
+	- Neue / zusätzliche Default Werte für dsa Stadtlager
+	- Anpassungen für die wählbaren Styles der Seite
+
+-> v3.6.2
+	- Checkbox für die Auswahl der User an die eine Nachricht geschickt werden
+	  soll eine Spalte weiter verschoben und etwas kleiner gemacht.
+	- Bugfix beim "Reminder" wenn gerade kein Timer läuft.
+
+-> v3.6.1
+	- Stadtübersicht Nachricht an Buttons überarbeitet und einen neuen
+	  hinzugefügt für die in der Tabelle augewählten User.
+
+-> v3.6.0
+	- Encoding UTF-8 hinzugefügt
+	- Das Skript funktioniert jetzt auch mit "www" in der Adresse
+
+-> v3.5.8
+	- 'ä' durch '\u00E4' ersetzt damit mein Mobile nicht meckert ;-)
+
+-> v3.5.7
+	- Bugfix bei den Stadtkämpfen (keine Gesamt-EP, wenn Kampf läuft oder An-/
+	  Abmeldung)
+
+-> v3.5.6
+	- Bugfix bei den Stadtkämpfen
+
+-> v3.5.5
+	- Bugfix bei den Stadtlagergrenzen
+
+-> v3.5.4
+	- "Passwort vergessen" Button beim LogIn entfernt (Bin da auf dem Mobile ab
+	  und an mal drauf gekommen)
+	- interner Umbau (keine zwei Arrays mehr für die Stadtlagergrenzen)
+
+-> v3.5.3
+	- Zusätzliche Option zum entfernen des Kopfes / Fuß derSeite hinzugefügt.
+
+ .
+ .
+ .
+
+-> v2.9
+	- Bugfixes beim Spielerprofil (Übertragen)
+	- BB Codes Zusatzleiste bei den Foren hinzugefügt / übernommen.
+
+-> v2.8.2
+	- Bugfixes beim Spielerprofil (Übertragen, Statistik)
+	- Bugfixes und Code Optimierungen sind bei jeder neuen Version dabei	
+
+-> v2.8.1
+	- Bugfixes beim Spielerprofil (Übertragen, Statistik)
+	- Bugfixes und Code Optimierungen sind bei jeder neuen Version dabei.
+
+-> v2.8
+	- Bugfix beim Spielerprofil mit dem neuen Übertragen Knopf
+	- zusätzliche Statistik Informationen im Spielerprofil hinzugefügt.
+	- Bugfixes und Code Optimierungen sind bei jeder neuen Version dabei.
+
+-> v2.7
+	- Bugfix bei der Serverzeit (sollte jetzt zuverlässiger auf den
+	  verschiedenen Seiten angezeigt werden)
+	- Bugfixes und Code Optimierungen sind bei jeder neuen Version dabei.
+
+-> v2.6
+	- Bugfixes beim Hinzufügen oder ändern von Lagerwerten.
+	- Interne Aufräumarbeiten.
+	- Bugfixes und Code Optimierungen sind bei jeder neuen Version dabei.
+
+-> v2.5
+	- Waffen und Rüstungen aus der Liste der Ressourcen entfernt.
+	- Bugfixes und Code Optimierungen sind bei jeder neuen Version dabei.
+
+-> v2.4
+	- Alle Skript Optionen sind nun vorhanden, jetzt geht es an neue Funktionen
+	- Bugfixes und Code Optimierungen sind bei jeder neuen Version dabei.
+
+-> v2.3
+	- Weitere Skript Optionen .. (noch viel zu tun ;-))
+	- Bugfixes und Code Optimierungen sind bei jeder neuen Version dabei.
+
+-> v2.2
+	- Erste Option um das Script an / aus zu schalten
+	- Bugfix für Umlaute (Ü, ü, Ö, ö, ß) der in einigen Browser aufgetreten ist.
+	- Bugfixes und Code Optimierungen sind bei jeder neuen Version dabei.
+
+-> v2.1
+	- Bugfixes bei den Stadtkampf Änderungen
+	- Bugfixes und Code Optimierungen sind bei jeder neuen Version dabei.
+
+-> v2.0
+	- Arbeiten:
+		- Steinmetze: 
+			- Gebäude reparieren: es werden bei Gebäude reparieren die Anzahl
+			  der Arbeitsgänge gezeigt, bis der beste Zeitpunkt zum reparieren
+			  erreicht ist (auch farblich hinterlet bei bestimmten Grenzen)
+			  [die Grenzen sollen individuell eingestellt werden können]
+	- Alchimisten: 
+		- Heilen: es wird angezeigt wie viel EP noch fehlen, wie lange die
+		  Heilung normal noch dauern würde, und wie oft der User geheilt werden
+		  muss bis die vollen HP erreicht sind (ungefähre Werte)
+
+-> < v2.0 nur private lokale Versionen wo die Grundfunktionalität entwickelt wurde
