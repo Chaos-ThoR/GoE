@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Game Of Elements
 // @namespace    GameOfElements
-// @version      4.0.3.4
+// @version      4.0.3.5
 // @encoding     utf-8
 // @description  try to take over the world!
 // @author       ThoR, Maxiking
@@ -763,7 +763,7 @@ function showHeatWarning() {
     if(displayHeatWarning) {
         // message, if heat is out of range ..
         var heat = getHeatValue();
-        if((heat < 90.0) || (heat > 110.0)) {
+        if((heat < 90.2) || (heat > 109.8)) {
             var newWarning = document.createElement('H1');
             newWarning.style.color = 'red';
             newWarning.style.textAlign = "center";
