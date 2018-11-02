@@ -1,7 +1,8 @@
 // ==UserScript==
 // @name         Game Of Elements
 // @namespace    GameOfElements
-// @version      4.0.3.5
+// @version      4.0.4
+// @updateURL    https://github.com/Chaos-ThoR/GoE/raw/master/Game%20Of%20Elements_beta.user.js
 // @encoding     utf-8
 // @description  try to take over the world!
 // @author       ThoR, Maxiking
@@ -12,8 +13,8 @@
 // @grant        GM_deleteValue
 // @grant        GM_xmlhttpRequest
 // @connect      goe.klaxi.de
-// @require      http://www.chaos-thor.net/files/upload/goe/knapsack.js
-// @require      http://www.chaos-thor.net/files/upload/goe/reminderAudio.js
+// @require      https://github.com/Chaos-ThoR/GoE/raw/master/knapsack.js
+// @require      https://github.com/Chaos-ThoR/GoE/raw/master/reminderAudio.js
 // @run-at document-end
 // ==/UserScript==
 

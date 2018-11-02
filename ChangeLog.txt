@@ -1,7 +1,13 @@
-﻿-> v4.0.3 [under construction]
+﻿-> v4.0.5 [under construction]
 	- Bugfix: Tier füttern: Null bleibt stehen bei onfocus
 	+ max. Fähigkeitspunkte eintragen [todo]
 	+ erweitere Infos zur Selbstheilung [todo]
+	
+-> v4.0.3 / v4.0.4
+	- Einstellungen des Sammlers werden sich gemerkt (je nach Ort)
+	- Code Style Anpassungen (mehr Java like)
+	- Einige globale Variablen lokal gemacht
+	- Wärmewarnung kommt jetzt etwas früher.
 
 -> v4.0.2
 	- Bugfix: Script bricht ab, wenn Menu "Ausrüstung" fehlt
