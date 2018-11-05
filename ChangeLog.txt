@@ -1,8 +1,9 @@
-﻿-> v4.0.5 [under construction]
+﻿-> v4.0.5
 	- Bugfix: Tier füttern: Null bleibt stehen bei onfocus
-	+ max. Fähigkeitspunkte eintragen [todo]
-	+ erweitere Infos zur Selbstheilung [todo]
-	
+	- Skillung: max. LP werden eingetragen
+	- Fokus auf Login-Button -> [Enter] -> schnellerer Login
+	- Erweiterte Infos zur (Selbst-) Heilung
+
 -> v4.0.3 / v4.0.4
 	- Einstellungen des Sammlers werden sich gemerkt (je nach Ort)
 	- Code Style Anpassungen (mehr Java like)
