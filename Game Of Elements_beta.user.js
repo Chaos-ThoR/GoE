@@ -625,14 +625,14 @@ function global() { // changes for the whole page ..
             // add new header and footer images ..
             var newHeaderDiv = document.createElement('div');
             var newHeader = document.createElement('img');
-            newHeader.setAttribute('src', 'http://www.chaos-thor.net/files/upload/goe/res/' + getPageStyle() + '/newHeader.png');
+            newHeader.setAttribute('src', 'https://github.com/Chaos-ThoR/GoE/raw/master/res/' + getPageStyle() + '/newHeader.png');
             newHeader.setAttribute('style', 'width : 900px; display : block; text-align : center; background-position : center; margin-top : 0px; margin-left : auto; margin-right : auto; margin-bottom : 0px; padding-top : 0px; padding-left : auto; padding-right : auto; padding-bottom : 0px;');
             newHeaderDiv.appendChild(newHeader);
             document.body.insertBefore(newHeaderDiv, document.body.firstChild);
 
             var newFooterDiv = document.createElement('div');
             var newFooter = document.createElement('img');
-            newFooter.setAttribute('src', 'http://www.chaos-thor.net/files/upload/goe/res/' + getPageStyle() + '/newFooter.png');
+            newFooter.setAttribute('src', 'https://github.com/Chaos-ThoR/GoE/raw/master/res/' + getPageStyle() + '/newFooter.png');
             newFooter.setAttribute('style', 'width : 900px; display : block; text-align : center; background-position : center; margin-top : 0px; margin-left : auto; margin-right : auto; margin-bottom : 0px; padding-top : 0px; padding-left : auto; padding-right : auto; padding-bottom : 0px;');
             newFooterDiv.appendChild(newFooter);
             document.body.appendChild(newFooterDiv);
