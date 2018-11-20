@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Game Of Elements
 // @namespace    GameOfElements
-// @version      4.0.4.1
+// @version      4.0.4.2
 // @updateURL    https://github.com/Chaos-ThoR/GoE/raw/master/Game%20Of%20Elements_beta.user.js
 // @encoding     utf-8
 // @description  try to take over the world!
