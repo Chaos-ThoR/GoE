@@ -3,6 +3,7 @@
 	- Skillung: max. LP werden eingetragen
 	- Fokus auf Login-Button -> [Enter] -> schnellerer Login
 	- Erweiterte Infos zur (Selbst-) Heilung
+	- Bugfix: Gewinnspiel -> Script bricht ab, wenn Antwort gegeben
 
 -> v4.0.3 / v4.0.4
 	- Einstellungen des Sammlers werden sich gemerkt (je nach Ort)
