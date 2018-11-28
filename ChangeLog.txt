@@ -1,4 +1,7 @@
-﻿-> v4.0.5
+﻿-> v4.0.5.1
+	- Hotfix: Infos zur Selbstheilung immer mit Gesundheit=20% (Testwert)
+
+-> v4.0.5
 	- Bugfix: Tier füttern: Null bleibt stehen bei onfocus
 	- Skillung: max. LP werden eingetragen
 	- Fokus auf Login-Button -> [Enter] -> schnellerer Login

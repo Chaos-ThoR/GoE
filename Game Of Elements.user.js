@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         Game Of Elements
 // @namespace    GameOfElements
-// @version      4.0.5
+// @version      4.0.5.1
 // @updateURL    https://github.com/Chaos-ThoR/GoE/raw/master/Game%20Of%20Elements.user.js
 // @encoding     utf-8
 // @description  try to take over the world!
@@ -1040,7 +1040,6 @@ function addHealthInformation() {
             // additional information in alert
             var currentTime = new Date();
             newRow.addEventListener('click', function() {
-                healPercentage = 20;
                 var timeToFullHealth = window.prompt('Gib deine Wunschzeit an, zu der du geheilt sein willst:\nFORMAT: dd.mm.yyyy hh:mm\n\nleer = Infos zur Selbstheilung', '');
                 var text = '++ INFORMATIONEN ZUR HEILUNG ++\n\n';
 
