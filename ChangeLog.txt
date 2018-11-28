@@ -1,4 +1,8 @@
-﻿-> v4.0.5.1
+﻿-> v4.0.6
+	- Bugfix: Stadtlager -> Textfeld nur für Zahlen optimiert, wenn Anzeigegrenzen aktiv
+	- Gewinnspiel: Antworten aus externer DB hinzugefügt (Option: "Externe Statistiken einbinden")
+
+-> v4.0.5.1
 	- Hotfix: Infos zur Selbstheilung immer mit Gesundheit=20% (Testwert)
 
 -> v4.0.5

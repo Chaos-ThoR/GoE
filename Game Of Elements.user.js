@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         Game Of Elements
 // @namespace    GameOfElements
-// @version      4.0.5.1
+// @version      4.0.6
 // @updateURL    https://github.com/Chaos-ThoR/GoE/raw/master/Game%20Of%20Elements.user.js
 // @encoding     utf-8
 // @description  try to take over the world!
@@ -1481,11 +1481,11 @@ function cityfight() { // changes for the "Stadtkampf" part ..
 }
 
 function cityStorage() { // changes for the "Stadtlager" page ..
-    if(cityStorageLimitsEnabled) {
-        if(document.URL.includes('site=gruppe_lager&do=informationen')) { // "Informationen"
-            cityStorageFunc();
-        }
-        else if(document.URL.includes("site=gruppe_lager")) { // "einzahlen", "auszahlen"
+    if(document.URL.includes("site=gruppe_lager")) {
+        if(document.URL.indexOf('do=informationen') == -1) { // "einzahlen", "auszahlen"
+			// add event handler to button ..
+            getContent().getElementsByTagName('input')[1].addEventListener('click', cityStorageFunc);
+
 			// add input options for numbers
 			var amountInput = getContent().getElementsByTagName('input')[0];
 			amountInput.setAttribute('type', 'number');
@@ -1493,41 +1493,40 @@ function cityStorage() { // changes for the "Stadtlager" page ..
 			amountInput.setAttribute('step', '1');
 			amountInput.setAttribute('style', 'width:60px; text-align:right;');
 			amountInput.setAttribute('placeholder', 'Menge');
-
-			// add event handler to button ..
-            getContent().getElementsByTagName('input')[1].addEventListener('click', cityStorageFunc);
-            cityStorageFunc();
         }
+        cityStorageFunc();
     }
 }
 
 // function to apply the colors for the res table ..
 function cityStorageFunc() {
-    var storage = getContent().getElementsByTagName('table')[0]; // "ein- / auszahlen"
-    if(getTableElement(storage, 0, 0).textContent !== 'Ressource') {
-        storage = getContent().getElementsByTagName('table')[1]; // "Informationen"
-    }
+    if(cityStorageLimitsEnabled) {
+        var storage = getContent().getElementsByTagName('table')[0]; // "ein- / auszahlen"
+        if(getTableElement(storage, 0, 0).textContent !== 'Ressource') {
+            storage = getContent().getElementsByTagName('table')[1]; // "Informationen"
+        }
 
-    for(var i = 1; i < storage.rows.length; i++) {
-        var res = getTableElement(storage, i, 0).textContent;
-        var value = parseInt(getTableElement(storage, i, 2).textContent );
-        var storrageObj = getObjectFromCityStorageArray(storageLimitsArray, res);
+        for(var i = 1; i < storage.rows.length; i++) {
+            var res = getTableElement(storage, i, 0).textContent;
+            var value = parseInt(getTableElement(storage, i, 2).textContent );
+            var storrageObj = getObjectFromCityStorageArray(storageLimitsArray, res);
 
-        if(storrageObj) {
-            if((storrageObj.y >= 0) && (storrageObj.g >= 0)) {
-                var valueGreen = storrageObj.g;
-                var valueYellow = storrageObj.y;
+            if(storrageObj) {
+                if((storrageObj.y >= 0) && (storrageObj.g >= 0)) {
+                    var valueGreen = storrageObj.g;
+                    var valueYellow = storrageObj.y;
 
-                if(value >= storrageObj.g) {
-                    getTableElement(storage, i, 2).style.backgroundColor = 'lightgreen';
+                    if(value >= storrageObj.g) {
+                        getTableElement(storage, i, 2).style.backgroundColor = 'lightgreen';
+                    }
+                    else if(value >= storrageObj.y) {
+                        getTableElement(storage, i, 2).style.backgroundColor = 'yellow';
+                    }
+                    else { // red for all other values
+                        getTableElement(storage, i, 2).style.backgroundColor = 'red';
+                    }
+                    getTableElement(storage, i, 2).title = 'ROT < ' + storrageObj.y + ' | GELB < ' + storrageObj.g + ' | ansonsten GR\u00DCN';
                 }
-                else if(value >= storrageObj.y) {
-                    getTableElement(storage, i, 2).style.backgroundColor = 'yellow';
-                }
-                else { // red for all other values
-                    getTableElement(storage, i, 2).style.backgroundColor = 'red';
-                }
-                getTableElement(storage, i, 2).title = 'ROT < ' + storrageObj.y + ' | GELB < ' + storrageObj.g + ' | ansonsten GR\u00DCN';
             }
         }
     }
@@ -1876,6 +1875,25 @@ function competition() { // "Gewinnspiel" page ..
 		amountInput.setAttribute('onfocus', 'if(this.value==this.defaultValue) this.value=\'\';');
 		amountInput.setAttribute('onblur', 'if(this.value==\'\') this.value=this.defaultValue;');
 	}
+
+    // add answers from database to the page ..
+    if(addExternalStats) {
+        var question = getContent().getElementsByTagName('table')[0].getElementsByTagName('i')[0].textContent.trim();
+        question = question.substring(1, question.length - 1);
+        var newCenter = document.createElement('center');
+        newCenter.setAttribute('id', 'competitionanswers');
+        document.getElementById('content').appendChild(newCenter);
+        var ret = GM_xmlhttpRequest( {
+            method: "POST",
+            url: "http://goe.klaxi.de/external/external.php",
+            data: "x=competitionanswers&q="+question,
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            onload: function() {
+                var obj = JSON.parse(this.responseText);
+                document.getElementById('competitionanswers').innerHTML = obj[0];
+            }
+        });
+    }
 }
 
 function colosseum() { // "Kolosseum" page ..
