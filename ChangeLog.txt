@@ -1,4 +1,7 @@
-﻿-> v4.0.6
+﻿-> v4.0.6.1
+	- Hotfix: Gewinnspiel-Anworten werden auf jeder Seite hinzugefügt
+
+-> v4.0.6
 	- Bugfix: Stadtlager -> Textfeld nur für Zahlen optimiert, wenn Anzeigegrenzen aktiv
 	- Gewinnspiel: Antworten aus externer DB hinzugefügt (Option: "Externe Statistiken einbinden")
 

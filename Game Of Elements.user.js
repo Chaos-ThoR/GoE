@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         Game Of Elements
 // @namespace    GameOfElements
-// @version      4.0.6
+// @version      4.0.6.1
 // @updateURL    https://github.com/Chaos-ThoR/GoE/raw/master/Game%20Of%20Elements.user.js
 // @encoding     utf-8
 // @description  try to take over the world!
@@ -1865,35 +1865,37 @@ function character() { // "Charakter" page ..
 }
 
 function competition() { // "Gewinnspiel" page ..
-	if(document.URL.includes('site=gewinnspiel') && getContent().getElementsByTagName('input')[0]) {
-		var amountInput = getContent().getElementsByTagName('input')[0];
-		amountInput.setAttribute('type', 'number');
-		amountInput.setAttribute('min', '0');
-		amountInput.setAttribute('step', '1');
-		amountInput.setAttribute('style', 'width:60px; text-align:right;');
-		amountInput.setAttribute('placeholder', '0');
-		amountInput.setAttribute('onfocus', 'if(this.value==this.defaultValue) this.value=\'\';');
-		amountInput.setAttribute('onblur', 'if(this.value==\'\') this.value=this.defaultValue;');
-	}
+	if(document.URL.includes('site=gewinnspiel')) {
+		if(getContent().getElementsByTagName('input')[0]) {
+			var amountInput = getContent().getElementsByTagName('input')[0];
+			amountInput.setAttribute('type', 'number');
+			amountInput.setAttribute('min', '0');
+			amountInput.setAttribute('step', '1');
+			amountInput.setAttribute('style', 'width:60px; text-align:right;');
+			amountInput.setAttribute('placeholder', '0');
+			amountInput.setAttribute('onfocus', 'if(this.value==this.defaultValue) this.value=\'\';');
+			amountInput.setAttribute('onblur', 'if(this.value==\'\') this.value=this.defaultValue;');
+		}
 
-    // add answers from database to the page ..
-    if(addExternalStats) {
-        var question = getContent().getElementsByTagName('table')[0].getElementsByTagName('i')[0].textContent.trim();
-        question = question.substring(1, question.length - 1);
-        var newCenter = document.createElement('center');
-        newCenter.setAttribute('id', 'competitionanswers');
-        document.getElementById('content').appendChild(newCenter);
-        var ret = GM_xmlhttpRequest( {
-            method: "POST",
-            url: "http://goe.klaxi.de/external/external.php",
-            data: "x=competitionanswers&q="+question,
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            onload: function() {
-                var obj = JSON.parse(this.responseText);
-                document.getElementById('competitionanswers').innerHTML = obj[0];
-            }
-        });
-    }
+        // add answers from database to the page ..
+        if(addExternalStats) {
+            var question = getContent().getElementsByTagName('table')[0].getElementsByTagName('i')[0].textContent.trim();
+            question = question.substring(1, question.length - 1);
+            var newCenter = document.createElement('center');
+            newCenter.setAttribute('id', 'competitionanswers');
+            document.getElementById('content').appendChild(newCenter);
+            var ret = GM_xmlhttpRequest( {
+                method: "POST",
+                url: "http://goe.klaxi.de/external/external.php",
+                data: "x=competitionanswers&q="+question,
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                onload: function() {
+                    var obj = JSON.parse(this.responseText);
+                    document.getElementById('competitionanswers').innerHTML = obj[0];
+                }
+            });
+        }
+	}
 }
 
 function colosseum() { // "Kolosseum" page ..
