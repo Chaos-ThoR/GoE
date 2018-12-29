@@ -1,13 +1,13 @@
 ﻿// ==UserScript==
 // @name         Game Of Elements
 // @namespace    GameOfElements
-// @version      4.0.6.1
+// @version      4.0.6.2
 // @updateURL    https://github.com/Chaos-ThoR/GoE/raw/master/Game%20Of%20Elements.user.js
 // @encoding     utf-8
 // @description  try to take over the world!
 // @author       ThoR, Klaxi
-// @match        http://game-of-elements.de/*
-// @match        http://www.game-of-elements.de/*
+// @match        https://game-of-elements.de/*
+// @match        https://www.game-of-elements.de/*
 // @grant        GM_setValue
 // @grant        GM_getValue
 // @grant        GM_deleteValue
@@ -181,8 +181,8 @@ var quickLinkDeleter = [];
 
 function addScriptOptions() { // add a script configuration UI ..
     loadConfig(); // load the script configuration
-    if(document.URL == "http://game-of-elements.de/index.php" ||
-       document.URL == "http://www.game-of-elements.de/index.php") {
+    if(document.URL == "https://game-of-elements.de/index.php" ||
+       document.URL == "https://www.game-of-elements.de/index.php") {
         getContent().appendChild(document.createElement('br'));
         getContent().appendChild(document.createElement('br'));
         getContent().appendChild(createElementT('h1', 'Skript Optionen ..'));
@@ -397,13 +397,13 @@ function removeLinkEntry() { // remove a link entry ..
 }
 
 function addDefaultLinkEntries() { // add / restire default link entries ..
-    quickLinks.Aktionsliste = 'http://game-of-elements.de/index.php?site=statistik&do=aktionsliste';
-    quickLinks.Stadttop = 'http://game-of-elements.de/index.php?site=usertop&do=gruppentop';
-    quickLinks.Items = 'http://game-of-elements.de/index.php?site=statistik&do=items';
-    quickLinks.Stadtverpflegung = 'http://game-of-elements.de/index.php?site=tierverwaltung&do=stadtverpflegung';
-    quickLinks.AllesAblegen = 'http://game-of-elements.de/index.php?site=inventar&ablegen=l_hand&all=1';
-    quickLinks.AllesAnlegen = 'http://game-of-elements.de/index.php?site=inventar&do=1&all_a=1';
-    quickLinks['GoE - Skript'] = 'http://www.chaos-thor.net/files/upload/goe/goe.html';
+    quickLinks.Aktionsliste = 'https://game-of-elements.de/index.php?site=statistik&do=aktionsliste';
+    quickLinks.Stadttop = 'https://game-of-elements.de/index.php?site=usertop&do=gruppentop';
+    quickLinks.Items = 'https://game-of-elements.de/index.php?site=statistik&do=items';
+    quickLinks.Stadtverpflegung = 'https://game-of-elements.de/index.php?site=tierverwaltung&do=stadtverpflegung';
+    quickLinks.AllesAblegen = 'https://game-of-elements.de/index.php?site=inventar&ablegen=l_hand&all=1';
+    quickLinks.AllesAnlegen = 'https://game-of-elements.de/index.php?site=inventar&do=1&all_a=1';
+    quickLinks['GoE - Skript'] = 'https://www.chaos-thor.net/files/upload/goe/goe.html';
 
     removeElementById('qlData'); // remove all entries ..
 
@@ -903,7 +903,7 @@ function defalutWorkLink() {
 function addAdditionalWorkLink(enabled, workValue) { // add a additional work link
    if(enabled) {
       // create new link item ..
-      var linkValue = 'http://game-of-elements.de/index.php?site=arbeiten&do=' + jobLinkMap[String(workValue)];
+      var linkValue = 'https://game-of-elements.de/index.php?site=arbeiten&do=' + jobLinkMap[String(workValue)];
       var textLi = document.createElement('li');
       var link = createElementA('a', 'href', linkValue);
       link.textContent = String(workValue);
@@ -924,23 +924,23 @@ function workShortLinks() {
 
         var newList1 = createElementA('ul', 'style', 'width:33%; float:left;');
         newList1.appendChild(createListEnntry('Alchemist'));
-        newList1.appendChild(createListEnntry('', 'Heilen', 'http://game-of-elements.de/index.php?site=arbeiten&show=1'));
-		newList1.appendChild(createListEnntry('', 'Pillen herstellen', 'http://game-of-elements.de/index.php?site=arbeiten&show=10'));
-        newList1.appendChild(createListEnntry('', 'Zauber wirken (Buffs)', 'http://game-of-elements.de/index.php?site=arbeiten&show=21'));
+        newList1.appendChild(createListEnntry('', 'Heilen', 'https://game-of-elements.de/index.php?site=arbeiten&show=1'));
+		newList1.appendChild(createListEnntry('', 'Pillen herstellen', 'https://game-of-elements.de/index.php?site=arbeiten&show=10'));
+        newList1.appendChild(createListEnntry('', 'Zauber wirken (Buffs)', 'https://game-of-elements.de/index.php?site=arbeiten&show=21'));
 
         var newList2 = createElementA('ul', 'style', 'width:33%; float:left;');
         newList2.appendChild(createListEnntry('Ingenieur'));
-		newList2.appendChild(createListEnntry('', 'Waffen herstellen', 'http://game-of-elements.de/index.php?site=arbeiten&show=9'));
-        newList2.appendChild(createListEnntry('', 'Item reparieren', 'http://game-of-elements.de/index.php?site=arbeiten&show=33'));
-		newList2.appendChild(createListEnntry('', 'R\u00fcstung herstellen', 'http://game-of-elements.de/index.php?site=arbeiten&show=26'));
+		newList2.appendChild(createListEnntry('', 'Waffen herstellen', 'https://game-of-elements.de/index.php?site=arbeiten&show=9'));
+        newList2.appendChild(createListEnntry('', 'Item reparieren', 'https://game-of-elements.de/index.php?site=arbeiten&show=33'));
+		newList2.appendChild(createListEnntry('', 'R\u00fcstung herstellen', 'https://game-of-elements.de/index.php?site=arbeiten&show=26'));
 
         var newList3 = createElementA('ul', 'style', 'width:33%; float:left;');
         newList3.appendChild(createListEnntry('Steinmetz'));
-        newList3.appendChild(createListEnntry('', 'Geb\u00E4ude reparieren', 'http://game-of-elements.de/index.php?site=arbeiten&show=20'));
+        newList3.appendChild(createListEnntry('', 'Geb\u00E4ude reparieren', 'https://game-of-elements.de/index.php?site=arbeiten&show=20'));
 
 		var newList4 = createElementA('ul', 'style', 'width:33%; float:left;');
         newList4.appendChild(createListEnntry('Versorger'));
-        newList4.appendChild(createListEnntry('', 'Elixier herstellen', 'http://game-of-elements.de/index.php?site=arbeiten&show=34'));
+        newList4.appendChild(createListEnntry('', 'Elixier herstellen', 'https://game-of-elements.de/index.php?site=arbeiten&show=34'));
 
         newListDiv.appendChild(newList1);
         newListDiv.appendChild(newList2);
@@ -1106,7 +1106,7 @@ function addHealthInformation() {
 }
 
 function overview() { // changes for the "Übersicht" page ..
-    if(removeSomeElements && ((document.URL == "http://game-of-elements.de/index.php") || (document.URL == "http://www.game-of-elements.de/index.php"))) {
+    if(removeSomeElements && ((document.URL == "https://game-of-elements.de/index.php") || (document.URL == "https://www.game-of-elements.de/index.php"))) {
         // remove some entries ..
         var infoTable = getContent().getElementsByTagName('table')[0].getElementsByTagName('tbody')[0];
         infoTable.removeChild(infoTable.lastElementChild);
@@ -1188,7 +1188,7 @@ function cityoverview() { // "Stadt -> Übersicht" page ..
 
 // set the href attribute for the buttons ..
 function getUserList(table, linkElem, mode) {
-    var users = 'http://game-of-elements.de/index.php?site=nachrichten_neu&do=senden&konversation=x&user=';
+    var users = 'https://game-of-elements.de/index.php?site=nachrichten_neu&do=senden&konversation=x&user=';
     if(mode == 'all') {
         for(var i = 1; i < table.rows.length; i++) {
             users += getTableElement(table, i, 1).textContent + ';';
@@ -1235,10 +1235,10 @@ function cityProfile() {
 		 var cityid = getURLParameter('id');
 		 var buttonsList = document.getElementById('buttons');
 		 var newButton0 = document.createElement('li');
-		 newButton0.innerHTML = '<a href="http://goe.klaxi.de/cro/tagesep.php?cityid=' + cityid + '" target="_blank">Tages-EP</a>';
+		 newButton0.innerHTML = '<a href="https://goe.klaxi.de/cro/tagesep.php?cityid=' + cityid + '" target="_blank">Tages-EP</a>';
 		 buttonsList.appendChild(newButton0);
 		 var newButton1 = document.createElement('li');
-		 newButton1.innerHTML = '<a href="http://goe.klaxi.de/cro/wochenep.php?cityid=' + cityid + '" target="_blank">Wochen-EP</a>';
+		 newButton1.innerHTML = '<a href="https://goe.klaxi.de/cro/wochenep.php?cityid=' + cityid + '" target="_blank">Wochen-EP</a>';
 		 buttonsList.appendChild(newButton1);
 	 }
 
@@ -1324,7 +1324,7 @@ function cityProfile() {
 
 // create message link for users set from the knapsack solver ..
 function getFighters(table, linkElem) {
-	var users = 'http://game-of-elements.de/index.php?site=nachrichten_neu&do=senden&konversation=x&user=';
+	var users = 'https://game-of-elements.de/index.php?site=nachrichten_neu&do=senden&konversation=x&user=';
 	for(var j = 1; j < table.rows.length; j++) {
 		if(getTableElement(table, j, 1).style.backgroundColor == 'lightgreen') {
 			users += getTableElement(table, j, 1).firstChild.textContent.replace(/\s+/g, '') + ';';
@@ -1543,7 +1543,7 @@ function userProfile() { // user profile page ..
         }
         var label = createElementT('span', '\u00dcbertragen');
         var newSendBtn = createElementA('a', 'class', 'button_forum');
-        newSendBtn.setAttribute('href', ('http://game-of-elements.de/index.php?site=ubertragen&user=' + user));
+        newSendBtn.setAttribute('href', ('https://game-of-elements.de/index.php?site=ubertragen&user=' + user));
         newSendBtn.appendChild(label);
         getContent().getElementsByTagName('div')[0].appendChild(newSendBtn);
         getContent().getElementsByTagName('div')[0].style.marginLeft = '20px';
@@ -1579,7 +1579,7 @@ function userProfile() { // user profile page ..
 			userInfoTable.getElementsByTagName('tbody')[0].appendChild(newTableRow);
 			var ret = GM_xmlhttpRequest( {
 				method: "POST",
-				url: "http://goe.klaxi.de/external/external.php",
+				url: "https://goe.klaxi.de/external/external.php",
 				data: "x=userprofilxp&userid="+userid+"&xp="+ep,
 				headers: { "Content-Type": "application/x-www-form-urlencoded" },
 				onload: function() {
@@ -1593,8 +1593,8 @@ function userProfile() { // user profile page ..
 
 // add some additional information on the 'Usertop' page ..
 function userRanking() {
-    if(document.URL == 'http://game-of-elements.de/index.php?site=usertop' ||
-       document.URL == 'http://www.game-of-elements.de/index.php?site=usertop' ||
+    if(document.URL == 'https://game-of-elements.de/index.php?site=usertop' ||
+       document.URL == 'https://www.game-of-elements.de/index.php?site=usertop' ||
        document.URL.includes('site=usertop&s=')) {
         var table = getContent().getElementsByTagName('table')[1];
         for(var i = 2; i < table.rows.length; i++) {
@@ -1703,7 +1703,7 @@ function retrieveAnimalDatesOfDeath() {
         }
         useRetrieveAnimalDatesOfDeathVar(retrieveAnimalDatesOfDeathVar); // output of the result ..
     };
-    frameA.src = 'http://game-of-elements.de/index.php?site=tierverwaltung&do=stadtverpflegung';
+    frameA.src = 'https://game-of-elements.de/index.php?site=tierverwaltung&do=stadtverpflegung';
     frameA.style.display = "none";
     document.body.appendChild(frameA);
 }
@@ -1738,8 +1738,8 @@ function useRetrieveAnimalDatesOfDeathVar(datesOfDeathVar) {
 // add the date of death to the animal overviews ..
 function extendAnimalInformation() {
     if(addDateOfDeath &&
-       ((document.URL.include == 'http://game-of-elements.de/index.php?site=tierverwaltung') ||
-       (document.URL == 'http://www.game-of-elements.de/index.php?site=tierverwaltung') ||
+       ((document.URL.include == 'https://game-of-elements.de/index.php?site=tierverwaltung') ||
+       (document.URL == 'https://www.game-of-elements.de/index.php?site=tierverwaltung') ||
        document.URL.includes('site=tierverwaltung&tier='))) { // "eigenes Tier"
         var tableA = getContent().getElementsByTagName('table')[0];
         var age = getTableElement(tableA, 2, 1).textContent;
@@ -1886,7 +1886,7 @@ function competition() { // "Gewinnspiel" page ..
             document.getElementById('content').appendChild(newCenter);
             var ret = GM_xmlhttpRequest( {
                 method: "POST",
-                url: "http://goe.klaxi.de/external/external.php",
+                url: "https://goe.klaxi.de/external/external.php",
                 data: "x=competitionanswers&q="+question,
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
                 onload: function() {
