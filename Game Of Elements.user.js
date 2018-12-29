@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         Game Of Elements
 // @namespace    GameOfElements
-// @version      4.0.6.2
+// @version      4.0.6.3
 // @updateURL    https://github.com/Chaos-ThoR/GoE/raw/master/Game%20Of%20Elements.user.js
 // @encoding     utf-8
 // @description  try to take over the world!
@@ -1108,7 +1108,7 @@ function addHealthInformation() {
 function overview() { // changes for the "Übersicht" page ..
     if(removeSomeElements && ((document.URL == "https://game-of-elements.de/index.php") || (document.URL == "https://www.game-of-elements.de/index.php"))) {
         // remove some entries ..
-        var infoTable = getContent().getElementsByTagName('table')[0].getElementsByTagName('tbody')[0];
+        var infoTable = getContent().getElementsByTagName('table')[1].getElementsByTagName('tbody')[0];
         infoTable.removeChild(infoTable.lastElementChild);
         infoTable.removeChild(infoTable.lastElementChild);
         infoTable.removeChild(infoTable.rows[2]);
