@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         Game Of Elements
 // @namespace    GameOfElements
-// @version      4.0.6.3
+// @version      4.0.7
 // @updateURL    https://github.com/Chaos-ThoR/GoE/raw/master/Game%20Of%20Elements.user.js
 // @encoding     utf-8
 // @description  try to take over the world!
@@ -397,13 +397,13 @@ function removeLinkEntry() { // remove a link entry ..
 }
 
 function addDefaultLinkEntries() { // add / restire default link entries ..
-    quickLinks.Aktionsliste = 'https://game-of-elements.de/index.php?site=statistik&do=aktionsliste';
-    quickLinks.Stadttop = 'https://game-of-elements.de/index.php?site=usertop&do=gruppentop';
-    quickLinks.Items = 'https://game-of-elements.de/index.php?site=statistik&do=items';
-    quickLinks.Stadtverpflegung = 'https://game-of-elements.de/index.php?site=tierverwaltung&do=stadtverpflegung';
-    quickLinks.AllesAblegen = 'https://game-of-elements.de/index.php?site=inventar&ablegen=l_hand&all=1';
-    quickLinks.AllesAnlegen = 'https://game-of-elements.de/index.php?site=inventar&do=1&all_a=1';
-    quickLinks['GoE - Skript'] = 'https://www.chaos-thor.net/files/upload/goe/goe.html';
+    quickLinks.Aktionsliste = 'index.php?site=statistik&do=aktionsliste';
+    quickLinks.Stadttop = 'index.php?site=usertop&do=gruppentop';
+    quickLinks.Items = 'index.php?site=statistik&do=items';
+    quickLinks.Stadtverpflegung = 'index.php?site=tierverwaltung&do=stadtverpflegung';
+    quickLinks.AllesAblegen = 'index.php?site=inventar&ablegen=l_hand&all=1';
+    quickLinks.AllesAnlegen = 'index.php?site=inventar&do=1&all_a=1';
+    quickLinks['GoE - Skript'] = 'https://github.com/Chaos-ThoR/GoE';
 
     removeElementById('qlData'); // remove all entries ..
 
@@ -903,7 +903,7 @@ function defalutWorkLink() {
 function addAdditionalWorkLink(enabled, workValue) { // add a additional work link
    if(enabled) {
       // create new link item ..
-      var linkValue = 'https://game-of-elements.de/index.php?site=arbeiten&do=' + jobLinkMap[String(workValue)];
+      var linkValue = 'index.php?site=arbeiten&do=' + jobLinkMap[String(workValue)];
       var textLi = document.createElement('li');
       var link = createElementA('a', 'href', linkValue);
       link.textContent = String(workValue);
@@ -924,23 +924,23 @@ function workShortLinks() {
 
         var newList1 = createElementA('ul', 'style', 'width:33%; float:left;');
         newList1.appendChild(createListEnntry('Alchemist'));
-        newList1.appendChild(createListEnntry('', 'Heilen', 'https://game-of-elements.de/index.php?site=arbeiten&show=1'));
-		newList1.appendChild(createListEnntry('', 'Pillen herstellen', 'https://game-of-elements.de/index.php?site=arbeiten&show=10'));
-        newList1.appendChild(createListEnntry('', 'Zauber wirken (Buffs)', 'https://game-of-elements.de/index.php?site=arbeiten&show=21'));
+        newList1.appendChild(createListEnntry('', 'Heilen', 'index.php?site=arbeiten&show=1'));
+		newList1.appendChild(createListEnntry('', 'Pillen herstellen', 'index.php?site=arbeiten&show=10'));
+        newList1.appendChild(createListEnntry('', 'Zauber wirken (Buffs)', 'index.php?site=arbeiten&show=21'));
 
         var newList2 = createElementA('ul', 'style', 'width:33%; float:left;');
         newList2.appendChild(createListEnntry('Ingenieur'));
-		newList2.appendChild(createListEnntry('', 'Waffen herstellen', 'https://game-of-elements.de/index.php?site=arbeiten&show=9'));
-        newList2.appendChild(createListEnntry('', 'Item reparieren', 'https://game-of-elements.de/index.php?site=arbeiten&show=33'));
-		newList2.appendChild(createListEnntry('', 'R\u00fcstung herstellen', 'https://game-of-elements.de/index.php?site=arbeiten&show=26'));
+		newList2.appendChild(createListEnntry('', 'Waffen herstellen', 'index.php?site=arbeiten&show=9'));
+        newList2.appendChild(createListEnntry('', 'Item reparieren', 'index.php?site=arbeiten&show=33'));
+		newList2.appendChild(createListEnntry('', 'R\u00fcstung herstellen', 'index.php?site=arbeiten&show=26'));
 
         var newList3 = createElementA('ul', 'style', 'width:33%; float:left;');
         newList3.appendChild(createListEnntry('Steinmetz'));
-        newList3.appendChild(createListEnntry('', 'Geb\u00E4ude reparieren', 'https://game-of-elements.de/index.php?site=arbeiten&show=20'));
+        newList3.appendChild(createListEnntry('', 'Geb\u00E4ude reparieren', 'index.php?site=arbeiten&show=20'));
 
 		var newList4 = createElementA('ul', 'style', 'width:33%; float:left;');
         newList4.appendChild(createListEnntry('Versorger'));
-        newList4.appendChild(createListEnntry('', 'Elixier herstellen', 'https://game-of-elements.de/index.php?site=arbeiten&show=34'));
+        newList4.appendChild(createListEnntry('', 'Elixier herstellen', 'index.php?site=arbeiten&show=34'));
 
         newListDiv.appendChild(newList1);
         newListDiv.appendChild(newList2);
@@ -1028,11 +1028,6 @@ function addHealthInformation() {
             newLink.setAttribute('style', 'cursor: pointer;');
             var text = document.createTextNode(healPercentage.toFixed(1) + '% (geheilt am ' + format2(timeTo100.getDate()) + '.' + format2(timeTo100.getMonth() + 1) + '. ' + format2(timeTo100.getHours()) + ':' + format2(timeTo100.getMinutes()) + ' Uhr)');
             newLink.appendChild(text);
-            var br = document.createElement('br');
-            newLink.appendChild(br);
-            var reducedMinutesPerHealing = GM_getValue('healValue', 600) / hpPerTick * 10;
-            var text2 = document.createTextNode('Reduzierung pro Heilung: ' + Math.floor(reducedMinutesPerHealing / 60) + ':' + Math.round(reducedMinutesPerHealing % 60) + ' h');
-            newLink.appendChild(text2);
             newCell.appendChild(newLink);
             newRow.appendChild(newCell);
             statusBlock.appendChild(newRow);
@@ -1044,7 +1039,6 @@ function addHealthInformation() {
                 var text = '++ INFORMATIONEN ZUR HEILUNG ++\n\n';
 
                 if(timeToFullHealth == '') {
-                    text = '++ INFORMATIONEN ZUR SELBSTHEILUNG ++\n\n';
                     if(healPercentage < 75) {
                         if(healPercentage < 50) {
                             if(healPercentage < 25) {
@@ -1064,6 +1058,8 @@ function addHealthInformation() {
                         text += '-   75% am ' + format2(timeTo75.getDate()) + '.' + format2(timeTo75.getMonth() + 1) + '. ' + format2(timeTo75.getHours()) + ':' + format2(timeTo75.getMinutes()) + ' Uhr\n';
                     }
                     text += '- 100% am ' + format2(timeTo100.getDate()) + '.' + format2(timeTo100.getMonth() + 1) + '. ' + format2(timeTo100.getHours()) + ':' + format2(timeTo100.getMinutes()) + ' Uhr\n';
+                    var reducedMinutesPerHealing = GM_getValue('healValue', 600) / hpPerTick * 10;
+                    text += '\nReduzierung pro Heilung: ' + Math.floor(reducedMinutesPerHealing / 60) + ':' + format2(Math.round(reducedMinutesPerHealing % 60)) + ' h\n';
                 } else if(timeToFullHealth.search(/(\d{1,2})\.(\d{1,2})\.(\d{4}) (\d{1,2}):(\d{1,2})/) != -1) {
                     timeToFullHealth = new Date(RegExp.$3, (RegExp.$2-1), RegExp.$1, RegExp.$4, RegExp.$5, 0);
                     text += 'Wunschzeit: ' + format2(timeToFullHealth.getDate()) + '.' + format2(timeToFullHealth.getMonth() + 1) + '.' + timeToFullHealth.getFullYear() + ' ' + format2(timeToFullHealth.getHours()) + ':' + format2(timeToFullHealth.getMinutes()) + ' Uhr\n';
@@ -1108,7 +1104,10 @@ function addHealthInformation() {
 function overview() { // changes for the "Übersicht" page ..
     if(removeSomeElements && ((document.URL == "https://game-of-elements.de/index.php") || (document.URL == "https://www.game-of-elements.de/index.php"))) {
         // remove some entries ..
-        var infoTable = getContent().getElementsByTagName('table')[1].getElementsByTagName('tbody')[0];
+        var infoTable = getContent().getElementsByTagName('table')[0].getElementsByTagName('tbody')[0];
+        if(infoTable.textContent.indexOf('INFORMATION') != -1) {
+            infoTable = getContent().getElementsByTagName('table')[1].getElementsByTagName('tbody')[0];
+        }
         infoTable.removeChild(infoTable.lastElementChild);
         infoTable.removeChild(infoTable.lastElementChild);
         infoTable.removeChild(infoTable.rows[2]);
@@ -1188,7 +1187,7 @@ function cityoverview() { // "Stadt -> Übersicht" page ..
 
 // set the href attribute for the buttons ..
 function getUserList(table, linkElem, mode) {
-    var users = 'https://game-of-elements.de/index.php?site=nachrichten_neu&do=senden&konversation=x&user=';
+    var users = 'index.php?site=nachrichten_neu&do=senden&konversation=x&user=';
     if(mode == 'all') {
         for(var i = 1; i < table.rows.length; i++) {
             users += getTableElement(table, i, 1).textContent + ';';
@@ -1235,10 +1234,10 @@ function cityProfile() {
 		 var cityid = getURLParameter('id');
 		 var buttonsList = document.getElementById('buttons');
 		 var newButton0 = document.createElement('li');
-		 newButton0.innerHTML = '<a href="https://goe.klaxi.de/cro/tagesep.php?cityid=' + cityid + '" target="_blank">Tages-EP</a>';
+		 newButton0.innerHTML = '<a href="http://goe.klaxi.de/cro/tagesep.php?cityid=' + cityid + '" target="_blank">Tages-EP</a>';
 		 buttonsList.appendChild(newButton0);
 		 var newButton1 = document.createElement('li');
-		 newButton1.innerHTML = '<a href="https://goe.klaxi.de/cro/wochenep.php?cityid=' + cityid + '" target="_blank">Wochen-EP</a>';
+		 newButton1.innerHTML = '<a href="http://goe.klaxi.de/cro/wochenep.php?cityid=' + cityid + '" target="_blank">Wochen-EP</a>';
 		 buttonsList.appendChild(newButton1);
 	 }
 
@@ -1324,7 +1323,7 @@ function cityProfile() {
 
 // create message link for users set from the knapsack solver ..
 function getFighters(table, linkElem) {
-	var users = 'https://game-of-elements.de/index.php?site=nachrichten_neu&do=senden&konversation=x&user=';
+	var users = 'index.php?site=nachrichten_neu&do=senden&konversation=x&user=';
 	for(var j = 1; j < table.rows.length; j++) {
 		if(getTableElement(table, j, 1).style.backgroundColor == 'lightgreen') {
 			users += getTableElement(table, j, 1).firstChild.textContent.replace(/\s+/g, '') + ';';
@@ -1402,21 +1401,22 @@ function indexEPinTable(table, EP) {
 }
 
 function cityfight() { // changes for the "Stadtkampf" part ..
-    if(document.URL.includes("site=stadtkampf_neu")) {
-        // get the fight type ..
-        var fightTable = getContent().getElementsByTagName('table')[0];
-        var nextFightValue = getTableElement(fightTable, 1, 3).textContent;
+	if(document.URL.includes("site=stadtkampf_neu")) {
+		// get the fight type ..
+		var fightTable = getContent().getElementsByTagName('table')[0];
+		var nextFightValue = getTableElement(fightTable, 1, 3).textContent;
 
 		// insert known opponents from first round into second round
-		if(fightTable.rows.length > 10) {
-			var fight1 = new Array(getTableElement(fightTable, 1, 0).innerHTML, getTableElement(fightTable, 1, 1).innerHTML);
-			getTableElement(fightTable, 10, 0).innerHTML = fight1[1];
-			getTableElement(fightTable, 10, 1).innerHTML = fight1[0];
-			if(fightTable.rows.length > 11) {
-				var fight2 = new Array(getTableElement(fightTable, 2, 0).innerHTML, getTableElement(fightTable, 2, 1).innerHTML);
-                getTableElement(fightTable, 11, 0).innerHTML = fight2[1];
-				getTableElement(fightTable, 11, 1).innerHTML = fight2[0];
+		var i = fightTable.rows.length-1;
+		while(i >= 10) {
+			if(getTableElement(fightTable, i, 0).textContent == "???") {
+				getTableElement(fightTable, i, 0).innerHTML = getTableElement(fightTable, i-9, 1).innerHTML;
+				getTableElement(fightTable, i, 1).innerHTML = getTableElement(fightTable, i-9, 0).innerHTML;
 			}
+			i--;
+		}
+
+		if(fightTable.rows.length > 10) {
 			// add separator bar between first/second round
 			var separatorBar = document.createElement('tr');
 			separatorBar.style.height = "10px";
@@ -1425,59 +1425,55 @@ function cityfight() { // changes for the "Stadtkampf" part ..
 			fightTable.tBodies[0].insertBefore(separatorBar, fightTable.rows[fightTable.rows.length - 9]);
 		}
 
-        // get the fight table ..
-        var allEP = 0;
-        var currentFightTable = getContent().getElementsByTagName('table')[2];
-        var additionalTable = currentFightTable.textContent.includes("INFORMATION"); // additional information table (fight is running, sign in/out of fight)
-        var correction = 0;
-        if(additionalTable) { // fight is running ..
-            currentFightTable = getContent().getElementsByTagName('table')[3];
-        }
-        if(getTableElement(currentFightTable, currentFightTable.rows.length - 1, 0).textContent == 'teilnehmen') {
-            correction = 1;
-        }
+		// get the fight table ..
+		var allEP = 0;
+		var currentFightTable = getContent().getElementsByTagName('table')[2];
+		var additionalTable = currentFightTable.textContent.includes("INFORMATION"); // additional information table (fight is running, sign in/out of fight)
+		var correction = 0;
+		if(additionalTable) { // fight is running ..
+				currentFightTable = getContent().getElementsByTagName('table')[3];
+		}
+		if(getTableElement(currentFightTable, currentFightTable.rows.length - 1, 0).textContent == 'teilnehmen') {
+				correction = 1;
+		}
 
-        // sum of all user EP ..
-        for(var i = 1; i < (currentFightTable.rows.length - correction); i++) {
-            allEP += parseInt(getTableElement(currentFightTable, i, 1).textContent);
+		// sum of all user EP ..
+		for(var i = 1; i < (currentFightTable.rows.length - correction); i++) {
+			allEP += parseInt(getTableElement(currentFightTable, i, 1).textContent);
 			var currentHP = parseInt(getTableElement(currentFightTable, i, 2).textContent.split('%')[0]);
 			var fullHP = parseInt(getTableElement(currentFightTable, i, 1).textContent / 3);
-            var color = "#C00000";
+			var color = "#C00000";
 			if(currentHP / fullHP < 0.5) {
 				color = "#C91B15";
-			}
-            else if(currentHP / fullHP < 0.8) {
+			} else if(currentHP / fullHP < 0.8) {
 				color = "#AA3803";
-			}
-            else {
+			} else {
 				color = "#266f26";
 			}
 			getTableElement(currentFightTable, i, 1).setAttribute("align", "right");
 			getTableElement(currentFightTable, i, 2).setAttribute("align", "right");
 			getTableElement(currentFightTable, i, 2).innerHTML = "<font color=\"" + color + "\">" + currentHP + "</font>/" + fullHP;
-        }
-        var currentFightCol = getTableElement(currentFightTable, 0, 3);
-        currentFightCol.style.color = 'white';
+		}
+		var currentFightCol = getTableElement(currentFightTable, 0, 3);
+		currentFightCol.style.color = 'white';
 
-        // if, "ausgeglichener kampf" write additional data in the second table header ..
-        if(nextFightValue.includes("ausgeglichener Kampf")) {
-            var parsedMaxEP = nextFightValue.replace(/[A-Za-z$.]/g, "");
-            var maxEP = parseInt(parsedMaxEP);
-            currentFightCol.textContent = "Offen: " + (maxEP - allEP) + " EP";
-        }
-        else { // write only the sum of EP ..
-            currentFightCol.textContent = "Gesamt: " + allEP + " EP";
-        }
-        // user count information ..
-        currentFightCol = getTableElement(currentFightTable, 0, 0);
-        currentFightCol.style.color = 'white';
-        if(nextFightValue.includes("begrenzter Kampf")) {
-            currentFightCol.textContent = currentFightCol.textContent + " (" + (currentFightTable.rows.length - correction - 1) + " / 10)";
-        }
-        else {
-            currentFightCol.textContent = currentFightCol.textContent + " (" + (currentFightTable.rows.length - correction - 1) + ")";
-        }
-    }
+		// if, "ausgeglichener kampf" write additional data in the second table header ..
+		if(nextFightValue.includes("ausgeglichener Kampf")) {
+			var parsedMaxEP = nextFightValue.replace(/[A-Za-z$.]/g, "");
+			var maxEP = parseInt(parsedMaxEP);
+			currentFightCol.textContent = "Offen: " + (maxEP - allEP) + " EP";
+		} else { // write only the sum of EP ..
+			currentFightCol.textContent = "Gesamt: " + allEP + " EP";
+		}
+		// user count information ..
+		currentFightCol = getTableElement(currentFightTable, 0, 0);
+		currentFightCol.style.color = 'white';
+		if(nextFightValue.includes("begrenzter Kampf")) {
+			currentFightCol.textContent = currentFightCol.textContent + " (" + (currentFightTable.rows.length - correction - 1) + " / 10)";
+		} else {
+			currentFightCol.textContent = currentFightCol.textContent + " (" + (currentFightTable.rows.length - correction - 1) + ")";
+		}
+	}
 }
 
 function cityStorage() { // changes for the "Stadtlager" page ..
@@ -1543,7 +1539,7 @@ function userProfile() { // user profile page ..
         }
         var label = createElementT('span', '\u00dcbertragen');
         var newSendBtn = createElementA('a', 'class', 'button_forum');
-        newSendBtn.setAttribute('href', ('https://game-of-elements.de/index.php?site=ubertragen&user=' + user));
+        newSendBtn.setAttribute('href', ('index.php?site=ubertragen&user=' + user));
         newSendBtn.appendChild(label);
         getContent().getElementsByTagName('div')[0].appendChild(newSendBtn);
         getContent().getElementsByTagName('div')[0].style.marginLeft = '20px';
@@ -1579,7 +1575,7 @@ function userProfile() { // user profile page ..
 			userInfoTable.getElementsByTagName('tbody')[0].appendChild(newTableRow);
 			var ret = GM_xmlhttpRequest( {
 				method: "POST",
-				url: "https://goe.klaxi.de/external/external.php",
+				url: "http://goe.klaxi.de/external/external.php",
 				data: "x=userprofilxp&userid="+userid+"&xp="+ep,
 				headers: { "Content-Type": "application/x-www-form-urlencoded" },
 				onload: function() {
@@ -1703,7 +1699,7 @@ function retrieveAnimalDatesOfDeath() {
         }
         useRetrieveAnimalDatesOfDeathVar(retrieveAnimalDatesOfDeathVar); // output of the result ..
     };
-    frameA.src = 'https://game-of-elements.de/index.php?site=tierverwaltung&do=stadtverpflegung';
+    frameA.src = 'index.php?site=tierverwaltung&do=stadtverpflegung';
     frameA.style.display = "none";
     document.body.appendChild(frameA);
 }
@@ -1886,7 +1882,7 @@ function competition() { // "Gewinnspiel" page ..
             document.getElementById('content').appendChild(newCenter);
             var ret = GM_xmlhttpRequest( {
                 method: "POST",
-                url: "https://goe.klaxi.de/external/external.php",
+                url: "http://goe.klaxi.de/external/external.php",
                 data: "x=competitionanswers&q="+question,
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
                 onload: function() {

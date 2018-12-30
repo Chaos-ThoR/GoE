@@ -1,4 +1,17 @@
-﻿-> v4.0.6.1
+﻿-> v4.0.7
+	- Bugfix: externe Links von https auf http zurück gesetzt
+	- Bugfix: Info-Block in Übersicht wird ausgeblendet (jetzt richtig)
+	- Eingefügte interne Links mittels relativem statt absolutem Pfad
+	- Informationen zur eigenen Heilung: "Reduzierung pro Heilung" im Popup statt Menu
+	- Stadtkampf: bekannte Gegner von gesamter Hinrunde in Rückrunde (vorher: nur 2)
+
+-> v4.0.6.3
+	- Bugfix: Info-Block in Übersicht wird ausgeblendet
+
+-> v4.0.6.2
+	- http zu https geändert
+
+-> v4.0.6.1
 	- Hotfix: Gewinnspiel-Anworten werden auf jeder Seite hinzugefügt
 
 -> v4.0.6
