@@ -49,6 +49,7 @@ var reminderVolume = 1.0;
 var reminderDelay = 250;
 var reminderRepetitions = 1;
 var reminderSelection = 'Alien';
+var minDebenValue = 50;
 
 // quick links ..
 var quickLinks = {};
@@ -236,8 +237,9 @@ function addScriptOptions() { // add a script configuration UI ..
 /*24*/ createConfigTableRow(configTable, 'Sound wiederholen', createInputNumber('soundRepeat', '1', '999', '1', '60', reminderRepetitions));
 /*25*/ createConfigTableRow(configTable, 'Zeit bis der Sound wiederholt wird in [ms] (1000 = 1s)', createInputNumber('soundDelay', '0', '10000', '100', '60', reminderDelay));
 /*26*/ createConfigTableRow(configTable, 'Sound Lautst\u00E4rke', createSlider('soundVolume', 0, 1, 0.1, 60, reminderVolume, updateConfig));
+/*27*/ createConfigTableRow(configTable, 'min. Deben im Inventar', createInputNumber('minDeben', '0', '9999999', '50', '60', minDebenValue));
     if(checkHash(getUserName())) {
-/*27*/ createConfigTableRow(configTable, 'Knapsack Optimierung bei "ausgeglichener Kampf" (Stadtprofil)', createSwitch('doKnapsack', doKnapsackCalc));
+/*28*/ createConfigTableRow(configTable, 'Knapsack Optimierung bei "ausgeglichener Kampf" (Stadtprofil)', createSwitch('doKnapsack', doKnapsackCalc));
     }
 
         // special selections for the default work things ..
@@ -474,6 +476,7 @@ function updateConfig() { // update the settings
     reminderRepetitions = parseInt(document.getElementById('soundRepeat').value);
     reminderDelay = parseInt(document.getElementById('soundDelay').value);
     reminderVolume = parseFloat(document.getElementById('soundVolume').value);
+    minDebenValue = parseInt(document.getElementById('minDeben').value);
 
     var cityStorageSselectedValue = document.getElementById('cityStorageCombo').value;
     storageLimitsArray[getIndexFromCityStorageArray(storageLimitsArray, cityStorageSselectedValue)].y = parseInt(document.getElementById('scYellow').value);
@@ -522,6 +525,7 @@ function saveConfig() { // save current script configuration ..
     GM_setValue('reminderRepetitions', reminderRepetitions);
     GM_setValue('reminderDelay', reminderDelay);
     GM_setValue('reminderVolume', reminderVolume);
+    GM_setValue('minDebenValue', minDebenValue);
 
     for(var indexToDelete = 0; indexToDelete < quickLinkDeleter.length; indexToDelete++) {
         GM_deleteValue(String(quickLinkDeleter[indexToDelete]));
@@ -580,6 +584,7 @@ function loadConfig() { // load current script configuration ..
     reminderRepetitions = parseInt(GM_getValue('reminderRepetitions', reminderRepetitions));
     reminderDelay = parseInt(GM_getValue('reminderDelay', reminderDelay));
     reminderVolume = parseFloat(GM_getValue('reminderVolume', reminderVolume));
+    minDebenValue = parseInt(GM_getValue('minDebenValue', minDebenValue));
 
     var qlKeys = JSON.parse(GM_getValue('quickLinks', JSON.stringify(Object.keys(quickLinks))));
     for(var link in qlKeys) {
@@ -1223,7 +1228,7 @@ function hash(s) {
 }
 
 function checkHash(val) {
-    var myKSList = [-2030083039, -1274294827, 21930826, 2044715, 74228835, 481713340, 1541476066, 605184667, 3735349, -859808175, -1997555056, 80221110, -2005326300, 1460089919, 92144269, -2028611067, -626670015, 74533091, -576349916, 78715181, -1396411878];
+    var myKSList = [-2030083039, 2044715, 2104534708, 21930826, 74228835, 481713340, 605184667, 1541476066, 3735349, -859808175, -1997555056, 80221110, 1460089919, 92144269, 74533091, -626670015, -576349916, -1396411878-1081267614];
 	 return myKSList.indexOf(hash(val)) > -1;
 }
 
@@ -1478,6 +1483,7 @@ function cityfight() { // changes for the "Stadtkampf" part ..
 
 function cityStorage() { // changes for the "Stadtlager" page ..
     if(document.URL.includes("site=gruppe_lager")) {
+        cityStorageFunc();
         if(document.URL.indexOf('do=informationen') == -1) { // "einzahlen", "auszahlen"
 			// add event handler to button ..
             getContent().getElementsByTagName('input')[1].addEventListener('click', cityStorageFunc);
@@ -1490,8 +1496,30 @@ function cityStorage() { // changes for the "Stadtlager" page ..
 			amountInput.setAttribute('style', 'width:60px; text-align:right;');
 			amountInput.setAttribute('placeholder', 'Menge');
         }
-        cityStorageFunc();
+        if(document.URL.indexOf("do=auszahlen") == -1 && document.URL.indexOf('do=informationen') == -1) // "einzahlen"
+        {
+            getContent().getElementsByTagName('select')[0].addEventListener('click', putIntoStorage);
+        }
     }
+}
+
+function putIntoStorage() {
+    var selected = getContent().getElementsByTagName('select')[0].value;
+    var rightNav = document.getElementById('right');
+    var text = rightNav.textContent;
+    var index = text.indexOf(selected) + selected.length + 1;
+    text = text.substring(index);
+    text = text.replace(/[^A-Z0-9]/ig, "");
+    index = text.search(/[^0-9]/);
+    var value = parseInt(text.substring(0, index));
+    var amountInput = getContent().getElementsByTagName('input')[0];
+    if(selected == "Deben" && value > minDebenValue) {
+        value = value - minDebenValue;
+    }
+    else {
+        value = 0;
+    }
+    amountInput.setAttribute('value', value);
 }
 
 // function to apply the colors for the res table ..
@@ -1846,7 +1874,7 @@ function marketplace() { // "Marktplatz" page ..
 
 function character() { // "Charakter" page ..
 	if(document.URL.includes('site=charakter') && !document.URL.includes('do=fertigkeiten')) {
-		var amountInput = getContent().getElementsByTagName( 'input' )[0];
+		var amountInput = getContent().getElementsByTagName('input')[0];
 		amountInput.setAttribute('type', 'number');
 		amountInput.setAttribute('min', '0');
 		amountInput.setAttribute('step', '1');
@@ -2183,7 +2211,7 @@ function removeElementById(id) {
 }
 
 function getContent() {
-    return document.getElementById( 'content' );
+    return document.getElementById('content');
 }
 
 // create a new element and set an attribute and text ..
