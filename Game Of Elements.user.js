@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         Game Of Elements
 // @namespace    GameOfElements
-// @version      4.0.8.1
+// @version      4.0.8.2
 // @updateURL    https://github.com/Chaos-ThoR/GoE/raw/master/Game%20Of%20Elements.user.js
 // @encoding     utf-8
 // @description  try to take over the world!
@@ -1498,7 +1498,7 @@ function cityStorage() { // changes for the "Stadtlager" page ..
         }
         if(document.URL.indexOf("do=auszahlen") == -1 && document.URL.indexOf('do=informationen') == -1) // "einzahlen"
         {
-            getContent().getElementsByTagName('select')[0].addEventListener('click', putIntoStorage);
+            getContent().getElementsByTagName('select')[0].addEventListener('change', putIntoStorage);
         }
     }
 }
@@ -1519,6 +1519,7 @@ function putIntoStorage() {
     }
     var amountInput = getContent().getElementsByTagName('input')[0];
     amountInput.setAttribute('value', value);
+    amountInput.setAttribute('onfocus', 'this.select();');
 }
 
 // function to apply the colors for the res table ..
