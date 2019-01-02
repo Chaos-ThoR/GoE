@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         Game Of Elements
 // @namespace    GameOfElements
-// @version      4.0.8
+// @version      4.0.8.1
 // @updateURL    https://github.com/Chaos-ThoR/GoE/raw/master/Game%20Of%20Elements.user.js
 // @encoding     utf-8
 // @description  try to take over the world!
@@ -1507,18 +1507,17 @@ function putIntoStorage() {
     var selected = getContent().getElementsByTagName('select')[0].value;
     var rightNav = document.getElementById('right');
     var text = rightNav.textContent;
-    var index = text.indexOf(selected) + selected.length + 1;
-    text = text.substring(index);
+    var index = text.indexOf(selected) + selected.length + 9;
+    text = text.substring(index, index + 10);
     text = text.replace(/[^A-Z0-9]/ig, "");
-    index = text.search(/[^0-9]/);
-    var value = parseInt(text.substring(0, index));
-    var amountInput = getContent().getElementsByTagName('input')[0];
+    var value = parseInt(text);
     if(selected == "Deben" && value > minDebenValue) {
         value = value - minDebenValue;
     }
-    else {
+    else if(selected == "Deben") {
         value = 0;
     }
+    var amountInput = getContent().getElementsByTagName('input')[0];
     amountInput.setAttribute('value', value);
 }
 
