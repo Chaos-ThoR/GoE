@@ -1,4 +1,7 @@
-﻿-> v4.0.7
+﻿-> v4.0.7.1
+	- Bugfix: Gewinnspiel -> Script bricht ab, wenn Antwort gegeben
+
+-> v4.0.7
 	- Bugfix: externe Links von https auf http zurück gesetzt
 	- Bugfix: Info-Block in Übersicht wird ausgeblendet (jetzt richtig)
 	- Eingefügte interne Links mittels relativem statt absolutem Pfad
