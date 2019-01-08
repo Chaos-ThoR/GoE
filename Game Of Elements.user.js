@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         Game Of Elements
 // @namespace    GameOfElements
-// @version      4.0.8.2
+// @version      4.0.8.3
 // @updateURL    https://github.com/Chaos-ThoR/GoE/raw/master/Game%20Of%20Elements.user.js
 // @encoding     utf-8
 // @description  try to take over the world!
@@ -1509,7 +1509,7 @@ function putIntoStorage() {
     var text = rightNav.textContent;
     var index = text.indexOf(selected) + selected.length + 9;
     text = text.substring(index, index + 10);
-    text = text.replace(/[^A-Z0-9]/ig, "");
+    text = text.replace(/[^A-Z0-9.]/g, "");
     var value = parseInt(text);
     if(selected == "Deben" && value > minDebenValue) {
         value = value - minDebenValue;
