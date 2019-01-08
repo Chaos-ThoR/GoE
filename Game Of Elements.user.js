@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         Game Of Elements
 // @namespace    GameOfElements
-// @version      4.0.8.3
+// @version      4.0.8.4
 // @updateURL    https://github.com/Chaos-ThoR/GoE/raw/master/Game%20Of%20Elements.user.js
 // @encoding     utf-8
 // @description  try to take over the world!
@@ -771,12 +771,12 @@ function showHeatWarning() {
     if(displayHeatWarning) {
         // message, if heat is out of range ..
         var heat = getHeatValue();
-        if((heat < 90.2) || (heat > 109.8)) {
+        if((heat < 91.0) || (heat > 109.0)) {
             var newWarning = document.createElement('H1');
             newWarning.style.color = 'red';
             newWarning.style.textAlign = "center";
             newWarning.style.fontSize = "x-large";
-            newWarning.appendChild(document.createTextNode("Achtung " + getUserName() + " deine W\u00e4rme!"));
+            newWarning.appendChild(document.createTextNode("Achtung " + getUserName() + " deine W\u00e4rme (" + heat + "%)!"));
             getContent().insertBefore(newWarning, getContent().firstChild);
             heatWarningActive = true;
             return;
