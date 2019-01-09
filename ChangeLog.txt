@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 ﻿-> v4.0.7.1
+=======
+-> v4.0.7.1
+>>>>>>> f2961ea450505e7dd54362505b0bbb87bbf2b6e3
 	- Bugfix: Gewinnspiel -> Script bricht ab, wenn Antwort gegeben
 
 -> v4.0.7
