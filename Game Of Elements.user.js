@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         Game Of Elements
 // @namespace    GameOfElements
-// @version      4.0.8.4
+// @version      4.0.9
 // @updateURL    https://github.com/Chaos-ThoR/GoE/raw/master/Game%20Of%20Elements.user.js
 // @encoding     utf-8
 // @description  try to take over the world!
@@ -36,7 +36,9 @@ var defaultWorkDo2 = 'Pillen herstellen';
 var addDefaultWorkLink3 = false;
 var defaultWorkDo3 = 'Pillen herstellen';
 var displayHeatWarning = true; // display a heat / cold warning
+var displayCityfightWarning = true; // display a warning if there is an upcoming cityfight
 var displayAnimalWarning = true; // display a warning if you will work without or with the wrong animal
+var scaleCaptcha = true; // scales up the captcha to easy click on mobile devices
 var defaultProfession = 'Bauer';
 var moveServerTime = true; // move the server time to the first headline of each page
 var addBBCodes = false; // add a BBCODE toolbar to the "Stadtforum", "Forum" & "Nachrichten" pages
@@ -128,7 +130,7 @@ var professions = {'Sammler' : {'' : 'Falke', '4' : 'Falke', '32' : 'Falke'},
                    'Ingenieur' : {'' : '', '25' : '', '9' : '', '33' : 'Affe', '26' : '', '29' : ''}};
 
 // global state variables used in functions ..
-var heatWarningActive = false; // heat warnung state
+var globalTopWarningActive = false; // global top warning state (heat, cityfight)
 var reminderTimerFunc = -1;
 var quickLinkDeleter = [];
 
@@ -222,24 +224,26 @@ function addScriptOptions() { // add a script configuration UI ..
 /* 9*/ createConfigTableRow(configTable, 'Zeige Informationen zur Selbstheilung', createSwitch('addAdditionalHealthInformationSwitch', addAdditionalHealthInformation));
 /*10*/ createConfigTableRow(configTable, 'Zeige Serverzeit in erster \u00DCberschrift auf den meisten Seiten', createSwitch('mServerTime', moveServerTime));
 /*11*/ createConfigTableRow(configTable, 'Warnung bei \u00DCberhitzung / Unterk\u00FChlung', createSwitch('heatWarning', displayHeatWarning));
-/*12*/ createConfigTableRow(configTable, 'Warnung bei fehlendem oder falschem Tier', createSwitch('animalWarning', displayAnimalWarning));
-/*13*/ createConfigTableRow(configTable, 'Zus\u00E4tzliche hilfreiche Links ("unten links" und bei "Arbeiten")', createSwitch('shortcutsOption', addSomeShortcutLinks));
-/*14*/ createConfigTableRow(configTable, 'Zus\u00E4tzlicher Arbeitslink: ', createSwitch('defaultWorkSwitch', addDefaultWorkLink));
-/*15*/ createConfigTableRow(configTable, 'Weiterer zus\u00E4tzlicher Arbeitslink: ', createSwitch('defaultWorkSwitch2', addDefaultWorkLink2));
-/*16*/ createConfigTableRow(configTable, 'Weiterer zus\u00E4tzlicher Arbeitslink: ', createSwitch('defaultWorkSwitch3', addDefaultWorkLink3));
-/*17*/ createConfigTableRow(configTable, 'Links: ', 'span');
-/*18*/ createConfigTableRow(configTable, 'BB Codes Leiste f\u00FCr Foren & Nachrichten', createSwitch('bbCodes', addBBCodes));
-/*19*/ createConfigTableRow(configTable, 'Sterbedatum der Tiere (f\u00FCr alle Tiere beim Stall)', createSwitch('deathCounter', addDateOfDeath));
-/*20*/ createConfigTableRow(configTable, 'Externe Statistiken einbinden', createSwitch('externalStats', addExternalStats));
-/*21*/ createConfigTableRow(configTable, 'Anzeigegrenzen vom Stadtlager f\u00FCr: ', createSwitch('cityStorageLimitsSwitch', cityStorageLimitsEnabled));
-/*22*/ createConfigTableRow(configTable, 'Sound abspielen wenn Arbeitsgang beendet', createSwitch('remind', enableReminder));
-/*23*/ createConfigTableRow(configTable, 'Sound', createSelection('remindSound', audioFiles, reminderSelection, updateConfig));
-/*24*/ createConfigTableRow(configTable, 'Sound wiederholen', createInputNumber('soundRepeat', '1', '999', '1', '60', reminderRepetitions));
-/*25*/ createConfigTableRow(configTable, 'Zeit bis der Sound wiederholt wird in [ms] (1000 = 1s)', createInputNumber('soundDelay', '0', '10000', '100', '60', reminderDelay));
-/*26*/ createConfigTableRow(configTable, 'Sound Lautst\u00E4rke', createSlider('soundVolume', 0, 1, 0.1, 60, reminderVolume, updateConfig));
-/*27*/ createConfigTableRow(configTable, 'min. Deben im Inventar', createInputNumber('minDeben', '0', '9999999', '50', '60', minDebenValue));
+/*12*/ createConfigTableRow(configTable, 'Warnung bei anstehendem SK', createSwitch('cityfightWarning', displayCityfightWarning));
+/*13*/ createConfigTableRow(configTable, 'Warnung bei fehlendem oder falschem Tier', createSwitch('animalWarning', displayAnimalWarning));
+/*14*/ createConfigTableRow(configTable, 'Größere Captchas zum einfacheren Klicken', createSwitch('scaleCaptcha', scaleCaptcha));
+/*15*/ createConfigTableRow(configTable, 'Zus\u00E4tzliche hilfreiche Links ("unten links" und bei "Arbeiten")', createSwitch('shortcutsOption', addSomeShortcutLinks));
+/*16*/ createConfigTableRow(configTable, 'Zus\u00E4tzlicher Arbeitslink: ', createSwitch('defaultWorkSwitch', addDefaultWorkLink));
+/*17*/ createConfigTableRow(configTable, 'Weiterer zus\u00E4tzlicher Arbeitslink: ', createSwitch('defaultWorkSwitch2', addDefaultWorkLink2));
+/*18*/ createConfigTableRow(configTable, 'Weiterer zus\u00E4tzlicher Arbeitslink: ', createSwitch('defaultWorkSwitch3', addDefaultWorkLink3));
+/*19*/ createConfigTableRow(configTable, 'Links: ', 'span');
+/*20*/ createConfigTableRow(configTable, 'BB Codes Leiste f\u00FCr Foren & Nachrichten', createSwitch('bbCodes', addBBCodes));
+/*21*/ createConfigTableRow(configTable, 'Sterbedatum der Tiere (f\u00FCr alle Tiere beim Stall)', createSwitch('deathCounter', addDateOfDeath));
+/*22*/ createConfigTableRow(configTable, 'Externe Statistiken einbinden', createSwitch('externalStats', addExternalStats));
+/*23*/ createConfigTableRow(configTable, 'Anzeigegrenzen vom Stadtlager f\u00FCr: ', createSwitch('cityStorageLimitsSwitch', cityStorageLimitsEnabled));
+/*24*/ createConfigTableRow(configTable, 'Sound abspielen wenn Arbeitsgang beendet', createSwitch('remind', enableReminder));
+/*25*/ createConfigTableRow(configTable, 'Sound', createSelection('remindSound', audioFiles, reminderSelection, updateConfig));
+/*26*/ createConfigTableRow(configTable, 'Sound wiederholen', createInputNumber('soundRepeat', '1', '999', '1', '60', reminderRepetitions));
+/*27*/ createConfigTableRow(configTable, 'Zeit bis der Sound wiederholt wird in [ms] (1000 = 1s)', createInputNumber('soundDelay', '0', '10000', '100', '60', reminderDelay));
+/*28*/ createConfigTableRow(configTable, 'Sound Lautst\u00E4rke', createSlider('soundVolume', 0, 1, 0.1, 60, reminderVolume, updateConfig));
+/*29*/ createConfigTableRow(configTable, 'min. Deben im Inventar', createInputNumber('minDeben', '0', '9999999', '50', '60', minDebenValue));
     if(checkHash(getUserName())) {
-/*28*/ createConfigTableRow(configTable, 'Knapsack Optimierung bei "ausgeglichener Kampf" (Stadtprofil)', createSwitch('doKnapsack', doKnapsackCalc));
+/*30*/ createConfigTableRow(configTable, 'Knapsack Optimierung bei "ausgeglichener Kampf" (Stadtprofil)', createSwitch('doKnapsack', doKnapsackCalc));
     }
 
         // special selections for the default work things ..
@@ -248,13 +252,13 @@ function addScriptOptions() { // add a script configuration UI ..
 
         var workSelection = createSelection('jobSelectionCombo', jobLinkMap, String(defaultWorkDo), updateConfig);
         workSelection.style.marginLeft = '48px';
-        getTableElement(configTable, 14, 0).appendChild(workSelection);
+        getTableElement(configTable, 16, 0).appendChild(workSelection);
         var workSelection2 = createSelection('jobSelectionCombo2', jobLinkMap, String(defaultWorkDo2), updateConfig);
         workSelection2.style.marginLeft = '5px';
-        getTableElement(configTable, 15, 0).appendChild(workSelection2);
+        getTableElement(configTable, 17, 0).appendChild(workSelection2);
         var workSelection3 = createSelection('jobSelectionCombo3', jobLinkMap, String( defaultWorkDo3), updateConfig);
         workSelection3.style.marginLeft = '5px';
-        getTableElement(configTable, 16, 0).appendChild(workSelection3);
+        getTableElement(configTable, 18, 0).appendChild(workSelection3);
 
         // special link settings
         var quickLinksCombo = createElementA('input', 'id', 'quickLinksCombo');
@@ -266,30 +270,30 @@ function addScriptOptions() { // add a script configuration UI ..
         for(var link in quickLinks) {
             quickLinksDataList.appendChild(createElementAT('option', 'value', link, link));
         }
-        getTableElement(configTable, 17, 0).appendChild(quickLinksCombo);
-        getTableElement(configTable, 17, 0).appendChild(document.createTextNode(' '));
+        getTableElement(configTable, 19, 0).appendChild(quickLinksCombo);
+        getTableElement(configTable, 19, 0).appendChild(document.createTextNode(' '));
         var quickLinksText = createInputText('quickLinksText', '305', '');
         quickLinksText.addEventListener('input', updateView, false);
-        getTableElement(configTable, 17, 0).appendChild(quickLinksText);
+        getTableElement(configTable, 19, 0).appendChild(quickLinksText);
 
-        getTableElement(configTable, 17, 0).appendChild(createButton('addLinkBtn', 'Link hinzuf\u00FCgen', '10', '18', '32', addLinkEntry));
-        getTableElement(configTable, 17, 0).appendChild(createButton('removeLinkBtn', 'Link entfernen', '10', '18', '20', removeLinkEntry));
-        getTableElement(configTable, 17, 0).appendChild(createButton('addDefaultsLinkBtn', 'Standard Links anlegen', '10', '18', '20', addDefaultLinkEntries));
+        getTableElement(configTable, 19, 0).appendChild(createButton('addLinkBtn', 'Link hinzuf\u00FCgen', '10', '18', '32', addLinkEntry));
+        getTableElement(configTable, 19, 0).appendChild(createButton('removeLinkBtn', 'Link entfernen', '10', '18', '20', removeLinkEntry));
+        getTableElement(configTable, 19, 0).appendChild(createButton('addDefaultsLinkBtn', 'Standard Links anlegen', '10', '18', '20', addDefaultLinkEntries));
 
         // special city storage settings
-        getTableElement(configTable, 21, 0).appendChild(createSelectionCityStorage('cityStorageCombo', storageLimitsArray, 'Bretter', updateView));
-        getTableElement(configTable, 21, 0).appendChild(document.createElement('br'));
-        getTableElement(configTable, 21, 0).appendChild(document.createTextNode(' ROT < '));
-        getTableElement(configTable, 21, 0).appendChild(createInputNumber('scYellow', '-1', '9999999', '1', '66', getObjectFromCityStorageArray(storageLimitsArray, document.getElementById('cityStorageCombo').value).y));
-        getTableElement(configTable, 21, 0).appendChild(document.createTextNode(' GELB < '));
-        getTableElement(configTable, 21, 0).appendChild(createInputNumber('scGreen', '-1', '9999999', '1', '66', getObjectFromCityStorageArray(storageLimitsArray, document.getElementById('cityStorageCombo').value).g));
-        getTableElement(configTable, 21, 0).appendChild(document.createTextNode(' ansonsten GR\u00DCN'));
-        getTableElement(configTable, 21, 0).appendChild(document.createElement('br'));
-        getTableElement(configTable, 21, 0).appendChild(document.createTextNode('* -1 = KEINE Hervorhebung'));
+        getTableElement(configTable, 23, 0).appendChild(createSelectionCityStorage('cityStorageCombo', storageLimitsArray, 'Bretter', updateView));
+        getTableElement(configTable, 23, 0).appendChild(document.createElement('br'));
+        getTableElement(configTable, 23, 0).appendChild(document.createTextNode(' ROT < '));
+        getTableElement(configTable, 23, 0).appendChild(createInputNumber('scYellow', '-1', '9999999', '1', '66', getObjectFromCityStorageArray(storageLimitsArray, document.getElementById('cityStorageCombo').value).y));
+        getTableElement(configTable, 23, 0).appendChild(document.createTextNode(' GELB < '));
+        getTableElement(configTable, 23, 0).appendChild(createInputNumber('scGreen', '-1', '9999999', '1', '66', getObjectFromCityStorageArray(storageLimitsArray, document.getElementById('cityStorageCombo').value).g));
+        getTableElement(configTable, 23, 0).appendChild(document.createTextNode(' ansonsten GR\u00DCN'));
+        getTableElement(configTable, 23, 0).appendChild(document.createElement('br'));
+        getTableElement(configTable, 23, 0).appendChild(document.createTextNode('* -1 = KEINE Hervorhebung'));
 
         // special test sound button for the reminder ..
         var testSoundBtn = createButton('testSound', 'Sound Test', '10', '18', '298', playSoundWrap);
-        getTableElement(configTable, 23, 0).appendChild(testSoundBtn);
+        getTableElement(configTable, 25, 0).appendChild(testSoundBtn);
 
         // job options table
         getContent().appendChild( document.createElement('br'));
@@ -452,7 +456,9 @@ function updateConfig() { // update the settings
     removeSearchWaterLink = document.getElementById('removeSearchWaterLinkSwitch').checked;
     addAdditionalHealthInformation = document.getElementById('addAdditionalHealthInformationSwitch').checked;
     displayHeatWarning = document.getElementById('heatWarning').checked;
+    displayCityfightWarning = document.getElementById('cityfightWarning').checked;
     displayAnimalWarning = document.getElementById('animalWarning').checked;
+    scaleCaptcha = document.getElementById('scaleCaptcha').checked;
     defaultProfession = document.getElementById('professionSelectionCombo').value;
     addSomeShortcutLinks = document.getElementById('shortcutsOption').checked;
     addDefaultWorkLink = document.getElementById('defaultWorkSwitch').checked;
@@ -506,7 +512,9 @@ function saveConfig() { // save current script configuration ..
     GM_setValue('removeSearchWaterLink', removeSearchWaterLink);
     GM_setValue('addAdditionalHealthInformation', addAdditionalHealthInformation);
     GM_setValue('displayHeatWarning', displayHeatWarning);
+    GM_setValue('displayCityfightWarning', displayCityfightWarning);
     GM_setValue('displayAnimalWarning', displayAnimalWarning);
+    GM_setValue('scaleCaptcha', scaleCaptcha);
     GM_setValue('defaultProfession', defaultProfession);
     GM_setValue('addSomeShortcutLinks', addSomeShortcutLinks);
     GM_setValue('addDefaultWorkLink', addDefaultWorkLink);
@@ -565,7 +573,9 @@ function loadConfig() { // load current script configuration ..
     removeSearchWaterLink = GM_getValue('removeSearchWaterLink', removeSearchWaterLink);
     addAdditionalHealthInformation = GM_getValue('addAdditionalHealthInformation', addAdditionalHealthInformation);
     displayHeatWarning = GM_getValue('displayHeatWarning', displayHeatWarning);
+    displayCityfightWarning = GM_getValue('displayCityfightWarning', displayCityfightWarning);
     displayAnimalWarning = GM_getValue('displayAnimalWarning', displayAnimalWarning);
+    scaleCaptcha = GM_getValue('scaleCaptcha', scaleCaptcha);
     defaultProfession = GM_getValue('defaultProfession', defaultProfession);
     addSomeShortcutLinks = GM_getValue('addSomeShortcutLinks', addSomeShortcutLinks);
     addDefaultWorkLink = GM_getValue('addDefaultWorkLink', addDefaultWorkLink);
@@ -602,7 +612,9 @@ function global() { // changes for the whole page ..
         reminder();
         serverTime();
         showHeatWarning();
+        showCityfightWarning();
         showAnimalWarning();
+        scaleUpCaptcha();
         globalShortLinks();
         defalutWorkLink();
         extraSectionForSpecialItems();
@@ -772,17 +784,52 @@ function showHeatWarning() {
         // message, if heat is out of range ..
         var heat = getHeatValue();
         if((heat < 91.0) || (heat > 109.0)) {
-            var newWarning = document.createElement('H1');
-            newWarning.style.color = 'red';
-            newWarning.style.textAlign = "center";
-            newWarning.style.fontSize = "x-large";
-            newWarning.appendChild(document.createTextNode("Achtung " + getUserName() + " deine W\u00e4rme (" + heat + "%)!"));
-            getContent().insertBefore(newWarning, getContent().firstChild);
-            heatWarningActive = true;
+            if(!document.getElementById('globalTopWarning')) {
+                var newWarning = document.createElement('H1');
+                newWarning.style.color = 'red';
+                newWarning.style.textAlign = "center";
+                newWarning.style.fontSize = "x-large";
+                newWarning.id = "globalTopWarning";
+                getContent().insertBefore(newWarning, getContent().firstChild);
+            } else {
+                var br = document.createElement('br');
+                document.getElementById('globalTopWarning').appendChild(br);
+            }
+            document.getElementById('globalTopWarning').appendChild(document.createTextNode("Achtung " + getUserName() + " deine W\u00e4rme (" + heat + "%)!"));
+            globalTopWarningActive = true;
             return;
         }
     }
-    heatWarningActive = false;
+    globalTopWarningActive = false;
+}
+
+function showCityfightWarning() { // display a warning if there is an upcoming cityfight
+	if(displayCityfightWarning) {
+        var currentTimestamp = new Date();
+        currentTimestamp.setSeconds(0, 0);
+		var cityfightTimestamps = GM_getValue('cityfightTimestamps', 0);
+        while(cityfightTimestamps[0] < currentTimestamp.getTime()) {
+            cityfightTimestamps.shift();
+        }
+        var nextCityfightTimestamp = new Date(cityfightTimestamps[0]);
+        if(currentTimestamp.getTime() + (30*60*1000) > nextCityfightTimestamp.getTime()) {
+            if(!document.getElementById('globalTopWarning')) {
+                var newWarning = document.createElement('H1');
+                newWarning.style.color = 'red';
+                newWarning.style.textAlign = "center";
+                newWarning.style.fontSize = "x-large";
+                newWarning.id = "globalTopWarning";
+                getContent().insertBefore(newWarning, getContent().firstChild);
+            } else {
+                var br = document.createElement('br');
+                document.getElementById('globalTopWarning').appendChild(br);
+            }
+            document.getElementById('globalTopWarning').appendChild(document.createTextNode("Stadtkampf in weniger als 30 Minuten (" + nextCityfightTimestamp.getHours() + ":" + format2(nextCityfightTimestamp.getMinutes()) + " Uhr)"));
+            globalTopWarningActive = true;
+            return
+        }
+	}
+	globalTopWarningActive = false;
 }
 
 function showAnimalWarning() {
@@ -864,6 +911,23 @@ function showAnimalWarning() {
 			newWarning.appendChild(br);
 		}
         getContent().insertBefore(newWarning, getContent().getElementsByTagName('div').nextSibling);
+    }
+}
+
+function scaleUpCaptcha() { // scales up the captcha to easy click on mobile devices
+    if(scaleCaptcha) {
+        if(document.getElementById( 'button' ) && document.getElementById('content').textContent.indexOf('Du machst dich auf') == -1) {
+            var captcha = document.getElementById( 'button' );
+            captcha.style.position = 'relative';
+
+            captcha.style.transform = 'scale(1.5)';
+            if(isMobile() && document.URL.indexOf('site=forum') == -1) {
+                //captcha.style.transform = 'scale(3)';
+                //captcha.style.top = '60px';
+                captcha.style.transform = 'scaleX(7.0) scaleY(5) rotate(90deg)';
+                captcha.style.top = '700px';
+            }
+        }
     }
 }
 
@@ -1411,14 +1475,23 @@ function cityfight() { // changes for the "Stadtkampf" part ..
 		var fightTable = getContent().getElementsByTagName('table')[0];
 		var nextFightValue = getTableElement(fightTable, 1, 3).textContent;
 
+        // save cityfight timestamps
+        var cityfightTimestamps = new Array();
+        for(var i = 1; i <= fightTable.rows.length-1; i++) {
+            var timestamp = getTableElement(fightTable, i, 2).textContent;
+            timestamp = new Date(timestamp.substr(6, 4), timestamp.substr(3, 2)-1, timestamp.substr(0, 2), timestamp.substr(13, 2), timestamp.substr(16, 2), 0);
+            cityfightTimestamps.push(timestamp.getTime());
+        }
+        GM_setValue('cityfightTimestamps', cityfightTimestamps);
+
 		// insert known opponents from first round into second round
-		var i = fightTable.rows.length-1;
-		while(i >= 10) {
-			if(getTableElement(fightTable, i, 0).textContent == "???") {
-				getTableElement(fightTable, i, 0).innerHTML = getTableElement(fightTable, i-9, 1).innerHTML;
-				getTableElement(fightTable, i, 1).innerHTML = getTableElement(fightTable, i-9, 0).innerHTML;
+		var j = fightTable.rows.length-1;
+		while(j >= 10) {
+			if(getTableElement(fightTable, j, 0).textContent == "???") {
+				getTableElement(fightTable, j, 0).innerHTML = getTableElement(fightTable, j-9, 1).innerHTML;
+				getTableElement(fightTable, j, 1).innerHTML = getTableElement(fightTable, j-9, 0).innerHTML;
 			}
-			i--;
+			j--;
 		}
 
 		if(fightTable.rows.length > 10) {
@@ -1559,7 +1632,7 @@ function cityStorageFunc() {
 function userProfile() { // user profile page ..
     if(document.URL.includes("site=profil&id=") && !document.URL.includes("&do=statistiken")) {
         var user = getContent().getElementsByTagName('h1')[0].textContent;
-        if(displayHeatWarning && heatWarningActive) {
+        if(globalTopWarningActive) {
             user = getContent().getElementsByTagName('h1')[1].textContent;
         }
         if(moveServerTime) {
@@ -1984,111 +2057,111 @@ function preselectFirstStonecuttersRepairEntry() {
 
 // additional information for alchemists ..
 function addHealedInfo() {
-    if((document.URL.substring(document.URL.length - 20) == "site=arbeiten&show=1") ||
-       (document.URL.substring(document.URL.length - 18) == "site=arbeiten&do=1") ||
-       ((document.URL.substring(document.URL.length - 8) == "arbeiten") && defaultProfession == "Alchemist")) {
-        var healValue = GM_getValue('healValue', 600);
-        var userSelection = getContent().getElementsByTagName('select')[0];
-        var options = userSelection.getElementsByTagName('option');
+	if((document.URL.substring(document.URL.length - 20) == "site=arbeiten&show=1") ||
+		(document.URL.substring(document.URL.length - 18) == "site=arbeiten&do=1") ||
+		((document.URL.substring(document.URL.length - 8) == "arbeiten") && defaultProfession == "Alchemist")) {
+		var healValue = GM_getValue('healValue', 600);
+		var userSelection = getContent().getElementsByTagName('select')[0];
+		var options = userSelection.getElementsByTagName('option');
 		var totalTimesToHeal = 0;
 		var woundedUsers = 0;
-        for(var i = 1; i < (options.length - 1); i++) {
-            var optValue = options[i].textContent;
-            var currentHp = optValue.split('/')[0].split(' - ')[1];
-            var maxHp = optValue.split('/')[1].split(' HP')[0];
-            var hpDiff = parseInt(maxHp) - parseInt(currentHp);
+		for(var i = 1; i < (options.length - 1); i++) {
+			var optValue = options[i].textContent;
+			var currentHp = optValue.split('/')[0].split(' - ')[1];
+			var maxHp = optValue.split('/')[1].split(' HP')[0];
+			var hpDiff = parseInt(maxHp) - parseInt(currentHp);
 			var hpPerHour = parseInt(parseFloat(maxHp) * 0.002 + 1.0) * 6;
-            var timesToHeal = parseInt((hpDiff / healValue) + 1);
-            var timeToMaxHp = hpDiff / hpPerHour;
-            if(hpDiff > 0) { // wounded
-                options[i].textContent = optValue + " | " + hpDiff + "HP = ~" + timeToMaxHp.toFixed(1) + " Std. / ~" + timesToHeal + "x heilen.";
-                totalTimesToHeal += timesToHeal;
-                woundedUsers++;
-            }
-        }
+			var timesToHeal = parseInt((hpDiff / healValue) + 1);
+			var timeToMaxHp = hpDiff / hpPerHour;
+			if(hpDiff > 0) { // wounded
+				options[i].textContent = optValue + " | " + hpDiff + "HP = ~" + timeToMaxHp.toFixed(1) + " Std. / ~" + timesToHeal + "x heilen.";
+				totalTimesToHeal += timesToHeal;
+				woundedUsers++;
+			}
+		}
 		getContent().getElementsByTagName('form')[0].insertBefore(document.createTextNode('Insgesamt ' + totalTimesToHeal + ' Heilungen ausstehend. Bei ' + woundedUsers + ' verletzten Usern.'), userSelection);
-        getContent().getElementsByTagName('form')[0].insertBefore(document.createElement('br'), userSelection);
-        getContent().getElementsByTagName('form')[0].insertBefore(document.createElement('br'), userSelection);
+		getContent().getElementsByTagName('form')[0].insertBefore(document.createElement('br'), userSelection);
+		getContent().getElementsByTagName('form')[0].insertBefore(document.createElement('br'), userSelection);
 		userSelection.setAttribute('size' , userSelection.length);
 		userSelection.setAttribute('style' , 'width:auto; max-width:100%');
-    }
+	}
 }
 
 function defaultSelectionsForAlchemist() { // spell default
-    if(document.URL.includes("site=arbeiten&show=21") ||
-       document.URL.includes("site=arbeiten&do=21")) {
-        var options0 = document.getElementsByName('bb1');
-        var alchemistSpellDefault = GM_getValue('alchemistSpellDefault', 0);
-        options0[alchemistSpellDefault].checked = true;
-        options0[0].addEventListener("click", function(){ alchemistSpellDefault = 0; GM_setValue('alchemistSpellDefault', alchemistSpellDefault); });
-        options0[1].addEventListener("click", function(){ alchemistSpellDefault = 1; GM_setValue('alchemistSpellDefault', alchemistSpellDefault); });
-        options0[2].addEventListener("click", function(){ alchemistSpellDefault = 2; GM_setValue('alchemistSpellDefault', alchemistSpellDefault); });
+	if(document.URL.includes("site=arbeiten&show=21") ||
+	document.URL.includes("site=arbeiten&do=21")) {
+		var options0 = document.getElementsByName('bb1');
+		var alchemistSpellDefault = GM_getValue('alchemistSpellDefault', 0);
+		options0[alchemistSpellDefault].checked = true;
+		options0[0].addEventListener("click", function(){ alchemistSpellDefault = 0; GM_setValue('alchemistSpellDefault', alchemistSpellDefault); });
+		options0[1].addEventListener("click", function(){ alchemistSpellDefault = 1; GM_setValue('alchemistSpellDefault', alchemistSpellDefault); });
+		options0[2].addEventListener("click", function(){ alchemistSpellDefault = 2; GM_setValue('alchemistSpellDefault', alchemistSpellDefault); });
 
 		var userSelection = getContent().getElementsByTagName('select')[0];
 		userSelection.setAttribute('size', userSelection.length);
 		userSelection.setAttribute('style', 'width:auto; max-width:100%');
-    }
+	}
 
-    // spell default
-    if(document.URL.includes("site=arbeiten&show=10") ||
-       document.URL.includes("site=arbeiten&do=10")) {
-        var options1 = document.getElementsByName('R1');
-        var alchemistPotionDefault = GM_getValue('alchemistPotionDefault', 0);
-        options1[alchemistPotionDefault].checked = true;
-        options1[0].addEventListener("click", function(){ alchemistPotionDefault = 0; GM_setValue('alchemistPotionDefault', alchemistPotionDefault); });
-        options1[1].addEventListener("click", function(){ alchemistPotionDefault = 1; GM_setValue('alchemistPotionDefault', alchemistPotionDefault); });
-        options1[2].addEventListener("click", function(){ alchemistPotionDefault = 2; GM_setValue('alchemistPotionDefault', alchemistPotionDefault); });
-        options1[3].addEventListener("click", function(){ alchemistPotionDefault = 3; GM_setValue('alchemistPotionDefault', alchemistPotionDefault); });
-        options1[4].addEventListener("click", function(){ alchemistPotionDefault = 4; GM_setValue('alchemistPotionDefault', alchemistPotionDefault); });
-        options1[5].addEventListener("click", function(){ alchemistPotionDefault = 5; GM_setValue('alchemistPotionDefault', alchemistPotionDefault); });
-    }
+	// spell default
+	if(document.URL.includes("site=arbeiten&show=10") ||
+		document.URL.includes("site=arbeiten&do=10")) {
+		var options1 = document.getElementsByName('R1');
+		var alchemistPotionDefault = GM_getValue('alchemistPotionDefault', 0);
+		options1[alchemistPotionDefault].checked = true;
+		options1[0].addEventListener("click", function(){ alchemistPotionDefault = 0; GM_setValue('alchemistPotionDefault', alchemistPotionDefault); });
+		options1[1].addEventListener("click", function(){ alchemistPotionDefault = 1; GM_setValue('alchemistPotionDefault', alchemistPotionDefault); });
+		options1[2].addEventListener("click", function(){ alchemistPotionDefault = 2; GM_setValue('alchemistPotionDefault', alchemistPotionDefault); });
+		options1[3].addEventListener("click", function(){ alchemistPotionDefault = 3; GM_setValue('alchemistPotionDefault', alchemistPotionDefault); });
+		options1[4].addEventListener("click", function(){ alchemistPotionDefault = 4; GM_setValue('alchemistPotionDefault', alchemistPotionDefault); });
+		options1[5].addEventListener("click", function(){ alchemistPotionDefault = 5; GM_setValue('alchemistPotionDefault', alchemistPotionDefault); });
+	}
 }
 
 // preselect the primary item for engineers ..
 function preselectPrimaryEngineerItem() {
-   if(document.URL.includes("site=arbeiten&show=25") ||
-      document.URL.includes("site=arbeiten&do=25") ||
-      (document.getElementById('form1') && document.getElementById('form1').textContent.indexOf('Gegenst\u00E4nde konstruieren') != -1)) {
-       var defaultPrimaryEngineerItem = GM_getValue('defaultPrimaryEngineerItem', 1);
-       document.form1.R1[defaultPrimaryEngineerItem].checked = true;
-       document.form1.R1[0].onclick = function() { defaultPrimaryEngineerItem = 0; GM_setValue('defaultPrimaryEngineerItem', defaultPrimaryEngineerItem); };
-       document.form1.R1[1].onclick = function() { defaultPrimaryEngineerItem = 1; GM_setValue('defaultPrimaryEngineerItem', defaultPrimaryEngineerItem); };
-       document.form1.R1[2].onclick = function() { defaultPrimaryEngineerItem = 2; GM_setValue('defaultPrimaryEngineerItem', defaultPrimaryEngineerItem); };
-       document.form1.R1[3].onclick = function() { defaultPrimaryEngineerItem = 3; GM_setValue('defaultPrimaryEngineerItem', defaultPrimaryEngineerItem); };
-       document.form1.R1[4].onclick = function() { defaultPrimaryEngineerItem = 4; GM_setValue('defaultPrimaryEngineerItem', defaultPrimaryEngineerItem); };
-       document.form1.R1[5].onclick = function() { defaultPrimaryEngineerItem = 5; GM_setValue('defaultPrimaryEngineerItem', defaultPrimaryEngineerItem); };
-       document.form1.R1[6].onclick = function() { defaultPrimaryEngineerItem = 6; GM_setValue('defaultPrimaryEngineerItem', defaultPrimaryEngineerItem); };
-       document.form1.R1[7].onclick = function() { defaultPrimaryEngineerItem = 7; GM_setValue('defaultPrimaryEngineerItem', defaultPrimaryEngineerItem); };
-   }
+	if(document.URL.includes("site=arbeiten&show=25") ||
+		document.URL.includes("site=arbeiten&do=25") ||
+		(document.getElementById('form1') && document.getElementById('form1').textContent.indexOf('Gegenst\u00E4nde konstruieren') != -1)) {
+		var defaultPrimaryEngineerItem = GM_getValue('defaultPrimaryEngineerItem', 1);
+		document.form1.R1[defaultPrimaryEngineerItem].checked = true;
+		document.form1.R1[0].onclick = function() { defaultPrimaryEngineerItem = 0; GM_setValue('defaultPrimaryEngineerItem', defaultPrimaryEngineerItem); };
+		document.form1.R1[1].onclick = function() { defaultPrimaryEngineerItem = 1; GM_setValue('defaultPrimaryEngineerItem', defaultPrimaryEngineerItem); };
+		document.form1.R1[2].onclick = function() { defaultPrimaryEngineerItem = 2; GM_setValue('defaultPrimaryEngineerItem', defaultPrimaryEngineerItem); };
+		document.form1.R1[3].onclick = function() { defaultPrimaryEngineerItem = 3; GM_setValue('defaultPrimaryEngineerItem', defaultPrimaryEngineerItem); };
+		document.form1.R1[4].onclick = function() { defaultPrimaryEngineerItem = 4; GM_setValue('defaultPrimaryEngineerItem', defaultPrimaryEngineerItem); };
+		document.form1.R1[5].onclick = function() { defaultPrimaryEngineerItem = 5; GM_setValue('defaultPrimaryEngineerItem', defaultPrimaryEngineerItem); };
+		document.form1.R1[6].onclick = function() { defaultPrimaryEngineerItem = 6; GM_setValue('defaultPrimaryEngineerItem', defaultPrimaryEngineerItem); };
+		document.form1.R1[7].onclick = function() { defaultPrimaryEngineerItem = 7; GM_setValue('defaultPrimaryEngineerItem', defaultPrimaryEngineerItem); };
+	}
 }
 
 // preselect the first repair entry for engineers ..
 function preselectFirstEngineerRepairEntry() {
-    if(document.URL.includes("site=arbeiten&show=33") || document.URL.includes("site=arbeiten&do=33")) {
-		 var options = getContent().getElementsByTagName('select')[1].getElementsByTagName('option');
-		 options[1].selected = true;
-		 var userSelection = document.getElementsByTagName('select')[1];
-		 userSelection.setAttribute('size' , '7');
-		 userSelection.setAttribute('style' , 'width:auto; max-width:100%');
+	if(document.URL.includes("site=arbeiten&show=33") || document.URL.includes("site=arbeiten&do=33")) {
+		var options = getContent().getElementsByTagName('select')[1].getElementsByTagName('option');
+		options[1].selected = true;
+		var userSelection = document.getElementsByTagName('select')[1];
+		userSelection.setAttribute('size' , '7');
+		userSelection.setAttribute('style' , 'width:auto; max-width:100%');
 	}
 }
 
 // preselection for the farmer create animal food ..
 function preselectionCreateAnimalFood() {
-    if(document.URL.includes("site=arbeiten&do=24") ||
-       document.URL.includes("site=arbeiten&show=24")) {
-        var selectionLeft = document.getElementsByName("m1")[0];
-        var selectionRight = document.getElementsByName("m2")[0];
-        if(selectionLeft && selectionRight) {
-            var foodSelectionMap = {'Datteln' : '0', 'Myrrhe' : '1', 'Sellerie' : '2', 'Honig' : '3'};
-            var defaultFoodSelection1 = GM_getValue('defaultFoodSelection1', 'Datteln');
-            var defaultFoodSelection2 = GM_getValue('defaultFoodSelection2', 'Datteln');
-            selectionLeft.selectedIndex = foodSelectionMap[defaultFoodSelection1];
-            selectionRight.selectedIndex = foodSelectionMap[defaultFoodSelection2];
-            selectionLeft.onchange = function(){ defaultFoodSelection1 = selectionLeft.value; GM_setValue('defaultFoodSelection1', defaultFoodSelection1); };
-            selectionRight.onchange = function(){ defaultFoodSelection2 = selectionRight.value; GM_setValue('defaultFoodSelection2', defaultFoodSelection2); };
-        }
-    }
+	if(document.URL.includes("site=arbeiten&do=24") ||
+		document.URL.includes("site=arbeiten&show=24")) {
+		var selectionLeft = document.getElementsByName("m1")[0];
+		var selectionRight = document.getElementsByName("m2")[0];
+		if(selectionLeft && selectionRight) {
+			var foodSelectionMap = {'Datteln' : '0', 'Myrrhe' : '1', 'Sellerie' : '2', 'Honig' : '3'};
+			var defaultFoodSelection1 = GM_getValue('defaultFoodSelection1', 'Datteln');
+			var defaultFoodSelection2 = GM_getValue('defaultFoodSelection2', 'Datteln');
+			selectionLeft.selectedIndex = foodSelectionMap[defaultFoodSelection1];
+			selectionRight.selectedIndex = foodSelectionMap[defaultFoodSelection2];
+			selectionLeft.onchange = function(){ defaultFoodSelection1 = selectionLeft.value; GM_setValue('defaultFoodSelection1', defaultFoodSelection1); };
+			selectionRight.onchange = function(){ defaultFoodSelection2 = selectionRight.value; GM_setValue('defaultFoodSelection2', defaultFoodSelection2); };
+		}
+	}
 }
 
 // preselection for the farmer create animal food ..
@@ -2156,220 +2229,216 @@ function preselectionCollector() {
 // ---------------------------------------------------------------------------------------------------------
 // smart little helper function(s) ..
 function getLocation() { // get the current location ..
-    var rightNav = document.getElementById('right');
-    var divs = rightNav.getElementsByTagName('div');
-    for(var i = 0; i < divs.length; i++) {
-        var location = divs[i].textContent;
-        if(location.includes("Gebiet:")) {
-            location = location.replace("Gebiet: ", "");
-            return location;
-        }
-    }
+	var rightNav = document.getElementById('right');
+	var divs = rightNav.getElementsByTagName('div');
+	for(var i = 0; i < divs.length; i++) {
+		var location = divs[i].textContent;
+		if(location.includes("Gebiet:")) {
+			location = location.replace("Gebiet: ", "");
+			return location;
+		}
+	}
 	return "";
 }
 
 function getTableElement(table, row, col) {
-    var selectedRow = table.getElementsByTagName('tr')[row];
-    var selectedCol = selectedRow.getElementsByTagName('td')[col];
-    return selectedCol;
+	var selectedRow = table.getElementsByTagName('tr')[row];
+	var selectedCol = selectedRow.getElementsByTagName('td')[col];
+	return selectedCol;
 }
 
 function getUserName() { // get the current user name ..
-    var rightNav = document.getElementById('right');
-    var divs = rightNav.getElementsByTagName('div');
-    for(var i = 0; i < divs.length; i++) {
-        var userName = divs[i].textContent;
-        if(userName.includes("Benutzer (")) {
-            userName = userName.replace("Benutzer (", "");
-            userName = userName.replace(")", "");
-            return userName;
-        }
-    }
+	var rightNav = document.getElementById('right');
+	var divs = rightNav.getElementsByTagName('div');
+	for(var i = 0; i < divs.length; i++) {
+		var userName = divs[i].textContent;
+		if(userName.includes("Benutzer (")) {
+			userName = userName.replace("Benutzer (", "");
+			userName = userName.replace(")", "");
+			return userName;
+		}
+	}
 	return "";
 }
 
 function isLoggedIn() {
-    return (document.getElementById('nav_haupt_right').textContent !== 'Login');
+	return (document.getElementById('nav_haupt_right').textContent !== 'Login');
 }
 
-function getHeatValue()
-{
-    var tables = document.getElementById('right').getElementsByTagName('table');
-    for(var i = 0; i < tables.length; i++) { // find the table ..
-        if(tables[i].textContent.includes("Wetter:")) {
-            var col = getTableElement(tables[i], 4, 1);
-            var heat = col.textContent.replace(/[A-Za-z$%]/g, "");
-            return heat;
-        }
-    }
+function getHeatValue() {
+	var tables = document.getElementById('right').getElementsByTagName('table');
+	for(var i = 0; i < tables.length; i++) { // find the table ..
+		if(tables[i].textContent.includes("Wetter:")) {
+			var col = getTableElement(tables[i], 4, 1);
+			var heat = col.textContent.replace(/[A-Za-z$%]/g, "");
+			return heat;
+		}
+	}
 }
 
 function removeElementById(id) {
-    var toRemove = document.getElementById(id);
-    toRemove.parentNode.removeChild(toRemove);
-    return toRemove;
+	var toRemove = document.getElementById(id);
+	toRemove.parentNode.removeChild(toRemove);
+	return toRemove;
 }
 
 function getContent() {
-    return document.getElementById('content');
+	return document.getElementById('content');
 }
 
 // create a new element and set an attribute and text ..
 function createElementAT(newElement, attribute, attributeValue, innerText) {
-    var newElem = document.createElement(newElement);
-    newElem.setAttribute(attribute, attributeValue);
-    newElem.innerHTML = innerText;
-    return newElem;
+	var newElem = document.createElement(newElement);
+	newElem.setAttribute(attribute, attributeValue);
+	newElem.innerHTML = innerText;
+	return newElem;
 }
 
 // create a new element and set an attribute ..
 function createElementA(newElement, attribute, attributeValue) {
-    var newElem = document.createElement(newElement);
-    newElem.setAttribute(attribute, attributeValue);
-    return newElem;
+	var newElem = document.createElement(newElement);
+	newElem.setAttribute(attribute, attributeValue);
+	return newElem;
 }
 
 // create a new element and set text ..
 function createElementT(newElement, innerText) {
-    var newElem = document.createElement(newElement);
-    newElem.innerHTML = innerText;
-    return newElem;
+	var newElem = document.createElement(newElement);
+	newElem.innerHTML = innerText;
+	return newElem;
 }
 
 // create a input from type number with the given attributes
 function createInputNumber(id, min, max, step, width, value) {
-    var input = document.createElement('input');
-    input.setAttribute('type', 'number');
-    input.setAttribute('id', id);
-    input.setAttribute('name', 'quantity');
-    input.setAttribute('min', min);
-    input.setAttribute('max', max);
-    input.setAttribute('step', step);
-    input.setAttribute('style', ('width: ' + width +'px'));
-    input.setAttribute('value', value);
-    input.style.textAlign = 'right';
-    input.addEventListener('change', updateConfig, false);
-
-    return input;
+	var input = document.createElement('input');
+	input.setAttribute('type', 'number');
+	input.setAttribute('id', id);
+	input.setAttribute('name', 'quantity');
+	input.setAttribute('min', min);
+	input.setAttribute('max', max);
+	input.setAttribute('step', step);
+	input.setAttribute('style', ('width: ' + width +'px'));
+	input.setAttribute('value', value);
+	input.style.textAlign = 'right';
+	input.addEventListener('change', updateConfig, false);
+	return input;
 }
 
 // create a input from type text with the given attributes
 function createInputText(id, width, value) {
-    var input = document.createElement('input');
-    input.setAttribute('type', 'text');
-    input.setAttribute('id', id);
-    input.setAttribute('style', ('width: ' + width +'px'));
-    input.setAttribute('value', value );
-    input.addEventListener('change', updateConfig, false);
-
-    return input;
+	var input = document.createElement('input');
+	input.setAttribute('type', 'text');
+	input.setAttribute('id', id);
+	input.setAttribute('style', ('width: ' + width +'px'));
+	input.setAttribute('value', value );
+	input.addEventListener('change', updateConfig, false);
+	return input;
 }
 
 // create a new link entry ..
-function createLinkEntry(parent, linkValue, LinkText)
-{
-    var textLi = document.createElement('li');
-    parent.appendChild(textLi);
-    var link = document.createElement('a');
-    link.setAttribute('href', linkValue);
-    link.textContent = LinkText;
-    textLi.appendChild(link);
-    return link.clientHeight;
+function createLinkEntry(parent, linkValue, LinkText) {
+	var textLi = document.createElement('li');
+	parent.appendChild(textLi);
+	var link = document.createElement('a');
+	link.setAttribute('href', linkValue);
+	link.textContent = LinkText;
+	textLi.appendChild(link);
+	return link.clientHeight;
 }
 
 // returns true if value is found in array, otherwise false ..
 function isValueInArray(array, value) {
-    for(var i = 0; i < array.length; i++) {
-        if(array[i] == value) {
-            return true;
-        }
-    }
-    return false;
+	for(var i = 0; i < array.length; i++) {
+		if(array[i] == value) {
+			return true;
+		}
+	}
+	return false;
 }
 
 function getObjectFromCityStorageArray(array, key) {
-    for(var x in array) {
-        if(array[x].res == key) {
-            return array[x];
-        }
-    }
+	for(var x in array) {
+		if(array[x].res == key) {
+			return array[x];
+		}
+	}
 }
 
 function getIndexFromCityStorageArray(array, key) {
-    for(var x in array) {
-        if(array[x].res == key) {
-            return x;
-        }
-    }
+	for(var x in array) {
+		if(array[x].res == key) {
+			return x;
+		}
+	}
 }
 
 // returns true if value is found in object list, otherwise false ..
 function isValueInObjectList(list, keyToFind) {
-    for(var key in list) {
-        if(key == keyToFind) {
-            return true;
-        }
-    }
-    return false;
+	for(var key in list) {
+		if(key == keyToFind) {
+			return true;
+		}
+	}
+	return false;
 }
 
 // create a configuration checkbox ..
 function createSwitch(id, checked) {
-    var switchElem = createElementA('input', 'id', id);
-    switchElem.setAttribute('type', 'checkbox');
-    switchElem.checked = checked;
-    switchElem.addEventListener('change', updateConfig, false);
-    return switchElem;
+	var switchElem = createElementA('input', 'id', id);
+	switchElem.setAttribute('type', 'checkbox');
+	switchElem.checked = checked;
+	switchElem.addEventListener('change', updateConfig, false);
+	return switchElem;
 }
 
 // create a combo box with the given options ..
 function createSelection(id, options, selection, eventFunc) {
-    var combo = createElementA('select', 'id', id);
-    var keys = Object.keys(options);
-    keys.sort(function(a, b) { return a.toLowerCase().localeCompare(b.toLowerCase()); });
-    for(var i = 0; i < keys.length; i++) { // add entries ..
-        var res = keys[i];
-        combo.appendChild(createElementAT('option', 'value', res, res));
-    }
-    combo.value = selection;
-    combo.addEventListener('change', eventFunc, false);
-    return combo;
+	var combo = createElementA('select', 'id', id);
+	var keys = Object.keys(options);
+	keys.sort(function(a, b) { return a.toLowerCase().localeCompare(b.toLowerCase()); });
+	for(var i = 0; i < keys.length; i++) { // add entries ..
+		var res = keys[i];
+		combo.appendChild(createElementAT('option', 'value', res, res));
+	}
+	combo.value = selection;
+	combo.addEventListener('change', eventFunc, false);
+	return combo;
 }
 
 function createSelectionCityStorage(id, options, selection, eventFunc) {
-    var combo = createElementA('select', 'id', id);
-    var keys = Object.keys(options);
-    keys.sort(function (a, b) { return options[a].res.toLowerCase().localeCompare(options[b].res.toLowerCase()); });
-    for(var i = 0; i < keys.length; i++) { // add entries ..
-        var res = keys[i];
-        combo.appendChild(createElementAT('option', 'value', options[res].res, options[res].res));
-    }
-    combo.value = selection;
-    combo.addEventListener('change', eventFunc, false);
-    return combo;
+	var combo = createElementA('select', 'id', id);
+	var keys = Object.keys(options);
+	keys.sort(function (a, b) { return options[a].res.toLowerCase().localeCompare(options[b].res.toLowerCase()); });
+	for(var i = 0; i < keys.length; i++) { // add entries ..
+		var res = keys[i];
+		combo.appendChild(createElementAT('option', 'value', options[res].res, options[res].res));
+	}
+	combo.value = selection;
+	combo.addEventListener('change', eventFunc, false);
+	return combo;
 }
 
 
 function createButton(id, text, fontSize, height, marginLeft, eventFunc) { // create a button ..
-    var btn = createElementA('input', 'id', id);
-    btn.setAttribute('type', 'button');
-    btn.setAttribute('value', text);
-    btn.setAttribute('style', 'background-color: #FFFFFF;font: normal ' + fontSize + 'px verdana, sans-serif;height: ' + height + 'px;margin-left: ' + marginLeft + 'px;border-width: 1px;border-style: solid;border-color: #888888');
-    btn.setAttribute('onclick', eventFunc);
-    btn.onclick = eventFunc;
-    return btn;
+	var btn = createElementA('input', 'id', id);
+	btn.setAttribute('type', 'button');
+	btn.setAttribute('value', text);
+	btn.setAttribute('style', 'background-color: #FFFFFF;font: normal ' + fontSize + 'px verdana, sans-serif;height: ' + height + 'px;margin-left: ' + marginLeft + 'px;border-width: 1px;border-style: solid;border-color: #888888');
+	btn.setAttribute('onclick', eventFunc);
+	btn.onclick = eventFunc;
+	return btn;
 }
 
 function createSlider(id, min, max, step, width, value, eventFunc) { // create a slider ..
-    var slider = createElementA('input', 'id', id);
-    slider.setAttribute('type', 'range');
-    slider.setAttribute('min', min);
-    slider.setAttribute('max', max);
-    slider.setAttribute('step', step);
-    slider.style.width = width + 'px';
-    slider.value = value;
-    slider.addEventListener('change', eventFunc);
-    return slider;
+	var slider = createElementA('input', 'id', id);
+	slider.setAttribute('type', 'range');
+	slider.setAttribute('min', min);
+	slider.setAttribute('max', max);
+	slider.setAttribute('step', step);
+	slider.style.width = width + 'px';
+	slider.value = value;
+	slider.addEventListener('change', eventFunc);
+	return slider;
 }
 
 function getURLParameter(name) { // get an URL-Parameter by name
@@ -2381,26 +2450,50 @@ function getURLParameter(name) { // get an URL-Parameter by name
 				return param[1];
 			}
 		}
-    }
+	}
 	return null;
 }
 
 function format2(n) { // add leading zeros
-    if(n < 10) {
-        n = '0' + n;
-    }
-    return n.toString();
+	if(n < 10) {
+		n = '0' + n;
+	}
+	return n.toString();
 }
 
 function hasAnimal() { // has animal ..
-    return (document.getElementById( 'right' ).innerHTML.includes( 'Tier</td>' ));
+	return (document.getElementById( 'right' ).innerHTML.includes( 'Tier</td>' ));
 }
 
 function whichAnimal() { // which animal
-    var animal = "";
-    if(hasAnimal()) {
-        var animalTable = document.getElementById('right').childNodes[12].firstChild;
-        return getTableElement(animalTable, 0, 1).textContent;
-    }
-    return animal;
+	var animal = "";
+	if(hasAnimal()) {
+		var animalTable = document.getElementById('right').childNodes[12].firstChild;
+		return getTableElement(animalTable, 0, 1).textContent;
+	}
+	return animal;
+}
+
+function isMobile(what = "any") {
+	switch(what) {
+		case "Android":
+			return (navigator.userAgent.search(/Android/i) != -1);
+			break;
+		case "BlackBerry":
+			return (navigator.userAgent.search(/BlackBerry/i) != -1);
+			break;
+		case "iOS":
+			return (navigator.userAgent.search(/iPhone|iPod|iPad/i) != -1);
+			break;
+		case "Opera":
+			return (navigator.userAgent.search(/Opera Mini/i) != -1);
+			break;
+		case "Windows":
+			return (navigator.userAgent.search(/IEMobile/i) != -1);
+			break;
+		default:
+		case "any":
+			return (isMobile("Android") || isMobile("BlackBerry") || isMobile("iOS") || isMobile("Opera") || isMobile("Windows"));
+	}
+	return false;
 }

@@ -1,8 +1,11 @@
-<<<<<<< HEAD
-﻿-> v4.0.7.1
-=======
+-> v4.0.9
+	- Captchas können vergrößert angezeigt werden (vor allem mobil nützlich)
+	- SK-Erinnerung bei weniger als 30 Minuten bis SK
+
+-> v4.0.8 to v4.0.8.4
+	- Rudi
+
 -> v4.0.7.1
->>>>>>> f2961ea450505e7dd54362505b0bbb87bbf2b6e3
 	- Bugfix: Gewinnspiel -> Script bricht ab, wenn Antwort gegeben
 
 -> v4.0.7
