@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         Game Of Elements
 // @namespace    GameOfElements
-// @version      4.0.9
+// @version      4.1.0
 // @updateURL    https://github.com/Chaos-ThoR/GoE/raw/master/Game%20Of%20Elements.user.js
 // @encoding     utf-8
 // @description  try to take over the world!
@@ -137,48 +137,48 @@ var quickLinkDeleter = [];
 // ---------------------------------------------------------------------------------------------------------
 
 (function() { // main function ..
-    "use strict";
+	"use strict";
 
-    if(isLoggedIn()) {
-        addScriptOptions(); // add the options for this script ..
-    }
-    if(scriptEnabled) {
-        // changes for the ..
-        global(); // whole page ..
-        if(isLoggedIn()) {
-            overview(); // "Übersicht" page ..
-            cityoverview(); // "Stadt -> Übersicht" page ..
-            cityEvents(); // "Stadt -> Ereignisse" page ..
-            cityfight(); // "Stadtkampf" page ..
-            cityStorage(); // "Stadtlager" page ..
-            cityProfile(); // "Stadtprofil" with knapsack solver ..
-            userProfile(); // user profile page ..
-            map(); // "Weltkarte" page ..
-            forum(); // "Stadtforum", "Forum" & "Nachrichten" ..
-            workShortLinks(); // Add some shortcuts to the "Arbeiten" page ..
-            userRanking(); // add some additional information on the 'Usertop' page ..
-            extendAnimalInformation(); // add the date of death ..
+	if(isLoggedIn()) {
+		addScriptOptions(); // add the options for this script ..
+	}
+	if(scriptEnabled) {
+		// changes for the ..
+		global(); // whole page ..
+		if(isLoggedIn()) {
+			overview(); // "Übersicht" page ..
+			cityoverview(); // "Stadt -> Übersicht" page ..
+			cityEvents(); // "Stadt -> Ereignisse" page ..
+			cityfight(); // "Stadtkampf" page ..
+			cityStorage(); // "Stadtlager" page ..
+			cityProfile(); // "Stadtprofil" with knapsack solver ..
+			userProfile(); // user profile page ..
+			map(); // "Weltkarte" page ..
+			forum(); // "Stadtforum", "Forum" & "Nachrichten" ..
+			workShortLinks(); // Add some shortcuts to the "Arbeiten" page ..
+			userRanking(); // add some additional information on the 'Usertop' page ..
+			extendAnimalInformation(); // add the date of death ..
 			feedAnimal(); // "Tier füttern" page ..
 			transfer(); // "Übertragen" page ..
 			marketplace(); // "Marktplatz" page ..
 			character(); // "Charakter" page ..
 			competition(); // "Gewinnspiel" page ..
-            colosseum(); // "Kolosseum" page ..
-            reorgPageElems();
+			colosseum(); // "Kolosseum" page ..
+			reorgPageElems();
 
-            // job dependend functions ..
-            addHealedInfo(); // additional information for alchemists ..
-            defaultSelectionsForAlchemist();
-            addRemainingWorkCyclesInfo(); // additional information for stonecutters ..
-            preselectPrimaryEngineerItem(); // preselect the primary item for engineers ..
-            preselectionCreateAnimalFood(); // preselect the create animal food defaults ..
+			// job dependend functions ..
+			addHealedInfo(); // additional information for alchemists ..
+			defaultSelectionsForAlchemist();
+			addRemainingWorkCyclesInfo(); // additional information for stonecutters ..
+			preselectPrimaryEngineerItem(); // preselect the primary item for engineers ..
+			preselectionCreateAnimalFood(); // preselect the create animal food defaults ..
 			preselectFirstStonecuttersRepairEntry(); // preselect the first repair entry for engineers ..
 			preselectFirstEngineerRepairEntry(); // preselect the first repair entry for engineers ..
-            preselectionCollector(); // preselect collect ressis for collecttors ..
-        } else {
-            document.getElementById('navbox_right').getElementsByTagName('input')[2].focus();
-        }
-    }
+			preselectionCollector(); // preselect collect ressis for collectors ..
+		} else {
+			document.getElementById('navbox_right').getElementsByTagName('input')[2].focus();
+		}
+	}
 }
 )();
 
@@ -2057,9 +2057,9 @@ function preselectFirstStonecuttersRepairEntry() {
 
 // additional information for alchemists ..
 function addHealedInfo() {
-	if((document.URL.substring(document.URL.length - 20) == "site=arbeiten&show=1") ||
-		(document.URL.substring(document.URL.length - 18) == "site=arbeiten&do=1") ||
-		((document.URL.substring(document.URL.length - 8) == "arbeiten") && defaultProfession == "Alchemist")) {
+    if(document.URL.includes("site=arbeiten&show=1") ||
+       document.URL.includes("site=arbeiten&do=1") ||
+       (document.getElementById('form1') && document.getElementById('form1').textContent.indexOf('einen anderen User heilen') != -1)) {
 		var healValue = GM_getValue('healValue', 600);
 		var userSelection = getContent().getElementsByTagName('select')[0];
 		var options = userSelection.getElementsByTagName('option');
@@ -2084,6 +2084,7 @@ function addHealedInfo() {
 		getContent().getElementsByTagName('form')[0].insertBefore(document.createElement('br'), userSelection);
 		userSelection.setAttribute('size' , userSelection.length);
 		userSelection.setAttribute('style' , 'width:auto; max-width:100%');
+        options[1].selected = true; // preselect the primary healing entry for alchemists ..
 	}
 }
 

@@ -1,3 +1,7 @@
+-> v4.1.0
+	- Erkennen der Heilen-Seite optimiert
+	- Vorauswahl des ersten Heilen-Eintrags für Alchis
+
 -> v4.0.9
 	- Captchas können vergrößert angezeigt werden (vor allem mobil nützlich)
 	- SK-Erinnerung bei weniger als 30 Minuten bis SK
