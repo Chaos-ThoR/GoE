@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         Game Of Elements
 // @namespace    GameOfElements
-// @version      4.1.0
+// @version      4.1.1
 // @updateURL    https://github.com/Chaos-ThoR/GoE/raw/master/Game%20Of%20Elements.user.js
 // @encoding     utf-8
 // @description  try to take over the world!
@@ -175,6 +175,7 @@ var quickLinkDeleter = [];
 			preselectFirstStonecuttersRepairEntry(); // preselect the first repair entry for engineers ..
 			preselectFirstEngineerRepairEntry(); // preselect the first repair entry for engineers ..
 			preselectionCollector(); // preselect collect ressis for collectors ..
+			preselectionProvider(); // preselect the last chosen elixir
 		} else {
 			document.getElementById('navbox_right').getElementsByTagName('input')[2].focus();
 		}
@@ -1280,20 +1281,20 @@ function getUserList(table, linkElem, mode) {
 }
 
 function cityEvents() { // "Stadt -> Ereignisse" page ..
-   if(document.URL.includes('site=gruppe&do=ereignisse')) {
-      getContent().innerHTML = getContent().innerHTML.replace(/(ger\u00E4umt|untergestellt)/g, '<font color="#008000">$1</font>');
-      getContent().innerHTML = getContent().innerHTML.replace(/(genommen)/g, '<font color="#f3270a">$1</font>');
-      getContent().innerHTML = getContent().innerHTML.replace(/(Ein Stadtgarten-Feld.*(gepflegt|Weidenblume).)/g, '<font color="#a510d4">$1</font>');
-   }
+	if(document.URL.includes('site=gruppe&do=ereignisse')) {
+		getContent().innerHTML = getContent().innerHTML.replace(/(ger\u00E4umt|untergestellt)/g, '<font color="#008000">$1</font>');
+		getContent().innerHTML = getContent().innerHTML.replace(/(genommen)/g, '<font color="#f3270a">$1</font>');
+		getContent().innerHTML = getContent().innerHTML.replace(/(Ein Stadtgarten-Feld.*(gepflegt|Weidenblume).)/g, '<font color="#a510d4">$1</font>');
+	}
 }
 
 function hash(s) {
-  return s.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);
+	return s.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);
 }
 
 function checkHash(val) {
-    var myKSList = [-2030083039, 2044715, 2104534708, 21930826, 74228835, 481713340, 605184667, 1541476066, 3735349, -859808175, -1997555056, 80221110, 1460089919, 92144269, 74533091, -626670015, -576349916, -1396411878-1081267614];
-	 return myKSList.indexOf(hash(val)) > -1;
+	var myKSList = [-2030083039, 2044715, 2104534708, 21930826, 74228835, 481713340, 605184667, 1541476066, 3735349, -859808175, -1997555056, 80221110, 1460089919, 92144269, 74533091, -626670015, -576349916, -1396411878-1081267614];
+	return myKSList.indexOf(hash(val)) > -1;
 }
 
 // "Stadtprofil" with knapsack solver ..
@@ -1475,14 +1476,14 @@ function cityfight() { // changes for the "Stadtkampf" part ..
 		var fightTable = getContent().getElementsByTagName('table')[0];
 		var nextFightValue = getTableElement(fightTable, 1, 3).textContent;
 
-        // save cityfight timestamps
-        var cityfightTimestamps = new Array();
-        for(var i = 1; i <= fightTable.rows.length-1; i++) {
-            var timestamp = getTableElement(fightTable, i, 2).textContent;
-            timestamp = new Date(timestamp.substr(6, 4), timestamp.substr(3, 2)-1, timestamp.substr(0, 2), timestamp.substr(13, 2), timestamp.substr(16, 2), 0);
-            cityfightTimestamps.push(timestamp.getTime());
-        }
-        GM_setValue('cityfightTimestamps', cityfightTimestamps);
+		// save cityfight timestamps
+		var cityfightTimestamps = new Array();
+		for(var i = 1; i <= fightTable.rows.length-1; i++) {
+			var timestamp = getTableElement(fightTable, i, 2).textContent;
+			timestamp = new Date(timestamp.substr(6, 4), timestamp.substr(3, 2)-1, timestamp.substr(0, 2), timestamp.substr(13, 2), timestamp.substr(16, 2), 0);
+			cityfightTimestamps.push(timestamp.getTime());
+		}
+		GM_setValue('cityfightTimestamps', cityfightTimestamps);
 
 		// insert known opponents from first round into second round
 		var j = fightTable.rows.length-1;
@@ -1555,11 +1556,11 @@ function cityfight() { // changes for the "Stadtkampf" part ..
 }
 
 function cityStorage() { // changes for the "Stadtlager" page ..
-    if(document.URL.includes("site=gruppe_lager")) {
-        cityStorageFunc();
-        if(document.URL.indexOf('do=informationen') == -1) { // "einzahlen", "auszahlen"
-			// add event handler to button ..
-            getContent().getElementsByTagName('input')[1].addEventListener('click', cityStorageFunc);
+	if(document.URL.includes("site=gruppe_lager")) {
+		cityStorageFunc();
+		if(document.URL.indexOf('do=informationen') == -1) { // "einzahlen", "auszahlen"
+		// add event handler to button ..
+			getContent().getElementsByTagName('input')[1].addEventListener('click', cityStorageFunc);
 
 			// add input options for numbers
 			var amountInput = getContent().getElementsByTagName('input')[0];
@@ -1568,31 +1569,29 @@ function cityStorage() { // changes for the "Stadtlager" page ..
 			amountInput.setAttribute('step', '1');
 			amountInput.setAttribute('style', 'width:60px; text-align:right;');
 			amountInput.setAttribute('placeholder', 'Menge');
-        }
-        if(document.URL.indexOf("do=auszahlen") == -1 && document.URL.indexOf('do=informationen') == -1) // "einzahlen"
-        {
-            getContent().getElementsByTagName('select')[0].addEventListener('change', putIntoStorage);
-        }
-    }
+		}
+		if(document.URL.indexOf("do=auszahlen") == -1 && document.URL.indexOf('do=informationen') == -1) { // "einzahlen"
+			getContent().getElementsByTagName('select')[0].addEventListener('change', putIntoStorage);
+		}
+	}
 }
 
 function putIntoStorage() {
-    var selected = getContent().getElementsByTagName('select')[0].value;
-    var rightNav = document.getElementById('right');
-    var text = rightNav.textContent;
-    var index = text.indexOf(selected) + selected.length + 9;
-    text = text.substring(index, index + 10);
-    text = text.replace(/[^A-Z0-9.]/g, "");
-    var value = parseInt(text);
-    if(selected == "Deben" && value > minDebenValue) {
-        value = value - minDebenValue;
-    }
-    else if(selected == "Deben") {
-        value = 0;
-    }
-    var amountInput = getContent().getElementsByTagName('input')[0];
-    amountInput.setAttribute('value', value);
-    amountInput.setAttribute('onfocus', 'this.select();');
+	var selected = getContent().getElementsByTagName('select')[0].value;
+	var rightNav = document.getElementById('right');
+	var text = rightNav.textContent;
+	var index = text.indexOf(selected) + selected.length + 9;
+	text = text.substring(index, index + 10);
+	text = text.replace(/[^A-Z0-9.]/g, "");
+	var value = parseInt(text);
+	if(selected == "Deben" && value > minDebenValue) {
+		value = value - minDebenValue;
+	} else if(selected == "Deben") {
+		value = 0;
+	}
+	var amountInput = getContent().getElementsByTagName('input')[0];
+	amountInput.setAttribute('value', value);
+	amountInput.setAttribute('onfocus', 'this.select();');
 }
 
 // function to apply the colors for the res table ..
@@ -1872,16 +1871,16 @@ function extendAnimalInformation() {
 }
 
 function getDateOfDeath(ageInformation) { // returns the date of death ..
-    var age = parseFloat(ageInformation.split('/')[0].trim());
-    var maxAge = parseFloat(ageInformation.split('/')[1].trim());
-    var daysLeft = Math.ceil(maxAge) - age;
-    var timeLeft = daysLeft * (1000 * 60 * 60 * 24);
-    var today = new Date();
-    today.setHours(0, 0, 0, 0);
-    var dateOfDeath = new Date((today.getTime() + timeLeft));
-    var day = (dateOfDeath.getDate() < 10) ? '0' + dateOfDeath.getDate() : dateOfDeath.getDate();
-    var month = (dateOfDeath.getMonth() < 9) ? '0' + (dateOfDeath.getMonth() + 1) : (dateOfDeath.getMonth() + 1);
-    return (day + '.' + month + '.' + dateOfDeath.getFullYear());
+	var age = parseFloat(ageInformation.split('/')[0].trim());
+	var maxAge = parseFloat(ageInformation.split('/')[1].trim());
+	var daysLeft = Math.ceil(maxAge) - age;
+	var timeLeft = daysLeft * (1000 * 60 * 60 * 24);
+	var today = new Date();
+	today.setHours(0, 0, 0, 0);
+	var dateOfDeath = new Date((today.getTime() + timeLeft));
+	var day = (dateOfDeath.getDate() < 10) ? '0' + dateOfDeath.getDate() : dateOfDeath.getDate();
+	var month = (dateOfDeath.getMonth() < 9) ? '0' + (dateOfDeath.getMonth() + 1) : (dateOfDeath.getMonth() + 1);
+	return (day + '.' + month + '.' + dateOfDeath.getFullYear());
 }
 
 function feedAnimal() { // "Tier füttern" page ..
@@ -1891,8 +1890,8 @@ function feedAnimal() { // "Tier füttern" page ..
 		amountInput.setAttribute('min', '0');
 		amountInput.setAttribute('placeholder', 'Menge');
 		amountInput.setAttribute('style', 'width:35px; text-align: right;');
-        amountInput.setAttribute('onfocus', 'if(this.value==this.defaultValue) this.value=\'\';');
-        amountInput.setAttribute('onblur', 'if(this.value==\'\') this.value=this.defaultValue;');
+		amountInput.setAttribute('onfocus', 'if(this.value==this.defaultValue) this.value=\'\';');
+		amountInput.setAttribute('onblur', 'if(this.value==\'\') this.value=this.defaultValue;');
 	}
 }
 
@@ -1953,12 +1952,12 @@ function character() { // "Charakter" page ..
 		amountInput.setAttribute('step', '1');
 		amountInput.setAttribute('style', 'width:50px; text-align:right;');
 		amountInput.setAttribute('placeholder', '0');
-        if(document.getElementById('content').getElementsByTagName('center')[0].getElementsByTagName('b')[0].textContent.search(/(\d+)/) != -1) {
-            var lp = parseInt(RegExp.$1, 10);
-            amountInput.setAttribute('value', lp);
-        }
-        amountInput.setAttribute('onfocus', 'this.select();');
-    }
+		if(document.getElementById('content').getElementsByTagName('center')[0].getElementsByTagName('b')[0].textContent.search(/(\d+)/) != -1) {
+			var lp = parseInt(RegExp.$1, 10);
+			amountInput.setAttribute('value', lp);
+		}
+		amountInput.setAttribute('onfocus', 'this.select();');
+}
 }
 
 function competition() { // "Gewinnspiel" page ..
@@ -1974,45 +1973,45 @@ function competition() { // "Gewinnspiel" page ..
 			amountInput.setAttribute('onblur', 'if(this.value==\'\') this.value=this.defaultValue;');
 		}
 
-        // add answers from database to the page ..
-        if(addExternalStats) {
-            var question = getContent().getElementsByTagName('table')[0].getElementsByTagName('i')[0].textContent.trim();
-            question = question.substring(1, question.length - 1);
-            var newCenter = document.createElement('center');
-            newCenter.setAttribute('id', 'competitionanswers');
-            document.getElementById('content').appendChild(newCenter);
-            var ret = GM_xmlhttpRequest( {
-                method: "POST",
-                url: "http://goe.klaxi.de/external/external.php",
-                data: "x=competitionanswers&q="+question,
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                onload: function() {
-                    var obj = JSON.parse(this.responseText);
-                    document.getElementById('competitionanswers').innerHTML = obj[0];
-                }
-            });
-        }
+		// add answers from database to the page ..
+		if(addExternalStats) {
+			var question = getContent().getElementsByTagName('table')[0].getElementsByTagName('i')[0].textContent.trim();
+			question = question.substring(1, question.length - 1);
+			var newCenter = document.createElement('center');
+			newCenter.setAttribute('id', 'competitionanswers');
+			document.getElementById('content').appendChild(newCenter);
+			var ret = GM_xmlhttpRequest( {
+				method: "POST",
+				url: "http://goe.klaxi.de/external/external.php",
+				data: "x=competitionanswers&q="+question,
+				headers: { "Content-Type": "application/x-www-form-urlencoded" },
+				onload: function() {
+					var obj = JSON.parse(this.responseText);
+					document.getElementById('competitionanswers').innerHTML = obj[0];
+				}
+			});
+		}
 	}
 }
 
 function colosseum() { // "Kolosseum" page ..
-    if(document.URL.includes('site=kolosseum&do=eroeffnen') && getContent().textContent.indexOf('Du bist bereits unterwegs:') == -1) {
-        var minEPinput = getContent().getElementsByTagName('input')[1];
+	if(document.URL.includes('site=kolosseum&do=eroeffnen') && getContent().textContent.indexOf('Du bist bereits unterwegs:') == -1) {
+		var minEPinput = getContent().getElementsByTagName('input')[1];
 		minEPinput.setAttribute('type', 'number');
 		minEPinput.setAttribute('min', '0');
 		minEPinput.setAttribute('step', '1');
-        minEPinput.setAttribute('placeholder', 'Min EP');
-        var maxEPinput = getContent().getElementsByTagName('input')[2];
-        maxEPinput.setAttribute('type', 'number');
+		minEPinput.setAttribute('placeholder', 'Min EP');
+		var maxEPinput = getContent().getElementsByTagName('input')[2];
+		maxEPinput.setAttribute('type', 'number');
 		maxEPinput.setAttribute('min', '0');
 		maxEPinput.setAttribute('step', '1');
-        maxEPinput.setAttribute('placeholder', 'Max EP');
-        var prizeInput = getContent().getElementsByTagName('input')[3];
-        prizeInput.setAttribute('type', 'number');
+		maxEPinput.setAttribute('placeholder', 'Max EP');
+		var prizeInput = getContent().getElementsByTagName('input')[3];
+		prizeInput.setAttribute('type', 'number');
 		prizeInput.setAttribute('min', '0');
 		prizeInput.setAttribute('step', '1');
-        prizeInput.setAttribute('placeholder', 'Einsatz in Deben');
-    }
+		prizeInput.setAttribute('placeholder', 'Einsatz in Deben');
+	}
 }
 
 
@@ -2057,9 +2056,9 @@ function preselectFirstStonecuttersRepairEntry() {
 
 // additional information for alchemists ..
 function addHealedInfo() {
-    if(document.URL.includes("site=arbeiten&show=1") ||
-       document.URL.includes("site=arbeiten&do=1") ||
-       (document.getElementById('form1') && document.getElementById('form1').textContent.indexOf('einen anderen User heilen') != -1)) {
+	if(document.URL.includes("site=arbeiten&show=1") ||
+	 document.URL.includes("site=arbeiten&do=1") ||
+	 (document.getElementById('form1') && document.getElementById('form1').textContent.indexOf('einen anderen User heilen') != -1)) {
 		var healValue = GM_getValue('healValue', 600);
 		var userSelection = getContent().getElementsByTagName('select')[0];
 		var options = userSelection.getElementsByTagName('option');
@@ -2073,10 +2072,12 @@ function addHealedInfo() {
 			var hpPerHour = parseInt(parseFloat(maxHp) * 0.002 + 1.0) * 6;
 			var timesToHeal = parseInt((hpDiff / healValue) + 1);
 			var timeToMaxHp = hpDiff / hpPerHour;
-			if(hpDiff > 0) { // wounded
+			if(hpDiff > 1) { // wounded (exception: 1 hp difference through 3 more ep)
 				options[i].textContent = optValue + " | " + hpDiff + "HP = ~" + timeToMaxHp.toFixed(1) + " Std. / ~" + timesToHeal + "x heilen.";
 				totalTimesToHeal += timesToHeal;
 				woundedUsers++;
+			} else if(i == GM_getValue('alchemistLastHealing', 0)) {
+				GM_setValue('alchemistLastHealing', 1);
 			}
 		}
 		getContent().getElementsByTagName('form')[0].insertBefore(document.createTextNode('Insgesamt ' + totalTimesToHeal + ' Heilungen ausstehend. Bei ' + woundedUsers + ' verletzten Usern.'), userSelection);
@@ -2084,7 +2085,11 @@ function addHealedInfo() {
 		getContent().getElementsByTagName('form')[0].insertBefore(document.createElement('br'), userSelection);
 		userSelection.setAttribute('size' , userSelection.length);
 		userSelection.setAttribute('style' , 'width:auto; max-width:100%');
-        options[1].selected = true; // preselect the primary healing entry for alchemists ..
+		// preselect the last healed person; if it's already healed complete, select first entry
+		options[GM_getValue('alchemistLastHealing', 0)].selected = true;
+		userSelection.addEventListener("change", function() {
+			GM_setValue('alchemistLastHealing', this.selectedIndex);
+		}, false);
 	}
 }
 
@@ -2225,6 +2230,19 @@ function preselectionCollector() {
             }
         }
     }
+}
+
+// preselect the last chosen elixir
+function preselectionProvider() {
+	if(document.URL.includes("site=arbeiten&do=34") ||
+	 document.URL.includes("site=arbeiten&show=34")) {
+		var options = document.getElementsByName('R1');
+		options[GM_getValue('providerLastElixir', 0)].checked = true;
+		options[0].addEventListener("click", function() { GM_setValue('providerLastElixir', 0); });
+		options[1].addEventListener("click", function() { GM_setValue('providerLastElixir', 1); });
+		options[2].addEventListener("click", function() { GM_setValue('providerLastElixir', 2); });
+		options[3].addEventListener("click", function() { GM_setValue('providerLastElixir', 3); });
+	}
 }
 
 // ---------------------------------------------------------------------------------------------------------

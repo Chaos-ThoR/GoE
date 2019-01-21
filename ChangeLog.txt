@@ -1,3 +1,8 @@
+-> v4.1.1
+	- Versorger: Letzte Auswahl wird gespeichert und vorausgewählt
+	- Alchemist: Letzte Auswahl wird gespeichert und vorausgewählt.
+	 Falls letzte Auswahl bereits komplett geheilt, wird der erste Eintrag vorausgewählt.
+
 -> v4.1.0
 	- Erkennen der Heilen-Seite optimiert
 	- Vorauswahl des ersten Heilen-Eintrags für Alchis
@@ -315,7 +320,7 @@
 			  der Arbeitsgänge gezeigt, bis der beste Zeitpunkt zum reparieren
 			  erreicht ist (auch farblich hinterlet bei bestimmten Grenzen)
 			  [die Grenzen sollen individuell eingestellt werden können]
-	- Alchimisten: 
+	- Alchemist:
 		- Heilen: es wird angezeigt wie viel EP noch fehlen, wie lange die
 		  Heilung normal noch dauern würde, und wie oft der User geheilt werden
 		  muss bis die vollen HP erreicht sind (ungefähre Werte)
