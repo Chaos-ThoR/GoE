@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         Game Of Elements
 // @namespace    GameOfElements
-// @version      4.1.1
+// @version      4.1.1.1
 // @updateURL    https://github.com/Chaos-ThoR/GoE/raw/master/Game%20Of%20Elements.user.js
 // @encoding     utf-8
 // @description  try to take over the world!
@@ -2064,6 +2064,7 @@ function addHealedInfo() {
 		var options = userSelection.getElementsByTagName('option');
 		var totalTimesToHeal = 0;
 		var woundedUsers = 0;
+		var preselectIndex = 1;
 		for(var i = 1; i < (options.length - 1); i++) {
 			var optValue = options[i].textContent;
 			var currentHp = optValue.split('/')[0].split(' - ')[1];
@@ -2076,8 +2077,9 @@ function addHealedInfo() {
 				options[i].textContent = optValue + " | " + hpDiff + "HP = ~" + timeToMaxHp.toFixed(1) + " Std. / ~" + timesToHeal + "x heilen.";
 				totalTimesToHeal += timesToHeal;
 				woundedUsers++;
-			} else if(i == GM_getValue('alchemistLastHealing', 0)) {
-				GM_setValue('alchemistLastHealing', 1);
+				if(options[i].value == GM_getValue('alchemistLastHealing', 0)) {
+					preselectIndex = i;
+				}
 			}
 		}
 		getContent().getElementsByTagName('form')[0].insertBefore(document.createTextNode('Insgesamt ' + totalTimesToHeal + ' Heilungen ausstehend. Bei ' + woundedUsers + ' verletzten Usern.'), userSelection);
@@ -2086,10 +2088,13 @@ function addHealedInfo() {
 		userSelection.setAttribute('size' , userSelection.length);
 		userSelection.setAttribute('style' , 'width:auto; max-width:100%');
 		// preselect the last healed person; if it's already healed complete, select first entry
-		options[GM_getValue('alchemistLastHealing', 0)].selected = true;
+		options[preselectIndex].selected = true;
 		userSelection.addEventListener("change", function() {
-			GM_setValue('alchemistLastHealing', this.selectedIndex);
+			GM_setValue('alchemistLastHealing', this.value);
 		}, false);
+		if(isMobile()) {
+			userSelection.focus(); // selected line only visible on mobile firefox if dropdown is focused
+		}
 	}
 }
 
