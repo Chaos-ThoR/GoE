@@ -1,3 +1,6 @@
+-> v4.1.2.:
+	- Bugfix: Wenn Ausrüstungsmenu fehlt, wird Tier nicht erkannt.
+
 -> v4.1.1.1:
 	- Bugfix: Alchi-Vorauswahl -> Letzter Index anstatt Person wurde gespeichert
 
