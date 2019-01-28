@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name					Game Of Elements
 // @namespace			GameOfElements
-// @version				4.1.2
+// @version				4.1.3
 // @updateURL			https://github.com/Chaos-ThoR/GoE/raw/master/Game%20Of%20Elements.user.js
 // @encoding			utf-8
 // @description		try to take over the world!
@@ -1108,17 +1108,17 @@ function addHealthInformation() {
 								var ticksTo25 = Math.ceil((maxHP * 0.25 - currentHP) / hpPerTick);
 								var timeTo25 = new Date();
 								timeTo25.setMinutes((Math.floor(timeTo25.getMinutes() / 10) + ticksTo25) * 10, 0, 0);
-								text += '-   25% am ' + format2(timeTo25.getDate()) + '.' + format2(timeTo25.getMonth() + 1) + '. ' + format2(timeTo25.getHours()) + ':' + format2(timeTo25.getMinutes()) + ' Uhr\n';
+								text += '- 25% am ' + format2(timeTo25.getDate()) + '.' + format2(timeTo25.getMonth() + 1) + '. ' + format2(timeTo25.getHours()) + ':' + format2(timeTo25.getMinutes()) + ' Uhr\n';
 							}
 							var ticksTo50 = Math.ceil((maxHP * 0.5 - currentHP) / hpPerTick);
 							var timeTo50 = new Date();
 							timeTo50.setMinutes((Math.floor(timeTo50.getMinutes() / 10) + ticksTo50) * 10, 0, 0);
-							text += '-   50% am ' + format2(timeTo50.getDate()) + '.' + format2(timeTo50.getMonth() + 1) + '. ' + format2(timeTo50.getHours()) + ':' + format2(timeTo50.getMinutes()) + ' Uhr\n';
+							text += '- 50% am ' + format2(timeTo50.getDate()) + '.' + format2(timeTo50.getMonth() + 1) + '. ' + format2(timeTo50.getHours()) + ':' + format2(timeTo50.getMinutes()) + ' Uhr\n';
 						}
 						var ticksTo75 = Math.ceil((maxHP * 0.75 - currentHP) / hpPerTick);
 						var timeTo75 = new Date();
 						timeTo75.setMinutes((Math.floor(timeTo75.getMinutes() / 10) + ticksTo75) * 10, 0, 0);
-						text += '-   75% am ' + format2(timeTo75.getDate()) + '.' + format2(timeTo75.getMonth() + 1) + '. ' + format2(timeTo75.getHours()) + ':' + format2(timeTo75.getMinutes()) + ' Uhr\n';
+						text += '- 75% am ' + format2(timeTo75.getDate()) + '.' + format2(timeTo75.getMonth() + 1) + '. ' + format2(timeTo75.getHours()) + ':' + format2(timeTo75.getMinutes()) + ' Uhr\n';
 					}
 					text += '- 100% am ' + format2(timeTo100.getDate()) + '.' + format2(timeTo100.getMonth() + 1) + '. ' + format2(timeTo100.getHours()) + ':' + format2(timeTo100.getMinutes()) + ' Uhr\n';
 					var reducedMinutesPerHealing = GM_getValue('healValue', 600) / hpPerTick * 10;
@@ -1137,7 +1137,7 @@ function addHealthInformation() {
 						ticksBetweenTimes = Math.floor(ticksBetweenTimes / 1000 / 60 / 10);
 						var calcHP = currentHP + ticksBetweenTimes * hpPerTick;
 						var calcHealPercentage = calcHP / maxHP * 100;
-						text += '-> Gesundheit: ' + calcHP + '/' + maxHP + ' HP, ' + calcHealPercentage.toFixed(1) + '%  (-' + (maxHP - calcHP) + ' HP)\n\n';
+						text += '-> Gesundheit: ' + calcHP + '/' + maxHP + ' HP, ' + calcHealPercentage.toFixed(1) + '% (-' + (maxHP - calcHP) + ' HP)\n\n';
 						text += 'Möglichkeiten:\n';
 						text += '- ca. ' + Math.ceil((maxHP - calcHP) / GM_getValue('healValue', 600)) + 'x heilen durch Alchi\n';
 						if(calcHealPercentage >= 75) {
@@ -2035,9 +2035,7 @@ function preselectFirstStonecuttersRepairEntry() {
 
 // additional information for alchemists ..
 function addHealedInfo() {
-	if(document.URL.includes("site=arbeiten&show=1") ||
-	 document.URL.includes("site=arbeiten&do=1") ||
-	 (document.getElementById('form1') && document.getElementById('form1').textContent.indexOf('einen anderen User heilen') != -1)) {
+	if(document.getElementById('form1') && document.getElementById('form1').textContent.indexOf('einen anderen User heilen') != -1) {
 		var healValue = GM_getValue('healValue', 600);
 		var userSelection = getContent().getElementsByTagName('select')[0];
 		var options = userSelection.getElementsByTagName('option');
@@ -2078,8 +2076,7 @@ function addHealedInfo() {
 }
 
 function defaultSelectionsForAlchemist() { // spell default
-	if(document.URL.includes("site=arbeiten&show=21") ||
-	document.URL.includes("site=arbeiten&do=21")) {
+	if(document.getElementById('form1') && document.getElementById('form1').textContent.indexOf('Als Alchemist kannst du hier Buffs, also Zauber, auf andere Spieler wirken.') != -1) {
 		var options0 = document.getElementsByName('bb1');
 		var alchemistSpellDefault = GM_getValue('alchemistSpellDefault', 0);
 		options0[alchemistSpellDefault].checked = true;
@@ -2093,8 +2090,7 @@ function defaultSelectionsForAlchemist() { // spell default
 	}
 
 	// spell default
-	if(document.URL.includes("site=arbeiten&show=10") ||
-		document.URL.includes("site=arbeiten&do=10")) {
+	if(document.getElementById('form1') && document.getElementById('form1').textContent.indexOf('Als Alchemist kannst du hier Pillen mixen.') != -1) {
 		var options1 = document.getElementsByName('R1');
 		var alchemistPotionDefault = GM_getValue('alchemistPotionDefault', 0);
 		options1[alchemistPotionDefault].checked = true;
@@ -2260,7 +2256,7 @@ function getUserName() { // get the current user name ..
 }
 
 function isLoggedIn() {
-	return (document.getElementById('nav_haupt_right').textContent !== 'Login');
+	return (document.getElementById('right').innerHTML.indexOf('value="Login"') == -1);
 }
 
 function getHeatValue() {
