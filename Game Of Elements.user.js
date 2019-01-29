@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name					Game Of Elements
 // @namespace			GameOfElements
-// @version				4.1.4
+// @version				4.1.4.1
 // @updateURL			https://github.com/Chaos-ThoR/GoE/raw/master/Game%20Of%20Elements.user.js
 // @encoding			utf-8
 // @description		try to take over the world!
@@ -1100,6 +1100,7 @@ function addHealthInformation() {
 			var currentTime = new Date();
 			newRow.addEventListener('click', function() {
 				var text = '++ INFORMATIONEN ZUR HEILUNG ++\n\n';
+				text += 'Gesundheit: ' + currentHP + '/' + maxHP + ' HP (' + healPercentage.toFixed(1) + '%)\n';
 				if(healPercentage < 75) {
 					if(healPercentage < 50) {
 						if(healPercentage < 25) {
