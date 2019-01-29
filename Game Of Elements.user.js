@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name					Game Of Elements
 // @namespace			GameOfElements
-// @version				4.1.4.1
+// @version				4.1.4.2
 // @updateURL			https://github.com/Chaos-ThoR/GoE/raw/master/Game%20Of%20Elements.user.js
 // @encoding			utf-8
 // @description		try to take over the world!
@@ -918,7 +918,7 @@ function scaleUpCaptcha() { // scales up the captcha to easy click on mobile dev
 			captcha.style.position = 'relative';
 
 			captcha.style.transform = 'scale(1.5)';
-			if(isMobile() && document.URL.indexOf('site=forum') == -1) {
+			if(isMobile() && document.URL.indexOf('site=forum') == -1 && document.URL.indexOf('site=marktplatz&do=verkaufen') == -1) {
 				//captcha.style.transform = 'scale(3)';
 				//captcha.style.top = '60px';
 				captcha.style.transform = 'scaleX(7.0) scaleY(5) rotate(90deg)';

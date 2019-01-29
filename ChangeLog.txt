@@ -1,4 +1,4 @@
--> v4.1.4:
+-> v4.1.4: (+ v4.1.4.1/2: Bugfix)
 	- Zuletzt gesehene Marktpreise werden auf Verkaufen-Seite angezeigt
 	- Informationen zur eigenen Heilung:
 		-- Elixier der Genesung hinzugefügt
