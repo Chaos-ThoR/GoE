@@ -1,3 +1,9 @@
+-> v4.1.4:
+	- Zuletzt gesehene Marktpreise werden auf Verkaufen-Seite angezeigt
+	- Informationen zur eigenen Heilung:
+		-- Elixier der Genesung hinzugefügt
+		-- Vorauswahl für Wunschzeit: nächster SK
+
 -> v4.1.3:
 	- Bugfix: Arbeiten-Seite mit ID=1 wird auch bei ID=10 angesprochen
 	- Bugfix: Arbeiten: Seiten für "Pillen herstellen" und "Zauber wirken" werden falsch angesprochen

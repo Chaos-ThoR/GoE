@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name					Game Of Elements
 // @namespace			GameOfElements
-// @version				4.1.3
+// @version				4.1.4
 // @updateURL			https://github.com/Chaos-ThoR/GoE/raw/master/Game%20Of%20Elements.user.js
 // @encoding			utf-8
 // @description		try to take over the world!
@@ -809,6 +809,7 @@ function showCityfightWarning() { // display a warning if there is an upcoming c
 		while(cityfightTimestamps[0] < currentTimestamp.getTime()) {
 			cityfightTimestamps.shift();
 		}
+		GM_setValue('cityfightTimestamps', cityfightTimestamps);
 		var nextCityfightTimestamp = new Date(cityfightTimestamps[0]);
 		if(currentTimestamp.getTime() + (30*60*1000) > nextCityfightTimestamp.getTime()) {
 			if(!document.getElementById('globalTopWarning')) {
@@ -1098,67 +1099,81 @@ function addHealthInformation() {
 			// additional information in alert
 			var currentTime = new Date();
 			newRow.addEventListener('click', function() {
-				var timeToFullHealth = window.prompt('Gib deine Wunschzeit an, zu der du geheilt sein willst:\nFORMAT: dd.mm.yyyy hh:mm\n\nleer = Infos zur Selbstheilung', '');
 				var text = '++ INFORMATIONEN ZUR HEILUNG ++\n\n';
-
-				if(timeToFullHealth == '') {
-					if(healPercentage < 75) {
-						if(healPercentage < 50) {
-							if(healPercentage < 25) {
-								var ticksTo25 = Math.ceil((maxHP * 0.25 - currentHP) / hpPerTick);
-								var timeTo25 = new Date();
-								timeTo25.setMinutes((Math.floor(timeTo25.getMinutes() / 10) + ticksTo25) * 10, 0, 0);
-								text += '- 25% am ' + format2(timeTo25.getDate()) + '.' + format2(timeTo25.getMonth() + 1) + '. ' + format2(timeTo25.getHours()) + ':' + format2(timeTo25.getMinutes()) + ' Uhr\n';
-							}
-							var ticksTo50 = Math.ceil((maxHP * 0.5 - currentHP) / hpPerTick);
-							var timeTo50 = new Date();
-							timeTo50.setMinutes((Math.floor(timeTo50.getMinutes() / 10) + ticksTo50) * 10, 0, 0);
-							text += '- 50% am ' + format2(timeTo50.getDate()) + '.' + format2(timeTo50.getMonth() + 1) + '. ' + format2(timeTo50.getHours()) + ':' + format2(timeTo50.getMinutes()) + ' Uhr\n';
+				if(healPercentage < 75) {
+					if(healPercentage < 50) {
+						if(healPercentage < 25) {
+							var ticksTo25 = Math.ceil((maxHP * 0.25 - currentHP) / hpPerTick);
+							var timeTo25 = new Date();
+							timeTo25.setMinutes((Math.floor(timeTo25.getMinutes() / 10) + ticksTo25) * 10, 0, 0);
+							text += '- 25% am ' + format2(timeTo25.getDate()) + '.' + format2(timeTo25.getMonth() + 1) + '. ' + format2(timeTo25.getHours()) + ':' + format2(timeTo25.getMinutes()) + ' Uhr\n';
 						}
-						var ticksTo75 = Math.ceil((maxHP * 0.75 - currentHP) / hpPerTick);
-						var timeTo75 = new Date();
-						timeTo75.setMinutes((Math.floor(timeTo75.getMinutes() / 10) + ticksTo75) * 10, 0, 0);
-						text += '- 75% am ' + format2(timeTo75.getDate()) + '.' + format2(timeTo75.getMonth() + 1) + '. ' + format2(timeTo75.getHours()) + ':' + format2(timeTo75.getMinutes()) + ' Uhr\n';
+						var ticksTo50 = Math.ceil((maxHP * 0.5 - currentHP) / hpPerTick);
+						var timeTo50 = new Date();
+						timeTo50.setMinutes((Math.floor(timeTo50.getMinutes() / 10) + ticksTo50) * 10, 0, 0);
+						text += '- 50% am ' + format2(timeTo50.getDate()) + '.' + format2(timeTo50.getMonth() + 1) + '. ' + format2(timeTo50.getHours()) + ':' + format2(timeTo50.getMinutes()) + ' Uhr\n';
 					}
-					text += '- 100% am ' + format2(timeTo100.getDate()) + '.' + format2(timeTo100.getMonth() + 1) + '. ' + format2(timeTo100.getHours()) + ':' + format2(timeTo100.getMinutes()) + ' Uhr\n';
-					var reducedMinutesPerHealing = GM_getValue('healValue', 600) / hpPerTick * 10;
-					text += '\nReduzierung pro Heilung: ' + Math.floor(reducedMinutesPerHealing / 60) + ':' + format2(Math.round(reducedMinutesPerHealing % 60)) + ' h\n';
-				} else if(timeToFullHealth.search(/(\d{1,2})\.(\d{1,2})\.(\d{4}) (\d{1,2}):(\d{1,2})/) != -1) {
-					timeToFullHealth = new Date(RegExp.$3, (RegExp.$2-1), RegExp.$1, RegExp.$4, RegExp.$5, 0);
-					text += 'Wunschzeit: ' + format2(timeToFullHealth.getDate()) + '.' + format2(timeToFullHealth.getMonth() + 1) + '.' + timeToFullHealth.getFullYear() + ' ' + format2(timeToFullHealth.getHours()) + ':' + format2(timeToFullHealth.getMinutes()) + ' Uhr\n';
-					if(timeToFullHealth < (new Date())) {
-						text = '++ FEHLER ++\n\nWunschzeit liegt in der Vergangenheit';
-					} else if(timeToFullHealth > timeTo100) {
-						text += '-> geheilt am ' + format2(timeTo100.getDate()) + '.' + format2(timeTo100.getMonth() + 1) + '. um ' + format2(timeTo100.getHours()) + ':' + format2(timeTo100.getMinutes()) + ' Uhr\n';
-						text += '=> Selbstheilung alleine ist ausreichend!\n';
-					} else {
-						currentTime.setMinutes(currentTime.getMinutes() - currentTime.getMinutes() % 10, 0, 0);
-						var ticksBetweenTimes = timeToFullHealth.getTime() - currentTime.getTime();
-						ticksBetweenTimes = Math.floor(ticksBetweenTimes / 1000 / 60 / 10);
-						var calcHP = currentHP + ticksBetweenTimes * hpPerTick;
-						var calcHealPercentage = calcHP / maxHP * 100;
-						text += '-> Gesundheit: ' + calcHP + '/' + maxHP + ' HP, ' + calcHealPercentage.toFixed(1) + '% (-' + (maxHP - calcHP) + ' HP)\n\n';
-						text += 'Möglichkeiten:\n';
-						text += '- ca. ' + Math.ceil((maxHP - calcHP) / GM_getValue('healValue', 600)) + 'x heilen durch Alchi\n';
-						if(calcHealPercentage >= 75) {
-							text += '- kleine Vitaminpille (25%)\n';
-						} else if(calcHealPercentage >= 50 && calcHealPercentage < 75) {
-							text += '- ca. ' + Math.ceil((maxHP - calcHP - maxHP * 0.25) / GM_getValue('healValue', 600)) + 'x heilen durch Alchi + kleine Vitaminpille (25%)\n';
-							text += '- mittlere Vitaminpille (50%)\n';
-						} else if(calcHealPercentage >= 25 && calcHealPercentage < 50) {
-							text += '- ca. ' + Math.ceil((maxHP - calcHP - maxHP * 0.25) / GM_getValue('healValue', 600)) + 'x heilen durch Alchi + kleine Vitaminpille (25%)\n';
-							text += '- ca. ' + Math.ceil((maxHP - calcHP - maxHP * 0.5) / GM_getValue('healValue', 600)) + 'x heilen durch Alchi + mittlere Vitaminpille (50%)\n';
-							text += '- starke Vitaminpille (75%)\n';
-						} else {
-							text += '- ca. ' + Math.ceil((maxHP - calcHP - maxHP * 0.25) / GM_getValue('healValue', 600)) + 'x heilen durch Alchi + kleine Vitaminpille (25%)\n';
-							text += '- ca. ' + Math.ceil((maxHP - calcHP - maxHP * 0.5) / GM_getValue('healValue', 600)) + 'x heilen durch Alchi + mittlere Vitaminpille (50%)\n';
-							text += '- ca. ' + Math.ceil((maxHP - calcHP - maxHP * 0.75) / GM_getValue('healValue', 600)) + 'x heilen durch Alchi + starke Vitaminpille (75%)\n';
-						}
-					}
-				} else {
-						text = '++ FEHLER ++\n\nWunschzeit im falschen Format: ' + timeToFullHealth + '\n';
+					var ticksTo75 = Math.ceil((maxHP * 0.75 - currentHP) / hpPerTick);
+					var timeTo75 = new Date();
+					timeTo75.setMinutes((Math.floor(timeTo75.getMinutes() / 10) + ticksTo75) * 10, 0, 0);
+					text += '- 75% am ' + format2(timeTo75.getDate()) + '.' + format2(timeTo75.getMonth() + 1) + '. ' + format2(timeTo75.getHours()) + ':' + format2(timeTo75.getMinutes()) + ' Uhr\n';
 				}
-				alert(text);
+				text += '- 100% am ' + format2(timeTo100.getDate()) + '.' + format2(timeTo100.getMonth() + 1) + '. ' + format2(timeTo100.getHours()) + ':' + format2(timeTo100.getMinutes()) + ' Uhr\n';
+				var reducedMinutesPerHealing = GM_getValue('healValue', 600) / hpPerTick * 10;
+				text += '\nReduzierung pro Heilung: ' + Math.floor(reducedMinutesPerHealing / 60) + ':' + format2(Math.round(reducedMinutesPerHealing % 60)) + ' h\n';
+				var hpPerElixir = 6*6*(hpPerTick + Math.ceil(2 * maxHP * 0.002)); // Elixier der Genesung
+				text += 'Elixier der Genesung: +' + hpPerElixir + ' HP bzw. +' + (hpPerElixir / maxHP * 100).toFixed(1) + '%\n';
+				text += '\n\nGib deine Wunschzeit an, zu der du geheilt sein willst:\nFORMAT: dd.mm.yyyy hh:mm';
+				var currentTimestamp = new Date();
+				currentTimestamp.setSeconds(0, 0);
+				var cityfightTimestamps = GM_getValue('cityfightTimestamps', 0);
+				while(cityfightTimestamps[0] < currentTimestamp.getTime()) {
+					cityfightTimestamps.shift();
+				}
+				GM_setValue('cityfightTimestamps', cityfightTimestamps);
+				var nextCityfightTimestamp = new Date(cityfightTimestamps[0]);
+
+				var timeToFullHealth = window.prompt(text, format2(nextCityfightTimestamp.getDate())+'.'+format2(nextCityfightTimestamp.getMonth()+1)+'.'+nextCityfightTimestamp.getFullYear()+' '+format2(nextCityfightTimestamp.getHours())+':'+format2(nextCityfightTimestamp.getMinutes()));
+
+				if(timeToFullHealth != '') {
+					text = '++ INFORMATIONEN ZUR HEILUNG ++\n\n';
+					if(timeToFullHealth.search(/(\d{1,2})\.(\d{1,2})\.(\d{4}) (\d{1,2}):(\d{1,2})/) != -1) {
+						timeToFullHealth = new Date(RegExp.$3, (RegExp.$2-1), RegExp.$1, RegExp.$4, RegExp.$5, 0);
+						text += 'Wunschzeit: ' + format2(timeToFullHealth.getDate()) + '.' + format2(timeToFullHealth.getMonth() + 1) + '.' + timeToFullHealth.getFullYear() + ' ' + format2(timeToFullHealth.getHours()) + ':' + format2(timeToFullHealth.getMinutes()) + ' Uhr\n';
+						if(timeToFullHealth < (new Date())) {
+							text = '++ FEHLER ++\n\nWunschzeit liegt in der Vergangenheit';
+						} else if(timeToFullHealth > timeTo100) {
+							text += '-> geheilt am ' + format2(timeTo100.getDate()) + '.' + format2(timeTo100.getMonth() + 1) + '. um ' + format2(timeTo100.getHours()) + ':' + format2(timeTo100.getMinutes()) + ' Uhr\n';
+							text += '=> Selbstheilung alleine ist ausreichend!\n';
+						} else {
+							currentTime.setMinutes(currentTime.getMinutes() - currentTime.getMinutes() % 10, 0, 0);
+							var ticksBetweenTimes = timeToFullHealth.getTime() - currentTime.getTime();
+							ticksBetweenTimes = Math.floor(ticksBetweenTimes / 1000 / 60 / 10);
+							var calcHP = currentHP + ticksBetweenTimes * hpPerTick;
+							var calcHealPercentage = calcHP / maxHP * 100;
+							text += '-> Gesundheit: ' + calcHP + '/' + maxHP + ' HP, ' + calcHealPercentage.toFixed(1) + '% (-' + (maxHP - calcHP) + ' HP)\n\n';
+							text += 'Möglichkeiten:\n';
+							text += '- ca. ' + Math.ceil((maxHP - calcHP) / GM_getValue('healValue', 600)) + 'x heilen durch Alchi\n';
+							if(calcHealPercentage >= 75) {
+								text += '- kleine Vitaminpille (25%)\n';
+							} else if(calcHealPercentage >= 50 && calcHealPercentage < 75) {
+								text += '- ca. ' + Math.ceil((maxHP - calcHP - maxHP * 0.25) / GM_getValue('healValue', 600)) + 'x heilen durch Alchi + kleine Vitaminpille (25%)\n';
+								text += '- mittlere Vitaminpille (50%)\n';
+							} else if(calcHealPercentage >= 25 && calcHealPercentage < 50) {
+								text += '- ca. ' + Math.ceil((maxHP - calcHP - maxHP * 0.25) / GM_getValue('healValue', 600)) + 'x heilen durch Alchi + kleine Vitaminpille (25%)\n';
+								text += '- ca. ' + Math.ceil((maxHP - calcHP - maxHP * 0.5) / GM_getValue('healValue', 600)) + 'x heilen durch Alchi + mittlere Vitaminpille (50%)\n';
+								text += '- starke Vitaminpille (75%)\n';
+							} else {
+								text += '- ca. ' + Math.ceil((maxHP - calcHP - maxHP * 0.25) / GM_getValue('healValue', 600)) + 'x heilen durch Alchi + kleine Vitaminpille (25%)\n';
+								text += '- ca. ' + Math.ceil((maxHP - calcHP - maxHP * 0.5) / GM_getValue('healValue', 600)) + 'x heilen durch Alchi + mittlere Vitaminpille (50%)\n';
+								text += '- ca. ' + Math.ceil((maxHP - calcHP - maxHP * 0.75) / GM_getValue('healValue', 600)) + 'x heilen durch Alchi + starke Vitaminpille (75%)\n';
+							}
+						}
+					} else {
+						text += '++ FEHLER ++\n\nWunschzeit im falschen Format: ' + timeToFullHealth + '\n';
+					}
+					alert(text);
+				}
 			}, false);
 		}
 	}
@@ -1899,15 +1914,19 @@ function transfer() { // "Übertragen" page ..
 }
 
 function marketplace() { // "Marktplatz" page ..
-	if(document.URL.includes('site=marktplatz&kaufen=')) {
+	if(document.URL.includes('site=marktplatz&do=durchsuchen') && getContent().getElementsByTagName('table')[1]) {
+		var OfferTableHTML = getContent().getElementsByTagName('table')[1].outerHTML;
+		var now = new Date();
+		OfferTableHTML = OfferTableHTML.replace('<tbody>', '<thead><tr><th colspan="5" style="background-image: url(\'img/revolution/footer_bg.jpg\'); height:25px; color:red; font-size:medium;">Gespeichert am '+format2(now.getDate())+'.'+format2(now.getMonth()+1)+'.'+now.getFullYear()+' um '+format2(now.getHours())+':'+format2(now.getMinutes())+' Uhr</th></tr></thead><tbody>');
+		GM_setValue('OfferTable', OfferTableHTML);
+	} else if(document.URL.includes('site=marktplatz&kaufen=')) {
 		var amountInputBuy = getContent().getElementsByTagName('input')[0];
 		amountInputBuy.setAttribute('type', 'number');
 		amountInputBuy.setAttribute('min', '0');
 		amountInputBuy.setAttribute('max', amountInputBuy.value);
 		amountInputBuy.setAttribute('step', '1');
 		amountInputBuy.setAttribute('style', 'width:50px; text-align:right;');
-	}
-	else if(document.URL.includes('site=marktplatz&do=verkaufen')) {
+	} else if(document.URL.includes('site=marktplatz&do=verkaufen')) {
 		var amountInputSell = getContent().getElementsByTagName('input')[0];
 		amountInputSell.setAttribute('type', 'number');
 		amountInputSell.setAttribute('min', '0');
@@ -1920,6 +1939,9 @@ function marketplace() { // "Marktplatz" page ..
 		priceInput.setAttribute('step', '0.01');
 		priceInput.setAttribute('style', 'width:60px; text-align:right;');
 		priceInput.setAttribute('placeholder', '0,00');
+
+		var OfferTable = GM_getValue('OfferTable', '');
+		getContent().innerHTML += OfferTable;
 	}
 }
 
