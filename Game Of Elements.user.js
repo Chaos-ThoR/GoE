@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name					Game Of Elements
 // @namespace			GameOfElements
-// @version				4.1.4.2
+// @version				4.1.5
 // @updateURL			https://github.com/Chaos-ThoR/GoE/raw/master/Game%20Of%20Elements.user.js
 // @encoding			utf-8
 // @description		try to take over the world!
@@ -626,7 +626,7 @@ function global() { // changes for the whole page ..
 	}
 
 	if(removeHeadFoot) {
-		// remove some elemts from the page ..
+		// remove some elements from the page ..
 		removeElementById('partner_leiste');
 
 		// if there, remove advertising or message of advertising blocker ..
@@ -732,8 +732,8 @@ function serverTime() {
 	if(moveServerTime) {
 		// move the server time for the given pages ..
 		var firstTitle = getContent().getElementsByTagName('h1')[0];
-		if(firstTitle) {
-			var clock = document.getElementById('Uhrzeit');
+		var clock = document.getElementById('Uhrzeit');
+		if(firstTitle && clock) {
 			clock.style = 'color:black';
 			firstTitle.innerHTML += '<span style="color:black"> | Serverzeit: </span>';
 			firstTitle.appendChild(clock);
@@ -1891,13 +1891,12 @@ function feedAnimal() { // "Tier füttern" page ..
 }
 
 function transfer() { // "Übertragen" page ..
-	if(document.URL.includes('site=ubertragen') && !document.URL.includes('do=safe')) {
+	if(document.URL.includes('site=ubertragen') && !document.URL.includes('do=safe') && !document.URL.includes('do=tier')) {
 		var amountInput = getContent().getElementsByTagName('input')[1];
 		amountInput.setAttribute('type', 'number');
 		amountInput.setAttribute('min', '0');
 		amountInput.setAttribute('placeholder', 'Menge');
-	}
-	else if(document.URL.includes('site=ubertragen') && document.URL.includes('do=safe')) {
+	} else if(document.URL.includes('site=ubertragen') && document.URL.includes('do=safe')) {
 		var amountInputOffer = getContent().getElementsByTagName('input')[0]; // biete ich ..
 		amountInputOffer.setAttribute('type', 'number');
 		amountInputOffer.setAttribute('min', '0');
@@ -2295,8 +2294,10 @@ function getHeatValue() {
 
 function removeElementById(id) {
 	var toRemove = document.getElementById(id);
-	toRemove.parentNode.removeChild(toRemove);
-	return toRemove;
+	if(toRemove) {
+		toRemove.parentNode.removeChild(toRemove);
+		return toRemove;
+	}
 }
 
 function getContent() {
