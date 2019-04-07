@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name					Game Of Elements
 // @namespace			GameOfElements
-// @version				4.1.5
+// @version				4.2
 // @updateURL			https://github.com/Chaos-ThoR/GoE/raw/master/Game%20Of%20Elements.user.js
 // @encoding			utf-8
 // @description		try to take over the world!
@@ -1512,6 +1512,7 @@ function cityfight() { // changes for the "Stadtkampf" part ..
 
 		// get the fight table ..
 		var allEP = 0;
+		var allHP = 0;
 		var currentFightTable = getContent().getElementsByTagName('table')[2];
 		var additionalTable = currentFightTable.textContent.includes("INFORMATION"); // additional information table (fight is running, sign in/out of fight)
 		var correction = 0;
@@ -1525,6 +1526,7 @@ function cityfight() { // changes for the "Stadtkampf" part ..
 		// sum of all user EP ..
 		for(var i = 1; i < (currentFightTable.rows.length - correction); i++) {
 			allEP += parseInt(getTableElement(currentFightTable, i, 1).textContent);
+			allHP += parseInt(getTableElement(currentFightTable, i, 2).textContent.split('/')[0]);
 			var currentHP = parseInt(getTableElement(currentFightTable, i, 2).textContent.split('%')[0]);
 			var fullHP = parseInt(getTableElement(currentFightTable, i, 1).textContent / 3);
 			var color = "#C00000";
@@ -1558,6 +1560,10 @@ function cityfight() { // changes for the "Stadtkampf" part ..
 		} else {
 			currentFightCol.textContent = currentFightCol.textContent + " (" + (currentFightTable.rows.length - correction - 1) + ")";
 		}
+		// hp information ..
+		currentFightCol = getTableElement(currentFightTable, 0, 2);
+		currentFightCol.style.color = 'white';
+		currentFightCol.innerHTML = "HP: " + allHP + " (" + (allHP*3/allEP*100).toFixed(0) + " %)";
 	}
 }
 
