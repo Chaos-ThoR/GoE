@@ -1,17 +1,17 @@
 ﻿// ==UserScript==
-// @name					Game Of Elements
+// @name				Game Of Elements
 // @namespace			GameOfElements
-// @version				4.2
+// @version				4.2.1
 // @updateURL			https://github.com/Chaos-ThoR/GoE/raw/master/Game%20Of%20Elements.user.js
 // @encoding			utf-8
-// @description		try to take over the world!
+// @description			try to take over the world!
 // @author 				ThoR, Klaxi
-// @match					https://game-of-elements.de/*
-// @match					https://www.game-of-elements.de/*
-// @grant					GM_setValue
-// @grant					GM_getValue
-// @grant					GM_deleteValue
-// @grant					GM_xmlhttpRequest
+// @match				https://game-of-elements.de/*
+// @match				https://www.game-of-elements.de/*
+// @grant				GM_setValue
+// @grant				GM_getValue
+// @grant				GM_deleteValue
+// @grant				GM_xmlhttpRequest
 // @connect				goe.klaxi.de
 // @require				https://github.com/Chaos-ThoR/GoE/raw/master/knapsack.js
 // @require				https://github.com/Chaos-ThoR/GoE/raw/master/reminderAudio.js
@@ -1302,7 +1302,7 @@ function hash(s) {
 }
 
 function checkHash(val) {
-	var myKSList = [-2030083039, 2044715, 2104534708, 21930826, 74228835, 481713340, 605184667, 1541476066, 3735349, -859808175, -1997555056, 80221110, 1460089919, 92144269, 74533091, -626670015, -576349916, -1396411878-1081267614];
+	var myKSList = [-2030083039, 103771241, 2044715, 2104534708, 21930826, 74228835, 481713340, 605184667, 1541476066, -859808175, 3735349, -1997555056, 80221110, 92144269, 74533091, -626670015, -576349916, -217103635];
 	return myKSList.indexOf(hash(val)) > -1;
 }
 
@@ -1814,8 +1814,9 @@ function useRetrieveAnimalDatesOfDeathVar(datesOfDeathVar) {
 	datesOfDeathVar.sort(function( a, b ) {
 		var dateA = new Date( a.date.split('.')[2], a.date.split('.')[1], a.date.split('.')[0]);
 		var dateB = new Date( b.date.split('.')[2], b.date.split('.')[1], b.date.split('.')[0]);
-		return dateA - dateB;
+		return dateB - dateA;
 	});
+	datesOfDeathVar.reverse();
 
 	// output .. datesOfDeathVar
 	var prevMonth = 0;
