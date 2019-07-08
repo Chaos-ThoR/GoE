@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name				Game Of Elements
 // @namespace			GameOfElements
-// @version				4.2.2
+// @version				4.2.3
 // @updateURL			https://github.com/Chaos-ThoR/GoE/raw/master/Game%20Of%20Elements.user.js
 // @encoding			utf-8
 // @description			try to take over the world!
@@ -1828,8 +1828,8 @@ function useRetrieveAnimalDatesOfDeathVar(datesOfDeathVar) {
 			text.value += '\n';
 		}
 		var juv = '';
-		if(datesOfDeathVar[entry].age < 5) {}
-			juv = ' (j)'
+		if(datesOfDeathVar[entry].age < 5) {
+			juv = ' (j)';
 	}
 		text.value += datesOfDeathVar[entry].date + ' -> ' + datesOfDeathVar[entry].animal + juv + '\n';
 	}
