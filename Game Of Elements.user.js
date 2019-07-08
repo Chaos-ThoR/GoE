@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name				Game Of Elements
 // @namespace			GameOfElements
-// @version				4.2.1
+// @version				4.2.2
 // @updateURL			https://github.com/Chaos-ThoR/GoE/raw/master/Game%20Of%20Elements.user.js
 // @encoding			utf-8
 // @description			try to take over the world!
@@ -1788,17 +1788,13 @@ function retrieveAnimalDatesOfDeath() {
 	frameA.onload = function() { // get the data from the first page / table ..
 		var table = frameA.contentDocument.getElementById('content').getElementsByTagName('table')[0];
 		for(var i = 1; i < table.rows.length; i++) {
-			if(parseInt(getTableElement(table, i, 2).textContent.split('/')[0].trim()) >= 5) { // only animals which are older than 5
-				retrieveAnimalDatesOfDeathVar.push({ date : getDateOfDeath(getTableElement(table, i, 2).textContent), animal : getTableElement(table, i, 1).textContent.split(' (')[0] });
-			}
+			retrieveAnimalDatesOfDeathVar.push({date : getDateOfDeath(getTableElement(table, i, 2).textContent), animal : getTableElement(table, i, 1).textContent.split(' (')[0], age : parseInt(getTableElement(table, i, 2).textContent.split('/')[0].trim())});
 		}
 		frameA.parentNode.removeChild(frameA);
 
 		table = getContent().getElementsByTagName('table')[0];
 		for(var j = 1; j < table.rows.length; j++) {
-			if(parseInt(getTableElement(table, j, 3).textContent.split('/')[0].trim()) >= 5) { // only animals which are older than 5
-				retrieveAnimalDatesOfDeathVar.push({ date : getDateOfDeath(getTableElement(table, j, 3).textContent), animal : getTableElement(table, j, 1).textContent });
-			}
+			retrieveAnimalDatesOfDeathVar.push({date : getDateOfDeath(getTableElement(table, j, 3).textContent), animal : getTableElement(table, j, 1).textContent, age : parseInt(getTableElement(table, j, 3).textContent.split('/')[0].trim())});
 		}
 		useRetrieveAnimalDatesOfDeathVar(retrieveAnimalDatesOfDeathVar); // output of the result ..
 	};
@@ -1831,7 +1827,11 @@ function useRetrieveAnimalDatesOfDeathVar(datesOfDeathVar) {
 			prevMonth = currMonth;
 			text.value += '\n';
 		}
-		text.value += datesOfDeathVar[entry].date + ' -> ' + datesOfDeathVar[entry].animal + '\n';
+		var juv = '';
+		if(datesOfDeathVar[entry].age < 5) {}
+			juv = ' (j)'
+	}
+		text.value += datesOfDeathVar[entry].date + ' -> ' + datesOfDeathVar[entry].animal + juv + '\n';
 	}
 }
 
