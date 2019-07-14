@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name				Game Of Elements
 // @namespace			GameOfElements
-// @version				4.2.3
+// @version				4.2.4
 // @updateURL			https://github.com/Chaos-ThoR/GoE/raw/master/Game%20Of%20Elements.user.js
 // @encoding			utf-8
 // @description			try to take over the world!
@@ -124,7 +124,7 @@ var professions = {'Sammler' : {'' : 'Falke', '4' : 'Falke', '32' : 'Falke'},
                    'Waldarbeiter' : {'' : 'Kamel', '6' : 'Kamel', '13' : ''},
                    'Versorger' : {'' : 'Jagdhund', 'jagen' : 'Jagdhund', 'wasserholen' : 'Esel', '31' : '', '34' : ''},
                    'Alchemist' : {'' : 'Eule', '1' : 'Eule', '10' : '', '30' : 'Eule', '21' : ''},
-                   'Bauer' : {'' : 'Esel', '8' : 'Esel', '24' : '', '22' : '', '23' : 'Esel', '28' : ''},
+                   'Bauer' : {'' : 'Esel', '8' : 'Esel', '24' : 'Esel', '22' : '', '23' : 'Esel', '28' : ''},
                    'Minenarbeiter' : {'' : 'Ochse', '7' : 'Ochse', '11' : 'Ochse', '12' : 'Ochse'},
                    'Schmied' : {'' : 'Pferd', '14' : 'Pferd', '15' : 'Pferd', '16' : 'Pferd', '17' : 'Pferd', '18' : 'Pferd', '19' : '', '35' : ''},
                    'Ingenieur' : {'' : '', '25' : '', '9' : '', '33' : 'Affe', '26' : '', '29' : ''}};
@@ -1965,11 +1965,11 @@ function character() { // "Charakter" page ..
 			amountInput.setAttribute('value', lp);
 		}
 		amountInput.setAttribute('onfocus', 'this.select();');
-}
+	}
 }
 
 function competition() { // "Gewinnspiel" page ..
-	if(document.URL.includes('site=gewinnspiel')) {
+	if(document.URL.includes('site=gewinnspiel') && checkHash(getUserName())) {
 		if(getContent().getElementsByTagName('input')[0]) {
 			var amountInput = getContent().getElementsByTagName('input')[0];
 			amountInput.setAttribute('type', 'number');
