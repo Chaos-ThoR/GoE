@@ -1,3 +1,11 @@
+-> v4.2.5:
+	- Übersicht: Aktuelle Aktion -> Restzeit -> "Direktabbruch"-Link
+	- Kolosseum: Zeitauswahl mit Uhrzeit
+	- Bugfix: Gewinnspiel -> Scriptfehler beim Antwort abgeben
+
+-> v4.2.2 - v4.2.4:
+	- ???
+
 -> v4.2.1:
 	- kleine Bugfixes
 
