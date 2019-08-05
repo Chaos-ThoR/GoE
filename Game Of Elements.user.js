@@ -1,7 +1,7 @@
-﻿// ==UserScript==
+// ==UserScript==
 // @name				Game Of Elements
 // @namespace			GameOfElements
-// @version				4.2.4
+// @version				4.2.5
 // @updateURL			https://github.com/Chaos-ThoR/GoE/raw/master/Game%20Of%20Elements.user.js
 // @encoding			utf-8
 // @description			try to take over the world!
@@ -1154,20 +1154,20 @@ function addHealthInformation() {
 							var calcHealPercentage = calcHP / maxHP * 100;
 							text += '-> Gesundheit: ' + calcHP + '/' + maxHP + ' HP, ' + calcHealPercentage.toFixed(1) + '% (-' + (maxHP - calcHP) + ' HP)\n\n';
 							text += 'Möglichkeiten:\n';
-							text += '- ca. ' + Math.ceil((maxHP - calcHP) / GM_getValue('healValue', 600)) + 'x heilen durch Alchi\n';
+							text += '- ca. ' + Math.ceil((maxHP - calcHP) / GM_getValue('healValue', 600)) + 'x Heilen durch Alchi\n';
 							if(calcHealPercentage >= 75) {
-								text += '- kleine Vitaminpille (25%)\n';
+								text += '- kl. Vitaminpille (25%)\n';
 							} else if(calcHealPercentage >= 50 && calcHealPercentage < 75) {
-								text += '- ca. ' + Math.ceil((maxHP - calcHP - maxHP * 0.25) / GM_getValue('healValue', 600)) + 'x heilen durch Alchi + kleine Vitaminpille (25%)\n';
-								text += '- mittlere Vitaminpille (50%)\n';
+								text += '- ca. ' + Math.ceil((maxHP - calcHP - maxHP * 0.25) / GM_getValue('healValue', 600)) + 'x Heilen durch Alchi + kl. Vitaminpille (25%)\n';
+								text += '- mi. Vitaminpille (50%)\n';
 							} else if(calcHealPercentage >= 25 && calcHealPercentage < 50) {
-								text += '- ca. ' + Math.ceil((maxHP - calcHP - maxHP * 0.25) / GM_getValue('healValue', 600)) + 'x heilen durch Alchi + kleine Vitaminpille (25%)\n';
-								text += '- ca. ' + Math.ceil((maxHP - calcHP - maxHP * 0.5) / GM_getValue('healValue', 600)) + 'x heilen durch Alchi + mittlere Vitaminpille (50%)\n';
-								text += '- starke Vitaminpille (75%)\n';
+								text += '- ca. ' + Math.ceil((maxHP - calcHP - maxHP * 0.25) / GM_getValue('healValue', 600)) + 'x Heilen durch Alchi + kl. Vitaminpille (25%)\n';
+								text += '- ca. ' + Math.ceil((maxHP - calcHP - maxHP * 0.5) / GM_getValue('healValue', 600)) + 'x Heilen durch Alchi + mi. Vitaminpille (50%)\n';
+								text += '- st. Vitaminpille (75%)\n';
 							} else {
-								text += '- ca. ' + Math.ceil((maxHP - calcHP - maxHP * 0.25) / GM_getValue('healValue', 600)) + 'x heilen durch Alchi + kleine Vitaminpille (25%)\n';
-								text += '- ca. ' + Math.ceil((maxHP - calcHP - maxHP * 0.5) / GM_getValue('healValue', 600)) + 'x heilen durch Alchi + mittlere Vitaminpille (50%)\n';
-								text += '- ca. ' + Math.ceil((maxHP - calcHP - maxHP * 0.75) / GM_getValue('healValue', 600)) + 'x heilen durch Alchi + starke Vitaminpille (75%)\n';
+								text += '- ca. ' + Math.ceil((maxHP - calcHP - maxHP * 0.25) / GM_getValue('healValue', 600)) + 'x Heilen durch Alchi + kl. Vitaminpille (25%)\n';
+								text += '- ca. ' + Math.ceil((maxHP - calcHP - maxHP * 0.5) / GM_getValue('healValue', 600)) + 'x Heilen durch Alchi + mi. Vitaminpille (50%)\n';
+								text += '- ca. ' + Math.ceil((maxHP - calcHP - maxHP * 0.75) / GM_getValue('healValue', 600)) + 'x Heilen durch Alchi + st. Vitaminpille (75%)\n';
 							}
 						}
 					} else {
@@ -1184,13 +1184,22 @@ function overview() { // changes for the "Übersicht" page ..
 	if(removeSomeElements && ((document.URL == "https://game-of-elements.de/index.php") || (document.URL == "https://www.game-of-elements.de/index.php"))) {
 		// remove some entries ..
 		var infoTable = getContent().getElementsByTagName('table')[0].getElementsByTagName('tbody')[0];
+		var activityTable = getContent().getElementsByTagName('table')[1];
 		if(infoTable.textContent.indexOf('INFORMATION') != -1) {
 			infoTable = getContent().getElementsByTagName('table')[1].getElementsByTagName('tbody')[0];
+			activityTable = getContent().getElementsByTagName('table')[2];
 		}
 		infoTable.removeChild(infoTable.lastElementChild);
 		infoTable.removeChild(infoTable.lastElementChild);
 		infoTable.removeChild(infoTable.rows[2]);
 		infoTable.removeChild(infoTable.rows[1]);
+		if(getContent().textContent.indexOf('Aktuelle Aktionen') != -1) {
+			var newAbortLink = document.createElement('a');
+			newAbortLink.setAttribute('href', getTableElement(activityTable, 1, 2).getElementsByTagName('a')[1].getAttribute('href')+ '&ok=1');
+			newAbortLink.setAttribute('style', 'margin-left: 20px; font-weight: bold;');
+			newAbortLink.innerHTML = 'Direktabbruch';
+			getTableElement(activityTable, 1, 2).appendChild(newAbortLink);
+		}
 	}
 }
 
@@ -1969,7 +1978,7 @@ function character() { // "Charakter" page ..
 }
 
 function competition() { // "Gewinnspiel" page ..
-	if(document.URL.includes('site=gewinnspiel') && checkHash(getUserName())) {
+	if(document.URL.includes('site=gewinnspiel')) {
 		if(getContent().getElementsByTagName('input')[0]) {
 			var amountInput = getContent().getElementsByTagName('input')[0];
 			amountInput.setAttribute('type', 'number');
@@ -1982,8 +1991,9 @@ function competition() { // "Gewinnspiel" page ..
 		}
 
 		// add answers from database to the page ..
-		if(addExternalStats) {
-			var question = getContent().getElementsByTagName('table')[0].getElementsByTagName('i')[0].textContent.trim();
+		if(addExternalStats && checkHash(getUserName())) {
+			var i = (getContent().textContent.includes('Du nimmst am Gewinnspiel teil, viel Glück.'))? 1 : 0;
+			var question = getContent().getElementsByTagName('table')[i].getElementsByTagName('i')[0].textContent.trim();
 			question = question.substring(1, question.length - 1);
 			var newCenter = document.createElement('center');
 			newCenter.setAttribute('id', 'competitionanswers');
@@ -2019,6 +2029,12 @@ function colosseum() { // "Kolosseum" page ..
 		prizeInput.setAttribute('min', '0');
 		prizeInput.setAttribute('step', '1');
 		prizeInput.setAttribute('placeholder', 'Einsatz in Deben');
+		var timeOptions = getContent().getElementsByTagName('option');
+		for(var i = 1; i < timeOptions.length; i++) {
+			var timestamp = new Date();
+			timestamp.setHours(timestamp.getHours() + i + 4);
+			timeOptions[i].textContent += ' (' + timestamp.getHours() + ':' + timestamp.getMinutes() + ' Uhr)';
+		}
 	}
 }
 
