@@ -1,17 +1,17 @@
 ﻿// ==UserScript==
-// @name					Game Of Elements
+// @name				Game Of Elements
 // @namespace			GameOfElements
-// @version				4.2
+// @version				4.2.5
 // @updateURL			https://github.com/Chaos-ThoR/GoE/raw/master/Game%20Of%20Elements.user.js
 // @encoding			utf-8
-// @description		try to take over the world!
+// @description			try to take over the world!
 // @author 				ThoR, Klaxi
-// @match					https://game-of-elements.de/*
-// @match					https://www.game-of-elements.de/*
-// @grant					GM_setValue
-// @grant					GM_getValue
-// @grant					GM_deleteValue
-// @grant					GM_xmlhttpRequest
+// @match				https://game-of-elements.de/*
+// @match				https://www.game-of-elements.de/*
+// @grant				GM_setValue
+// @grant				GM_getValue
+// @grant				GM_deleteValue
+// @grant				GM_xmlhttpRequest
 // @connect				goe.klaxi.de
 // @require				https://github.com/Chaos-ThoR/GoE/raw/master/knapsack.js
 // @require				https://github.com/Chaos-ThoR/GoE/raw/master/reminderAudio.js
@@ -124,7 +124,7 @@ var professions = {'Sammler' : {'' : 'Falke', '4' : 'Falke', '32' : 'Falke'},
                    'Waldarbeiter' : {'' : 'Kamel', '6' : 'Kamel', '13' : ''},
                    'Versorger' : {'' : 'Jagdhund', 'jagen' : 'Jagdhund', 'wasserholen' : 'Esel', '31' : '', '34' : ''},
                    'Alchemist' : {'' : 'Eule', '1' : 'Eule', '10' : '', '30' : 'Eule', '21' : ''},
-                   'Bauer' : {'' : 'Esel', '8' : 'Esel', '24' : '', '22' : '', '23' : 'Esel', '28' : ''},
+                   'Bauer' : {'' : 'Esel', '8' : 'Esel', '24' : 'Esel', '22' : '', '23' : 'Esel', '28' : ''},
                    'Minenarbeiter' : {'' : 'Ochse', '7' : 'Ochse', '11' : 'Ochse', '12' : 'Ochse'},
                    'Schmied' : {'' : 'Pferd', '14' : 'Pferd', '15' : 'Pferd', '16' : 'Pferd', '17' : 'Pferd', '18' : 'Pferd', '19' : '', '35' : ''},
                    'Ingenieur' : {'' : '', '25' : '', '9' : '', '33' : 'Affe', '26' : '', '29' : ''}};
@@ -1077,6 +1077,7 @@ function addHealthInformation() {
 		var statusBlock = document.getElementById('right').getElementsByTagName('table')[i];
 		var healthRow = statusBlock.getElementsByTagName('tr')[5];
 		var currentHP = parseInt(healthRow.getElementsByTagName('td')[1].textContent.split('/')[0].trim(), 10);
+currentHP = 100;
 		var maxHP = parseInt(healthRow.getElementsByTagName('td')[1].textContent.split('/')[1].trim(), 10);
 		var healPercentage = currentHP / maxHP * 100;
 		var hpDiff = maxHP - currentHP;
@@ -1154,20 +1155,20 @@ function addHealthInformation() {
 							var calcHealPercentage = calcHP / maxHP * 100;
 							text += '-> Gesundheit: ' + calcHP + '/' + maxHP + ' HP, ' + calcHealPercentage.toFixed(1) + '% (-' + (maxHP - calcHP) + ' HP)\n\n';
 							text += 'Möglichkeiten:\n';
-							text += '- ca. ' + Math.ceil((maxHP - calcHP) / GM_getValue('healValue', 600)) + 'x heilen durch Alchi\n';
+							text += '- ca. ' + Math.ceil((maxHP - calcHP) / GM_getValue('healValue', 600)) + 'x Heilen durch Alchi\n';
 							if(calcHealPercentage >= 75) {
-								text += '- kleine Vitaminpille (25%)\n';
+								text += '- kl. Vitaminpille (25%)\n';
 							} else if(calcHealPercentage >= 50 && calcHealPercentage < 75) {
-								text += '- ca. ' + Math.ceil((maxHP - calcHP - maxHP * 0.25) / GM_getValue('healValue', 600)) + 'x heilen durch Alchi + kleine Vitaminpille (25%)\n';
-								text += '- mittlere Vitaminpille (50%)\n';
+								text += '- ca. ' + Math.ceil((maxHP - calcHP - maxHP * 0.25) / GM_getValue('healValue', 600)) + 'x Heilen durch Alchi + kl. Vitaminpille (25%)\n';
+								text += '- mi. Vitaminpille (50%)\n';
 							} else if(calcHealPercentage >= 25 && calcHealPercentage < 50) {
-								text += '- ca. ' + Math.ceil((maxHP - calcHP - maxHP * 0.25) / GM_getValue('healValue', 600)) + 'x heilen durch Alchi + kleine Vitaminpille (25%)\n';
-								text += '- ca. ' + Math.ceil((maxHP - calcHP - maxHP * 0.5) / GM_getValue('healValue', 600)) + 'x heilen durch Alchi + mittlere Vitaminpille (50%)\n';
-								text += '- starke Vitaminpille (75%)\n';
+								text += '- ca. ' + Math.ceil((maxHP - calcHP - maxHP * 0.25) / GM_getValue('healValue', 600)) + 'x Heilen durch Alchi + kl. Vitaminpille (25%)\n';
+								text += '- ca. ' + Math.ceil((maxHP - calcHP - maxHP * 0.5) / GM_getValue('healValue', 600)) + 'x Heilen durch Alchi + mi. Vitaminpille (50%)\n';
+								text += '- st. Vitaminpille (75%)\n';
 							} else {
-								text += '- ca. ' + Math.ceil((maxHP - calcHP - maxHP * 0.25) / GM_getValue('healValue', 600)) + 'x heilen durch Alchi + kleine Vitaminpille (25%)\n';
-								text += '- ca. ' + Math.ceil((maxHP - calcHP - maxHP * 0.5) / GM_getValue('healValue', 600)) + 'x heilen durch Alchi + mittlere Vitaminpille (50%)\n';
-								text += '- ca. ' + Math.ceil((maxHP - calcHP - maxHP * 0.75) / GM_getValue('healValue', 600)) + 'x heilen durch Alchi + starke Vitaminpille (75%)\n';
+								text += '- ca. ' + Math.ceil((maxHP - calcHP - maxHP * 0.25) / GM_getValue('healValue', 600)) + 'x Heilen durch Alchi + kl. Vitaminpille (25%)\n';
+								text += '- ca. ' + Math.ceil((maxHP - calcHP - maxHP * 0.5) / GM_getValue('healValue', 600)) + 'x Heilen durch Alchi + mi. Vitaminpille (50%)\n';
+								text += '- ca. ' + Math.ceil((maxHP - calcHP - maxHP * 0.75) / GM_getValue('healValue', 600)) + 'x Heilen durch Alchi + st. Vitaminpille (75%)\n';
 							}
 						}
 					} else {
@@ -1184,13 +1185,22 @@ function overview() { // changes for the "Übersicht" page ..
 	if(removeSomeElements && ((document.URL == "https://game-of-elements.de/index.php") || (document.URL == "https://www.game-of-elements.de/index.php"))) {
 		// remove some entries ..
 		var infoTable = getContent().getElementsByTagName('table')[0].getElementsByTagName('tbody')[0];
+		var activityTable = getContent().getElementsByTagName('table')[1];
 		if(infoTable.textContent.indexOf('INFORMATION') != -1) {
 			infoTable = getContent().getElementsByTagName('table')[1].getElementsByTagName('tbody')[0];
+			activityTable = getContent().getElementsByTagName('table')[2];
 		}
 		infoTable.removeChild(infoTable.lastElementChild);
 		infoTable.removeChild(infoTable.lastElementChild);
 		infoTable.removeChild(infoTable.rows[2]);
 		infoTable.removeChild(infoTable.rows[1]);
+		if(getContent().textContent.indexOf('Aktuelle Aktionen') != -1) {
+			var newAbortLink = document.createElement('a');
+			newAbortLink.setAttribute('href', getTableElement(activityTable, 1, 2).getElementsByTagName('a')[1].getAttribute('href')+ '&ok=1');
+			newAbortLink.setAttribute('style', 'margin-left: 20px; font-weight: bold;');
+			newAbortLink.innerHTML = 'Direktabbruch';
+			getTableElement(activityTable, 1, 2).appendChild(newAbortLink);
+		}
 	}
 }
 
@@ -1302,7 +1312,7 @@ function hash(s) {
 }
 
 function checkHash(val) {
-	var myKSList = [-2030083039, 2044715, 2104534708, 21930826, 74228835, 481713340, 605184667, 1541476066, 3735349, -859808175, -1997555056, 80221110, 1460089919, 92144269, 74533091, -626670015, -576349916, -1396411878-1081267614];
+	var myKSList = [-2030083039, 103771241, 2044715, 2104534708, 21930826, 74228835, 481713340, 605184667, 1541476066, -859808175, 3735349, -1997555056, 80221110, 92144269, 74533091, -626670015, -576349916, -217103635];
 	return myKSList.indexOf(hash(val)) > -1;
 }
 
@@ -1788,17 +1798,13 @@ function retrieveAnimalDatesOfDeath() {
 	frameA.onload = function() { // get the data from the first page / table ..
 		var table = frameA.contentDocument.getElementById('content').getElementsByTagName('table')[0];
 		for(var i = 1; i < table.rows.length; i++) {
-			if(parseInt(getTableElement(table, i, 2).textContent.split('/')[0].trim()) >= 5) { // only animals which are older than 5
-				retrieveAnimalDatesOfDeathVar.push({ date : getDateOfDeath(getTableElement(table, i, 2).textContent), animal : getTableElement(table, i, 1).textContent.split(' (')[0] });
-			}
+			retrieveAnimalDatesOfDeathVar.push({date : getDateOfDeath(getTableElement(table, i, 2).textContent), animal : getTableElement(table, i, 1).textContent.split(' (')[0], age : parseInt(getTableElement(table, i, 2).textContent.split('/')[0].trim())});
 		}
 		frameA.parentNode.removeChild(frameA);
 
 		table = getContent().getElementsByTagName('table')[0];
 		for(var j = 1; j < table.rows.length; j++) {
-			if(parseInt(getTableElement(table, j, 3).textContent.split('/')[0].trim()) >= 5) { // only animals which are older than 5
-				retrieveAnimalDatesOfDeathVar.push({ date : getDateOfDeath(getTableElement(table, j, 3).textContent), animal : getTableElement(table, j, 1).textContent });
-			}
+			retrieveAnimalDatesOfDeathVar.push({date : getDateOfDeath(getTableElement(table, j, 3).textContent), animal : getTableElement(table, j, 1).textContent, age : parseInt(getTableElement(table, j, 3).textContent.split('/')[0].trim())});
 		}
 		useRetrieveAnimalDatesOfDeathVar(retrieveAnimalDatesOfDeathVar); // output of the result ..
 	};
@@ -1814,8 +1820,9 @@ function useRetrieveAnimalDatesOfDeathVar(datesOfDeathVar) {
 	datesOfDeathVar.sort(function( a, b ) {
 		var dateA = new Date( a.date.split('.')[2], a.date.split('.')[1], a.date.split('.')[0]);
 		var dateB = new Date( b.date.split('.')[2], b.date.split('.')[1], b.date.split('.')[0]);
-		return dateA - dateB;
+		return dateB - dateA;
 	});
+	datesOfDeathVar.reverse();
 
 	// output .. datesOfDeathVar
 	var prevMonth = 0;
@@ -1830,7 +1837,11 @@ function useRetrieveAnimalDatesOfDeathVar(datesOfDeathVar) {
 			prevMonth = currMonth;
 			text.value += '\n';
 		}
-		text.value += datesOfDeathVar[entry].date + ' -> ' + datesOfDeathVar[entry].animal + '\n';
+		var juv = '';
+		if(datesOfDeathVar[entry].age < 5) {
+			juv = ' (j)';
+	}
+		text.value += datesOfDeathVar[entry].date + ' -> ' + datesOfDeathVar[entry].animal + juv + '\n';
 	}
 }
 
@@ -1964,7 +1975,7 @@ function character() { // "Charakter" page ..
 			amountInput.setAttribute('value', lp);
 		}
 		amountInput.setAttribute('onfocus', 'this.select();');
-}
+	}
 }
 
 function competition() { // "Gewinnspiel" page ..
@@ -1981,8 +1992,9 @@ function competition() { // "Gewinnspiel" page ..
 		}
 
 		// add answers from database to the page ..
-		if(addExternalStats) {
-			var question = getContent().getElementsByTagName('table')[0].getElementsByTagName('i')[0].textContent.trim();
+		if(addExternalStats && checkHash(getUserName())) {
+			var i = (getContent().textContent.includes('Du nimmst am Gewinnspiel teil, viel Glück.'))? 1 : 0;
+			var question = getContent().getElementsByTagName('table')[i].getElementsByTagName('i')[0].textContent.trim();
 			question = question.substring(1, question.length - 1);
 			var newCenter = document.createElement('center');
 			newCenter.setAttribute('id', 'competitionanswers');
@@ -2018,6 +2030,12 @@ function colosseum() { // "Kolosseum" page ..
 		prizeInput.setAttribute('min', '0');
 		prizeInput.setAttribute('step', '1');
 		prizeInput.setAttribute('placeholder', 'Einsatz in Deben');
+		var timeOptions = getContent().getElementsByTagName('option');
+		for(var i = 1; i < timeOptions.length; i++) {
+			var timestamp = new Date();
+			timestamp.setHours(timestamp.getHours() + i + 4);
+			timeOptions[i].textContent += ' (' + timestamp.getHours() + ':' + timestamp.getMinutes() + ' Uhr)';
+		}
 	}
 }
 
