@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name				Game Of Elements
 // @namespace			GameOfElements
-// @version				4.2.5
+// @version				4.2.6
 // @updateURL			https://github.com/Chaos-ThoR/GoE/raw/master/Game%20Of%20Elements.user.js
 // @encoding			utf-8
 // @description			try to take over the world!
@@ -1077,7 +1077,6 @@ function addHealthInformation() {
 		var statusBlock = document.getElementById('right').getElementsByTagName('table')[i];
 		var healthRow = statusBlock.getElementsByTagName('tr')[5];
 		var currentHP = parseInt(healthRow.getElementsByTagName('td')[1].textContent.split('/')[0].trim(), 10);
-currentHP = 100;
 		var maxHP = parseInt(healthRow.getElementsByTagName('td')[1].textContent.split('/')[1].trim(), 10);
 		var healPercentage = currentHP / maxHP * 100;
 		var hpDiff = maxHP - currentHP;
@@ -2085,38 +2084,135 @@ function addHealedInfo() {
 		var healValue = GM_getValue('healValue', 600);
 		var userSelection = getContent().getElementsByTagName('select')[0];
 		var options = userSelection.getElementsByTagName('option');
-		var totalTimesToHeal = 0;
-		var woundedUsers = 0;
-		var preselectIndex = 1;
-		for(var i = 1; i < (options.length - 1); i++) {
-			var optValue = options[i].textContent;
-			var currentHp = optValue.split('/')[0].split(' - ')[1];
-			var maxHp = optValue.split('/')[1].split(' HP')[0];
-			var hpDiff = parseInt(maxHp) - parseInt(currentHp);
-			var hpPerHour = parseInt(parseFloat(maxHp) * 0.002 + 1.0) * 6;
-			var timesToHeal = parseInt((hpDiff / healValue) + 1);
-			var timeToMaxHp = hpDiff / hpPerHour;
-			if(hpDiff > 1) { // wounded (exception: 1 hp difference through 3 more ep)
-				options[i].textContent = optValue + " | " + hpDiff + "HP = ~" + timeToMaxHp.toFixed(1) + " Std. / ~" + timesToHeal + "x heilen.";
-				totalTimesToHeal += timesToHeal;
-				woundedUsers++;
-				if(options[i].value == GM_getValue('alchemistLastHealing', 0)) {
-					preselectIndex = i;
+		if(checkHash(getUserName())) {
+			var healingTable = document.createElement('table');
+			var currentTime = new Date();
+			currentTime.setSeconds(0, 0);
+			var cityfightTimestamps = GM_getValue('cityfightTimestamps', 0);
+			while(cityfightTimestamps[0] < currentTime.getTime()) {
+				cityfightTimestamps.shift();
+			}
+			GM_setValue('cityfightTimestamps', cityfightTimestamps);
+			var nextCityfightTimestamp = new Date(cityfightTimestamps[0]);
+			healingTable.setAttribute('cellpadding', '2');
+			healingTable.setAttribute('border', '0');
+			healingTable.setAttribute('width', '100%');
+			var healingTableInner = '<tbody><tr class="color_tabelle"><td background="img/revolution/footer_bg.jpg">#</td>';
+			healingTableInner += '<td background="img/revolution/footer_bg.jpg">Name<br>HP</td>';
+			healingTableInner += '<td background="img/revolution/footer_bg.jpg">Allgemein<br>Selbstheilung</td>';
+			if(!isNaN(nextCityfightTimestamp)) {
+				healingTableInner += '<td background="img/revolution/footer_bg.jpg">Stadtkampf + 1,5h<br>(' + format2(nextCityfightTimestamp.getDate()) + '.' + format2(nextCityfightTimestamp.getMonth()+1) + '. - ' + format2(nextCityfightTimestamp.getHours()) + ':' + format2(nextCityfightTimestamp.getMinutes()) + ' Uhr)</td>';
+			} else {
+				healingTableInner += '<td background="img/revolution/footer_bg.jpg">Stadtkampf + 1,5h</td>';
+			}
+			healingTableInner += '<td background="img/revolution/footer_bg.jpg">Turnierende<br>(10:30 Uhr)</td></tr>';
+			// Elixier der Genesung
+			var remainingElixirRecoveryTime = new Date(GM_getValue('remainingElixirRecoveryTimestamp', 0));
+			remainingElixirRecoveryTime = Math.floor((remainingElixirRecoveryTime.getTime() - currentTime.getTime()) / 1000 / 60);
+			var ticksByRecoveryElixir = 0;
+			healingTableInner += '<tr><td bgcolor="#FFFFFF" colspan="5">Restzeit Elixier der Genesung: <input id="elixier" type="time"';
+			if(remainingElixirRecoveryTime > 0) {
+				ticksByRecoveryElixir = Math.floor((remainingElixirRecoveryTime + (currentTime.getMinutes()%10)) / 10) * 2;
+				healingTableInner += ' value="' + format2(Math.floor(remainingElixirRecoveryTime/60)) + ':' + format2(remainingElixirRecoveryTime%60) + '"';
+			}
+			healingTableInner += '> (Format: hh:mm) <input type="button" value="Reload" onclick="location.reload();"></td></tr>';
+			nextCityfightTimestamp.setMinutes(nextCityfightTimestamp.getMinutes() + 90);
+			for(var i = 1; i< options.length-1; i++) {
+				var optValue = options[i].textContent;
+				var username = optValue.split(' - ')[0];
+				var currentHP = parseInt(optValue.split('/')[0].split(' - ')[1], 10);
+				var maxHP = parseInt(optValue.split('/')[1].split(' HP')[0], 10);
+				var getsHealed = (optValue.includes('wird geheilt'))? true : false;
+				var hpDiff = maxHP - currentHP;
+				if(hpDiff > 0) {
+					var hpPerTick = Math.ceil(maxHP * 0.002); // 1 tick = 10 minutes
+					var ticksToMaxHP = Math.ceil(hpDiff / hpPerTick) - ticksByRecoveryElixir;
+					var timeTo100 = new Date();
+					timeTo100.setMinutes((Math.floor(timeTo100.getMinutes() / 10) + ticksToMaxHP) * 10, 0, 0);
+					// Auswahl/Radiobutton
+					healingTableInner += '<tr onclick="this.getElementsByTagName(\'input\')[0].checked = true;"><td bgcolor="#FFFFFF"><input type="radio" name="aktion2" value="' + username + '"';
+					if(i == 1 || username == GM_getValue('alchemistLastHealing', 0)) {
+						 healingTableInner += ' checked="checked"';
+					}
+					healingTableInner += '></td>';
+					// Usernam, HP
+					healingTableInner += '<td bgcolor="#FFFFFF">' + username + ' (-' + hpDiff + ' HP)<br>' + currentHP + '/' + maxHP + ' HP' + (getsHealed? '<br>(wird geheilt)' : '' ) + '</td>';
+					// Allgemein, Selbstheilung
+					var minutesToMaxHP = ticksToMaxHP * 10;
+					var timesToHeal = parseInt(((hpDiff - ticksByRecoveryElixir * hpPerTick) / healValue) + 1);
+					healingTableInner += '<td bgcolor="#FFFFFF">' + timesToHeal + 'x heilen<br>in ' + ((minutesToMaxHP > 60*24)? Math.floor(minutesToMaxHP/60/24) + 'd ' : '') + (Math.floor(minutesToMaxHP/60)%24) + ':' + format2(minutesToMaxHP%60) + ' h<br>am ' + format2(timeTo100.getDate()) + '.' + format2(timeTo100.getMonth()+1) + '. um ' + format2(timeTo100.getHours()) + ':' + format2(timeTo100.getMinutes()) + ' Uhr</td>';
+					// Stadtkampf
+					if(isNaN(nextCityfightTimestamp)) {
+						healingTableInner += '<td bgcolor="#FFFFFF">kein SK</td>';
+					} else if(nextCityfightTimestamp >= timeTo100) {
+						healingTableInner += '<td bgcolor="#FFFFFF">Selbstheilung</td>';
+					} else {
+						currentTime.setMinutes(currentTime.getMinutes() - currentTime.getMinutes() % 10, 0, 0);
+						var ticksBetweenTimes = nextCityfightTimestamp.getTime() - currentTime.getTime();
+						ticksBetweenTimes = Math.floor(ticksBetweenTimes / 1000 / 60 / 10) + ticksByRecoveryElixir;
+						var calcHP = currentHP + ticksBetweenTimes * hpPerTick;
+						var calcHealPercentage = calcHP / maxHP * 100;
+						healingTableInner += '<td bgcolor="#FFFFFF">' + Math.ceil((maxHP - calcHP) / GM_getValue('healValue', 600)) + 'x heilen';
+						if(calcHealPercentage < 75) {
+							healingTableInner += '<br>' + Math.ceil((maxHP - calcHP - maxHP * 0.25) / GM_getValue('healValue', 600)) +'x + 25%';
+						}
+						if(calcHealPercentage < 50) {
+							healingTableInner += '<br>' + Math.ceil((maxHP - calcHP - maxHP * 0.5) / GM_getValue('healValue', 600)) +'x + 50%';
+						}
+						if(calcHealPercentage < 25) {
+							healingTableInner += '<br>' + Math.ceil((maxHP - calcHP - maxHP * 0.75) / GM_getValue('healValue', 600)) +'x + 75%';
+						}
+						if(calcHealPercentage >= 25) {
+							healingTableInner += '<br>' + Math.min(Math.ceil((100 - calcHealPercentage) / 25) * 25, 75) + '%';
+						}
+						healingTableInner += '</td>';
+					}
+					// Turnier
+					var nexttournamentTimestamp = new Date();
+					nexttournamentTimestamp.setHours(10, 30, 0, 0);
+					if(nexttournamentTimestamp < currentTime.getTime()) {
+						nexttournamentTimestamp.setDate(nexttournamentTimestamp.getDate() + 1);
+					}
+					if(nexttournamentTimestamp >= timeTo100) {
+						healingTableInner += '<td bgcolor="#FFFFFF">Selbstheilung</td>';
+					} else {
+						currentTime.setMinutes(currentTime.getMinutes() - currentTime.getMinutes() % 10, 0, 0);
+						var ticksBetweenTimes = nexttournamentTimestamp.getTime() - currentTime.getTime();
+						ticksBetweenTimes = Math.floor(ticksBetweenTimes / 1000 / 60 / 10) + ticksByRecoveryElixir;
+						var calcHP = currentHP + ticksBetweenTimes * hpPerTick;
+						var calcHealPercentage = calcHP / maxHP * 100;
+						healingTableInner += '<td bgcolor="#FFFFFF">' + Math.ceil((maxHP - calcHP) / GM_getValue('healValue', 600)) + 'x heilen';
+						if(calcHealPercentage < 75) {
+							healingTableInner += '<br>' + Math.ceil((maxHP - calcHP - maxHP * 0.25) / GM_getValue('healValue', 600)) +'x + 25%';
+						}
+						if(calcHealPercentage < 50) {
+							healingTableInner += '<br>' + Math.ceil((maxHP - calcHP - maxHP * 0.5) / GM_getValue('healValue', 600)) +'x + 50%';
+						}
+						if(calcHealPercentage < 25) {
+							healingTableInner += '<br>' + Math.ceil((maxHP - calcHP - maxHP * 0.75) / GM_getValue('healValue', 600)) +'x + 75%';
+						}
+						if(calcHealPercentage >= 25) {
+							healingTableInner += '<br>' + Math.min(Math.ceil((100 - calcHealPercentage) / 25) * 25, 75) + '%';
+						}
+						healingTableInner += '</td>';
+					}
+					healingTableInner += '</tr>';
 				}
 			}
-		}
-		getContent().getElementsByTagName('form')[0].insertBefore(document.createTextNode('Insgesamt ' + totalTimesToHeal + ' Heilungen ausstehend. Bei ' + woundedUsers + ' verletzten Usern.'), userSelection);
-		getContent().getElementsByTagName('form')[0].insertBefore(document.createElement('br'), userSelection);
-		getContent().getElementsByTagName('form')[0].insertBefore(document.createElement('br'), userSelection);
-		userSelection.setAttribute('size' , userSelection.length);
-		userSelection.setAttribute('style' , 'width:auto; max-width:100%');
-		// preselect the last healed person; if it's already healed complete, select first entry
-		options[preselectIndex].selected = true;
-		userSelection.addEventListener("change", function() {
-			GM_setValue('alchemistLastHealing', this.value);
-		}, false);
-		if(isMobile()) {
-			userSelection.focus(); // selected line only visible on mobile firefox if dropdown is focused
+			healingTableInner += '</tbody>';
+			healingTable.innerHTML = healingTableInner;
+			document.getElementById('form1').insertBefore(healingTable, userSelection);
+			//document.getElementById('form1').removeChild(userSelection);
+			healingTable.addEventListener("click", function() {
+				GM_setValue('alchemistLastHealing', document.form1.aktion2.value);
+			}, false);
+			// Elixier der Genesung (Event-Listener)
+			document.getElementById('elixier').addEventListener("change", function() {
+				var value = document.getElementById('elixier').value.split(':');
+				var timestamp = new Date();
+				timestamp.setHours(timestamp.getHours() + parseInt(value[0], 10), timestamp.getMinutes() + parseInt(value[1], 10), 0, 0);
+				GM_setValue('remainingElixirRecoveryTimestamp', timestamp.getTime());
+			}, false);
 		}
 	}
 }
