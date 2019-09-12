@@ -2202,7 +2202,7 @@ function addHealedInfo() {
 			healingTableInner += '</tbody>';
 			healingTable.innerHTML = healingTableInner;
 			document.getElementById('form1').insertBefore(healingTable, userSelection);
-			//document.getElementById('form1').removeChild(userSelection);
+			document.getElementById('form1').removeChild(userSelection);
 			healingTable.addEventListener("click", function() {
 				GM_setValue('alchemistLastHealing', document.form1.aktion2.value);
 			}, false);
