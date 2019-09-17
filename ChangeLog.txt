@@ -1,3 +1,6 @@
+-> v4.2.7:
+	- Menu: "Aktionen" im Stadt-Block hinzugefügt
+
 -> v4.2.6:
 	- Heilen: neu gestaltet
 

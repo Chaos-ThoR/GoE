@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name				Game Of Elements
 // @namespace			GameOfElements
-// @version				4.2.6
+// @version				4.2.7
 // @updateURL			https://github.com/Chaos-ThoR/GoE/raw/master/Game%20Of%20Elements.user.js
 // @encoding			utf-8
 // @description			try to take over the world!
@@ -164,7 +164,6 @@ var quickLinkDeleter = [];
 			character(); // "Charakter" page ..
 			competition(); // "Gewinnspiel" page ..
 			colosseum(); // "Kolosseum" page ..
-			reorgPageElems();
 
 			// job dependend functions ..
 			addHealedInfo(); // additional information for alchemists ..
@@ -607,6 +606,7 @@ function loadConfig() { // load current script configuration ..
 
 function global() { // changes for the whole page ..
 	if(isLoggedIn()) {
+		reorgPageElems();
 		reminder();
 		serverTime();
 		showHeatWarning();
@@ -672,9 +672,16 @@ function reorgPageElems() { // move some page elements
 		var leftMenu = document.getElementById('left');
 		var mainBlock = leftMenu.getElementsByTagName('div')[1].getElementsByTagName('ul')[0];
 		var actionsBlock = leftMenu.getElementsByTagName('div')[3].getElementsByTagName('ul')[0];
+		var cityBlock = leftMenu.getElementsByTagName('div')[5].getElementsByTagName('ul')[0];
 		var diverseBlock = leftMenu.getElementsByTagName('div')[11].getElementsByTagName('ul')[0];
 		var rightMenu = document.getElementById('right');
 		var userBlock = rightMenu.lastChild.getElementsByTagName('ul')[0].getElementsByTagName('li')[0];
+
+		// add "Aktionen" (Stadt)
+		var cityActivity = document.createElement('li');
+		cityActivity.innerHTML = '<a href="index.php?site=gruppe&do=uebersicht&whowhat=1">Aktionen</a>';
+		var cityMessage = cityBlock.getElementsByTagName('li')[1];
+		cityBlock.insertBefore(cityActivity, cityMessage);
 
 		// move "Gerüchte"
 		var rumors = diverseBlock.getElementsByTagName('li')[3];
@@ -2202,7 +2209,7 @@ function addHealedInfo() {
 			healingTableInner += '</tbody>';
 			healingTable.innerHTML = healingTableInner;
 			document.getElementById('form1').insertBefore(healingTable, userSelection);
-			//document.getElementById('form1').removeChild(userSelection);
+			document.getElementById('form1').removeChild(userSelection);
 			healingTable.addEventListener("click", function() {
 				GM_setValue('alchemistLastHealing', document.form1.aktion2.value);
 			}, false);
