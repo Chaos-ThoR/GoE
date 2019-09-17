@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name				Game Of Elements
 // @namespace			GameOfElements
-// @version				4.2.7
+// @version				4.2.7.1
 // @updateURL			https://github.com/Chaos-ThoR/GoE/raw/master/Game%20Of%20Elements.user.js
 // @encoding			utf-8
 // @description			try to take over the world!
@@ -606,7 +606,6 @@ function loadConfig() { // load current script configuration ..
 
 function global() { // changes for the whole page ..
 	if(isLoggedIn()) {
-		reorgPageElems();
 		reminder();
 		serverTime();
 		showHeatWarning();
@@ -617,6 +616,7 @@ function global() { // changes for the whole page ..
 		defalutWorkLink();
 		extraSectionForSpecialItems();
 		addHealthInformation();
+		reorgPageElems();
 	}
 
 	if(!isLoggedIn() && removeSomeElements) {
