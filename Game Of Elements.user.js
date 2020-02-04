@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name				Game Of Elements
 // @namespace			GameOfElements
-// @version				4.2.7.1
+// @version				4.2.8
 // @updateURL			https://github.com/Chaos-ThoR/GoE/raw/master/Game%20Of%20Elements.user.js
 // @encoding			utf-8
 // @description			try to take over the world!
@@ -45,6 +45,7 @@ var addBBCodes = false; // add a BBCODE toolbar to the "Stadtforum", "Forum" & "
 var doKnapsackCalc = false; // knpsack calculation for "ausgeglichener Kampf"
 var addDateOfDeath = true; // add the date of death for the animal(s)
 var addExternalStats = false; // add external statistics in profils
+var cityStorageCategoriesEnabled = true // enables categories for the city storage table
 var cityStorageLimitsEnabled = true; // enables limit markup settings for the city storage
 var enableReminder = false; // play a sound when time is up + options
 var reminderVolume = 1.0;
@@ -235,15 +236,16 @@ function addScriptOptions() { // add a script configuration UI ..
 /*20*/ createConfigTableRow(configTable, 'BB Codes Leiste f\u00FCr Foren & Nachrichten', createSwitch('bbCodes', addBBCodes));
 /*21*/ createConfigTableRow(configTable, 'Sterbedatum der Tiere (f\u00FCr alle Tiere beim Stall)', createSwitch('deathCounter', addDateOfDeath));
 /*22*/ createConfigTableRow(configTable, 'Externe Statistiken einbinden', createSwitch('externalStats', addExternalStats));
-/*23*/ createConfigTableRow(configTable, 'Anzeigegrenzen vom Stadtlager f\u00FCr: ', createSwitch('cityStorageLimitsSwitch', cityStorageLimitsEnabled));
-/*24*/ createConfigTableRow(configTable, 'Sound abspielen wenn Arbeitsgang beendet', createSwitch('remind', enableReminder));
-/*25*/ createConfigTableRow(configTable, 'Sound', createSelection('remindSound', audioFiles, reminderSelection, updateConfig));
-/*26*/ createConfigTableRow(configTable, 'Sound wiederholen', createInputNumber('soundRepeat', '1', '999', '1', '60', reminderRepetitions));
-/*27*/ createConfigTableRow(configTable, 'Zeit bis der Sound wiederholt wird in [ms] (1000 = 1s)', createInputNumber('soundDelay', '0', '10000', '100', '60', reminderDelay));
-/*28*/ createConfigTableRow(configTable, 'Sound Lautst\u00E4rke', createSlider('soundVolume', 0, 1, 0.1, 60, reminderVolume, updateConfig));
-/*29*/ createConfigTableRow(configTable, 'min. Deben im Inventar', createInputNumber('minDeben', '0', '9999999', '50', '60', minDebenValue));
+/*23*/ createConfigTableRow(configTable, 'Stadtlager nach Kategorien sortieren', createSwitch('cityStorageCategories', cityStorageCategoriesEnabled));
+/*24*/ createConfigTableRow(configTable, 'Anzeigegrenzen vom Stadtlager f\u00FCr: ', createSwitch('cityStorageLimitsSwitch', cityStorageLimitsEnabled));
+/*25*/ createConfigTableRow(configTable, 'Sound abspielen wenn Arbeitsgang beendet', createSwitch('remind', enableReminder));
+/*26*/ createConfigTableRow(configTable, 'Sound', createSelection('remindSound', audioFiles, reminderSelection, updateConfig));
+/*27*/ createConfigTableRow(configTable, 'Sound wiederholen', createInputNumber('soundRepeat', '1', '999', '1', '60', reminderRepetitions));
+/*28*/ createConfigTableRow(configTable, 'Zeit bis der Sound wiederholt wird in [ms] (1000 = 1s)', createInputNumber('soundDelay', '0', '10000', '100', '60', reminderDelay));
+/*29*/ createConfigTableRow(configTable, 'Sound Lautst\u00E4rke', createSlider('soundVolume', 0, 1, 0.1, 60, reminderVolume, updateConfig));
+/*30*/ createConfigTableRow(configTable, 'min. Deben im Inventar', createInputNumber('minDeben', '0', '9999999', '50', '60', minDebenValue));
 		if(checkHash(getUserName())) {
-/*30*/ createConfigTableRow(configTable, 'Knapsack Optimierung bei "ausgeglichener Kampf" (Stadtprofil)', createSwitch('doKnapsack', doKnapsackCalc));
+/*31*/ createConfigTableRow(configTable, 'Knapsack Optimierung bei "ausgeglichener Kampf" (Stadtprofil)', createSwitch('doKnapsack', doKnapsackCalc));
 		}
 
 		// special selections for the default work things ..
@@ -281,19 +283,19 @@ function addScriptOptions() { // add a script configuration UI ..
 		getTableElement(configTable, 19, 0).appendChild(createButton('addDefaultsLinkBtn', 'Standard Links anlegen', '10', '18', '20', addDefaultLinkEntries));
 
 		// special city storage settings
-		getTableElement(configTable, 23, 0).appendChild(createSelectionCityStorage('cityStorageCombo', storageLimitsArray, 'Bretter', updateView));
-		getTableElement(configTable, 23, 0).appendChild(document.createElement('br'));
-		getTableElement(configTable, 23, 0).appendChild(document.createTextNode(' ROT < '));
-		getTableElement(configTable, 23, 0).appendChild(createInputNumber('scYellow', '-1', '9999999', '1', '66', getObjectFromCityStorageArray(storageLimitsArray, document.getElementById('cityStorageCombo').value).y));
-		getTableElement(configTable, 23, 0).appendChild(document.createTextNode(' GELB < '));
-		getTableElement(configTable, 23, 0).appendChild(createInputNumber('scGreen', '-1', '9999999', '1', '66', getObjectFromCityStorageArray(storageLimitsArray, document.getElementById('cityStorageCombo').value).g));
-		getTableElement(configTable, 23, 0).appendChild(document.createTextNode(' ansonsten GR\u00DCN'));
-		getTableElement(configTable, 23, 0).appendChild(document.createElement('br'));
-		getTableElement(configTable, 23, 0).appendChild(document.createTextNode('* -1 = KEINE Hervorhebung'));
+		getTableElement(configTable, 24, 0).appendChild(createSelectionCityStorage('cityStorageCombo', storageLimitsArray, 'Bretter', updateView));
+		getTableElement(configTable, 24, 0).appendChild(document.createElement('br'));
+		getTableElement(configTable, 24, 0).appendChild(document.createTextNode(' ROT < '));
+		getTableElement(configTable, 24, 0).appendChild(createInputNumber('scYellow', '-1', '9999999', '1', '66', getObjectFromCityStorageArray(storageLimitsArray, document.getElementById('cityStorageCombo').value).y));
+		getTableElement(configTable, 24, 0).appendChild(document.createTextNode(' GELB < '));
+		getTableElement(configTable, 24, 0).appendChild(createInputNumber('scGreen', '-1', '9999999', '1', '66', getObjectFromCityStorageArray(storageLimitsArray, document.getElementById('cityStorageCombo').value).g));
+		getTableElement(configTable, 24, 0).appendChild(document.createTextNode(' ansonsten GR\u00DCN'));
+		getTableElement(configTable, 24, 0).appendChild(document.createElement('br'));
+		getTableElement(configTable, 24, 0).appendChild(document.createTextNode('* -1 = KEINE Hervorhebung'));
 
 		// special test sound button for the reminder ..
 		var testSoundBtn = createButton('testSound', 'Sound Test', '10', '18', '298', playSoundWrap);
-		getTableElement(configTable, 25, 0).appendChild(testSoundBtn);
+		getTableElement(configTable, 26, 0).appendChild(testSoundBtn);
 
 		// job options table
 		getContent().appendChild( document.createElement('br'));
@@ -473,6 +475,7 @@ function updateConfig() { // update the settings
 	}
 	addDateOfDeath = document.getElementById('deathCounter').checked;
 	addExternalStats = document.getElementById('externalStats').checked;
+	cityStorageCategoriesEnabled = document.getElementById('cityStorageCategories').checked;
 	cityStorageLimitsEnabled = document.getElementById('cityStorageLimitsSwitch').checked;
 	enableReminder = document.getElementById('remind').checked;
 	reminderSelection = document.getElementById('remindSound').value;
@@ -524,6 +527,7 @@ function saveConfig() { // save current script configuration ..
 	GM_setValue('doKnapsackCalc', doKnapsackCalc);
 	GM_setValue('addDateOfDeath', addDateOfDeath);
 	GM_setValue('addExternalStats', addExternalStats);
+	GM_setValue('cityStorageCategoriesEnabled', cityStorageCategoriesEnabled);
 	GM_setValue('cityStorageLimitsEnabled', cityStorageLimitsEnabled);
 	GM_setValue('enableReminder', enableReminder);
 	GM_setValue('reminderSelection', reminderSelection);
@@ -585,6 +589,7 @@ function loadConfig() { // load current script configuration ..
 	doKnapsackCalc = GM_getValue('doKnapsackCalc', doKnapsackCalc);
 	addDateOfDeath = GM_getValue('addDateOfDeath', addDateOfDeath);
 	addExternalStats = GM_getValue('addExternalStats', addExternalStats);
+	cityStorageCategoriesEnabled = GM_getValue('cityStorageCategoriesEnabled', cityStorageCategoriesEnabled);
 	cityStorageLimitsEnabled = GM_getValue('cityStorageLimitsEnabled', cityStorageLimitsEnabled);
 	enableReminder = GM_getValue('enableReminder', enableReminder);
 	reminderSelection = GM_getValue('reminderSelection', reminderSelection);
@@ -1597,6 +1602,43 @@ function cityStorage() { // changes for the "Stadtlager" page ..
 			amountInput.setAttribute('step', '1');
 			amountInput.setAttribute('style', 'width:60px; text-align:right;');
 			amountInput.setAttribute('placeholder', 'Menge');
+
+			// sort storage table by categories
+			if(cityStorageCategoriesEnabled) {
+				var storageRows = getContent().getElementsByTagName('table')[0].getElementsByTagName('tr');
+				var storageTableNum = 0;
+				if(storageRows[0].textContent.includes('INFORMATION') || storageRows[0].textContent.includes('Lagerpunktkosten')) {
+					storageRows = getContent().getElementsByTagName('table')[1].getElementsByTagName('tr');
+					storageTableNum = 1;
+				}
+				var storageList = [];
+				storageList["Ressourcen"] = new Array("<tr><td colspan=\"4\" background=\"img/revolution/footer_bg.jpg\" style=\"color: #FFFFFF; font-size: 1.5em; text-align: center;\">Ressourcen</td></tr>");
+				storageList["Gegenstände"] = new Array("<tr><td colspan=\"4\" background=\"img/revolution/footer_bg.jpg\" style=\"color: #FFFFFF; font-size: 1.5em; text-align: center;\">Gegenstände</td></tr>");
+				storageList["Waffen"] = new Array("<tr><td colspan=\"4\" background=\"img/revolution/footer_bg.jpg\" style=\"color: #FFFFFF; font-size: 1.5em; text-align: center;\">Waffen</td></tr>");
+				storageList["Rüstungen"] = new Array("<tr><td colspan=\"4\" background=\"img/revolution/footer_bg.jpg\" style=\"color: #FFFFFF; font-size: 1.5em; text-align: center;\">Rüstungen</td></tr>");
+				storageList["Elixiere"] = new Array("<tr><td colspan=\"4\" background=\"img/revolution/footer_bg.jpg\" style=\"color: #FFFFFF; font-size: 1.5em; text-align: center;\">Elixiere</td></tr>");
+				storageList.push(storageRows[0].outerHTML);
+				var equalItemCounter = 1;
+				for(var i=1; i<storageRows.length; i++) {
+					var name = storageRows[i].getElementsByTagName('td')[0].textContent.split('(')[0].trim();
+					var category = storageRows[i].getElementsByTagName('td')[1].textContent;
+					if((category == "Waffen" || category == "Rüstungen") && storageRows[i-1].textContent.indexOf(name) != -1) {
+						equalItemCounter++;
+						storageList[category].pop();
+						storageRows[i].getElementsByTagName('td')[0].innerHTML = name;
+						storageRows[i].getElementsByTagName('td')[2].innerHTML = equalItemCounter;
+					} else {
+						equalItemCounter = 1;
+					}
+					if(name.indexOf('legierung') != -1 || name.indexOf('Smaragd') != -1) {
+						storageList["Ressourcen"].push(storageRows[i].outerHTML);
+					} else {
+						storageList[category].push(storageRows[i].outerHTML);
+					}
+				}
+				storageList = storageList.concat(storageList["Ressourcen"], storageList["Waffen"], storageList["Rüstungen"], storageList["Gegenstände"], storageList["Elixiere"]);
+				getContent().getElementsByTagName('table')[storageTableNum].innerHTML = storageList.join("");
+			}
 		}
 		if(document.URL.indexOf("do=auszahlen") == -1 && document.URL.indexOf('do=informationen') == -1) { // "einzahlen"
 			getContent().getElementsByTagName('select')[0].addEventListener('change', putIntoStorage);
