@@ -1,3 +1,6 @@
+-> v4.2.9:
+ - Tierabhängigkeit: Bauer/Tiernahrung (24) -> Esel entfernt
+
 -> v4.2.8:
 	- Stadtlager: Sortierung nach Kategorien (Option: "Stadtlager nach Kategorien sortieren")
 
