@@ -1,5 +1,8 @@
+-> v4.3.0:
+	- Option zum einfacheren letzten Tier aus dem Stall nehmen hinzugefügt
+
 -> v4.2.9:
- - Tierabhängigkeit: Bauer/Tiernahrung (24) -> Esel entfernt
+	- Tierabhängigkeit: Bauer/Tiernahrung (24) -> Esel entfernt
 
 -> v4.2.8:
 	- Stadtlager: Sortierung nach Kategorien (Option: "Stadtlager nach Kategorien sortieren")

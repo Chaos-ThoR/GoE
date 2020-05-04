@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name				Game Of Elements
 // @namespace			GameOfElements
-// @version				4.2.9
+// @version				4.3.0
 // @updateURL			https://github.com/Chaos-ThoR/GoE/raw/master/Game%20Of%20Elements.user.js
 // @encoding			utf-8
 // @description			try to take over the world!
@@ -38,6 +38,7 @@ var defaultWorkDo3 = 'Pillen herstellen';
 var displayHeatWarning = true; // display a heat / cold warning
 var displayCityfightWarning = true; // display a warning if there is an upcoming cityfight
 var displayAnimalWarning = true; // display a warning if you will work without or with the wrong animal
+var takeLastAnimalRequest = false; // get a request on stable page to take last animal out
 var scaleCaptcha = true; // scales up the captcha to easy click on mobile devices
 var defaultProfession = 'Bauer';
 var moveServerTime = true; // move the server time to the first headline of each page
@@ -159,6 +160,7 @@ var quickLinkDeleter = [];
 			workShortLinks(); // Add some shortcuts to the "Arbeiten" page ..
 			userRanking(); // add some additional information on the 'Usertop' page ..
 			extendAnimalInformation(); // add the date of death ..
+			takeLastAnimal(); // add Option to take last animal out of the stable ..
 			feedAnimal(); // "Tier füttern" page ..
 			transfer(); // "Übertragen" page ..
 			marketplace(); // "Marktplatz" page ..
@@ -227,25 +229,26 @@ function addScriptOptions() { // add a script configuration UI ..
 /*11*/ createConfigTableRow(configTable, 'Warnung bei \u00DCberhitzung / Unterk\u00FChlung', createSwitch('heatWarning', displayHeatWarning));
 /*12*/ createConfigTableRow(configTable, 'Warnung bei anstehendem SK', createSwitch('cityfightWarning', displayCityfightWarning));
 /*13*/ createConfigTableRow(configTable, 'Warnung bei fehlendem oder falschem Tier', createSwitch('animalWarning', displayAnimalWarning));
-/*14*/ createConfigTableRow(configTable, 'Größere Captchas zum einfacheren Klicken', createSwitch('scaleCaptcha', scaleCaptcha));
-/*15*/ createConfigTableRow(configTable, 'Zus\u00E4tzliche hilfreiche Links ("unten links" und bei "Arbeiten")', createSwitch('shortcutsOption', addSomeShortcutLinks));
-/*16*/ createConfigTableRow(configTable, 'Zus\u00E4tzlicher Arbeitslink: ', createSwitch('defaultWorkSwitch', addDefaultWorkLink));
-/*17*/ createConfigTableRow(configTable, 'Weiterer zus\u00E4tzlicher Arbeitslink: ', createSwitch('defaultWorkSwitch2', addDefaultWorkLink2));
-/*18*/ createConfigTableRow(configTable, 'Weiterer zus\u00E4tzlicher Arbeitslink: ', createSwitch('defaultWorkSwitch3', addDefaultWorkLink3));
-/*19*/ createConfigTableRow(configTable, 'Links: ', 'span');
-/*20*/ createConfigTableRow(configTable, 'BB Codes Leiste f\u00FCr Foren & Nachrichten', createSwitch('bbCodes', addBBCodes));
-/*21*/ createConfigTableRow(configTable, 'Sterbedatum der Tiere (f\u00FCr alle Tiere beim Stall)', createSwitch('deathCounter', addDateOfDeath));
-/*22*/ createConfigTableRow(configTable, 'Externe Statistiken einbinden', createSwitch('externalStats', addExternalStats));
-/*23*/ createConfigTableRow(configTable, 'Stadtlager nach Kategorien sortieren', createSwitch('cityStorageCategories', cityStorageCategoriesEnabled));
-/*24*/ createConfigTableRow(configTable, 'Anzeigegrenzen vom Stadtlager f\u00FCr: ', createSwitch('cityStorageLimitsSwitch', cityStorageLimitsEnabled));
-/*25*/ createConfigTableRow(configTable, 'Sound abspielen wenn Arbeitsgang beendet', createSwitch('remind', enableReminder));
-/*26*/ createConfigTableRow(configTable, 'Sound', createSelection('remindSound', audioFiles, reminderSelection, updateConfig));
-/*27*/ createConfigTableRow(configTable, 'Sound wiederholen', createInputNumber('soundRepeat', '1', '999', '1', '60', reminderRepetitions));
-/*28*/ createConfigTableRow(configTable, 'Zeit bis der Sound wiederholt wird in [ms] (1000 = 1s)', createInputNumber('soundDelay', '0', '10000', '100', '60', reminderDelay));
-/*29*/ createConfigTableRow(configTable, 'Sound Lautst\u00E4rke', createSlider('soundVolume', 0, 1, 0.1, 60, reminderVolume, updateConfig));
-/*30*/ createConfigTableRow(configTable, 'min. Deben im Inventar', createInputNumber('minDeben', '0', '9999999', '50', '60', minDebenValue));
+/*14*/ createConfigTableRow(configTable, 'Anfrage, ob letztes Tier aus dem Stall genommen werden soll', createSwitch('lastAnimalRequest', takeLastAnimalRequest));
+/*15*/ createConfigTableRow(configTable, 'Größere Captchas zum einfacheren Klicken', createSwitch('scaleCaptcha', scaleCaptcha));
+/*16*/ createConfigTableRow(configTable, 'Zus\u00E4tzliche hilfreiche Links ("unten links" und bei "Arbeiten")', createSwitch('shortcutsOption', addSomeShortcutLinks));
+/*17*/ createConfigTableRow(configTable, 'Zus\u00E4tzlicher Arbeitslink: ', createSwitch('defaultWorkSwitch', addDefaultWorkLink));
+/*18*/ createConfigTableRow(configTable, 'Weiterer zus\u00E4tzlicher Arbeitslink: ', createSwitch('defaultWorkSwitch2', addDefaultWorkLink2));
+/*19*/ createConfigTableRow(configTable, 'Weiterer zus\u00E4tzlicher Arbeitslink: ', createSwitch('defaultWorkSwitch3', addDefaultWorkLink3));
+/*20*/ createConfigTableRow(configTable, 'Links: ', 'span');
+/*21*/ createConfigTableRow(configTable, 'BB Codes Leiste f\u00FCr Foren & Nachrichten', createSwitch('bbCodes', addBBCodes));
+/*22*/ createConfigTableRow(configTable, 'Sterbedatum der Tiere (f\u00FCr alle Tiere beim Stall)', createSwitch('deathCounter', addDateOfDeath));
+/*23*/ createConfigTableRow(configTable, 'Externe Statistiken einbinden', createSwitch('externalStats', addExternalStats));
+/*24*/ createConfigTableRow(configTable, 'Stadtlager nach Kategorien sortieren', createSwitch('cityStorageCategories', cityStorageCategoriesEnabled));
+/*25*/ createConfigTableRow(configTable, 'Anzeigegrenzen vom Stadtlager f\u00FCr: ', createSwitch('cityStorageLimitsSwitch', cityStorageLimitsEnabled));
+/*26*/ createConfigTableRow(configTable, 'Sound abspielen wenn Arbeitsgang beendet', createSwitch('remind', enableReminder));
+/*27*/ createConfigTableRow(configTable, 'Sound', createSelection('remindSound', audioFiles, reminderSelection, updateConfig));
+/*28*/ createConfigTableRow(configTable, 'Sound wiederholen', createInputNumber('soundRepeat', '1', '999', '1', '60', reminderRepetitions));
+/*29*/ createConfigTableRow(configTable, 'Zeit bis der Sound wiederholt wird in [ms] (1000 = 1s)', createInputNumber('soundDelay', '0', '10000', '100', '60', reminderDelay));
+/*30*/ createConfigTableRow(configTable, 'Sound Lautst\u00E4rke', createSlider('soundVolume', 0, 1, 0.1, 60, reminderVolume, updateConfig));
+/*31*/ createConfigTableRow(configTable, 'min. Deben im Inventar', createInputNumber('minDeben', '0', '9999999', '50', '60', minDebenValue));
 		if(checkHash(getUserName())) {
-/*31*/ createConfigTableRow(configTable, 'Knapsack Optimierung bei "ausgeglichener Kampf" (Stadtprofil)', createSwitch('doKnapsack', doKnapsackCalc));
+/*32*/ createConfigTableRow(configTable, 'Knapsack Optimierung bei "ausgeglichener Kampf" (Stadtprofil)', createSwitch('doKnapsack', doKnapsackCalc));
 		}
 
 		// special selections for the default work things ..
@@ -254,13 +257,13 @@ function addScriptOptions() { // add a script configuration UI ..
 
 		var workSelection = createSelection('jobSelectionCombo', jobLinkMap, String(defaultWorkDo), updateConfig);
 		workSelection.style.marginLeft = '48px';
-		getTableElement(configTable, 16, 0).appendChild(workSelection);
+		getTableElement(configTable, 17, 0).appendChild(workSelection);
 		var workSelection2 = createSelection('jobSelectionCombo2', jobLinkMap, String(defaultWorkDo2), updateConfig);
 		workSelection2.style.marginLeft = '5px';
-		getTableElement(configTable, 17, 0).appendChild(workSelection2);
+		getTableElement(configTable, 18, 0).appendChild(workSelection2);
 		var workSelection3 = createSelection('jobSelectionCombo3', jobLinkMap, String( defaultWorkDo3), updateConfig);
 		workSelection3.style.marginLeft = '5px';
-		getTableElement(configTable, 18, 0).appendChild(workSelection3);
+		getTableElement(configTable, 19, 0).appendChild(workSelection3);
 
 		// special link settings
 		var quickLinksCombo = createElementA('input', 'id', 'quickLinksCombo');
@@ -272,30 +275,30 @@ function addScriptOptions() { // add a script configuration UI ..
 		for(var link in quickLinks) {
 			quickLinksDataList.appendChild(createElementAT('option', 'value', link, link));
 		}
-		getTableElement(configTable, 19, 0).appendChild(quickLinksCombo);
-		getTableElement(configTable, 19, 0).appendChild(document.createTextNode(' '));
+		getTableElement(configTable, 20, 0).appendChild(quickLinksCombo);
+		getTableElement(configTable, 20, 0).appendChild(document.createTextNode(' '));
 		var quickLinksText = createInputText('quickLinksText', '305', '');
 		quickLinksText.addEventListener('input', updateView, false);
-		getTableElement(configTable, 19, 0).appendChild(quickLinksText);
+		getTableElement(configTable, 20, 0).appendChild(quickLinksText);
 
-		getTableElement(configTable, 19, 0).appendChild(createButton('addLinkBtn', 'Link hinzuf\u00FCgen', '10', '18', '32', addLinkEntry));
-		getTableElement(configTable, 19, 0).appendChild(createButton('removeLinkBtn', 'Link entfernen', '10', '18', '20', removeLinkEntry));
-		getTableElement(configTable, 19, 0).appendChild(createButton('addDefaultsLinkBtn', 'Standard Links anlegen', '10', '18', '20', addDefaultLinkEntries));
+		getTableElement(configTable, 20, 0).appendChild(createButton('addLinkBtn', 'Link hinzuf\u00FCgen', '10', '18', '32', addLinkEntry));
+		getTableElement(configTable, 20, 0).appendChild(createButton('removeLinkBtn', 'Link entfernen', '10', '18', '20', removeLinkEntry));
+		getTableElement(configTable, 20, 0).appendChild(createButton('addDefaultsLinkBtn', 'Standard Links anlegen', '10', '18', '20', addDefaultLinkEntries));
 
 		// special city storage settings
-		getTableElement(configTable, 24, 0).appendChild(createSelectionCityStorage('cityStorageCombo', storageLimitsArray, 'Bretter', updateView));
-		getTableElement(configTable, 24, 0).appendChild(document.createElement('br'));
-		getTableElement(configTable, 24, 0).appendChild(document.createTextNode(' ROT < '));
-		getTableElement(configTable, 24, 0).appendChild(createInputNumber('scYellow', '-1', '9999999', '1', '66', getObjectFromCityStorageArray(storageLimitsArray, document.getElementById('cityStorageCombo').value).y));
-		getTableElement(configTable, 24, 0).appendChild(document.createTextNode(' GELB < '));
-		getTableElement(configTable, 24, 0).appendChild(createInputNumber('scGreen', '-1', '9999999', '1', '66', getObjectFromCityStorageArray(storageLimitsArray, document.getElementById('cityStorageCombo').value).g));
-		getTableElement(configTable, 24, 0).appendChild(document.createTextNode(' ansonsten GR\u00DCN'));
-		getTableElement(configTable, 24, 0).appendChild(document.createElement('br'));
-		getTableElement(configTable, 24, 0).appendChild(document.createTextNode('* -1 = KEINE Hervorhebung'));
+		getTableElement(configTable, 25, 0).appendChild(createSelectionCityStorage('cityStorageCombo', storageLimitsArray, 'Bretter', updateView));
+		getTableElement(configTable, 25, 0).appendChild(document.createElement('br'));
+		getTableElement(configTable, 25, 0).appendChild(document.createTextNode(' ROT < '));
+		getTableElement(configTable, 25, 0).appendChild(createInputNumber('scYellow', '-1', '9999999', '1', '66', getObjectFromCityStorageArray(storageLimitsArray, document.getElementById('cityStorageCombo').value).y));
+		getTableElement(configTable, 25, 0).appendChild(document.createTextNode(' GELB < '));
+		getTableElement(configTable, 25, 0).appendChild(createInputNumber('scGreen', '-1', '9999999', '1', '66', getObjectFromCityStorageArray(storageLimitsArray, document.getElementById('cityStorageCombo').value).g));
+		getTableElement(configTable, 25, 0).appendChild(document.createTextNode(' ansonsten GR\u00DCN'));
+		getTableElement(configTable, 25, 0).appendChild(document.createElement('br'));
+		getTableElement(configTable, 25, 0).appendChild(document.createTextNode('* -1 = KEINE Hervorhebung'));
 
 		// special test sound button for the reminder ..
 		var testSoundBtn = createButton('testSound', 'Sound Test', '10', '18', '298', playSoundWrap);
-		getTableElement(configTable, 26, 0).appendChild(testSoundBtn);
+		getTableElement(configTable, 27, 0).appendChild(testSoundBtn);
 
 		// job options table
 		getContent().appendChild( document.createElement('br'));
@@ -457,6 +460,7 @@ function updateConfig() { // update the settings
 	displayHeatWarning = document.getElementById('heatWarning').checked;
 	displayCityfightWarning = document.getElementById('cityfightWarning').checked;
 	displayAnimalWarning = document.getElementById('animalWarning').checked;
+	takeLastAnimalRequest = document.getElementById('lastAnimalRequest').checked;
 	scaleCaptcha = document.getElementById('scaleCaptcha').checked;
 	defaultProfession = document.getElementById('professionSelectionCombo').value;
 	addSomeShortcutLinks = document.getElementById('shortcutsOption').checked;
@@ -514,6 +518,7 @@ function saveConfig() { // save current script configuration ..
 	GM_setValue('displayHeatWarning', displayHeatWarning);
 	GM_setValue('displayCityfightWarning', displayCityfightWarning);
 	GM_setValue('displayAnimalWarning', displayAnimalWarning);
+	GM_setValue('takeLastAnimalRequest', takeLastAnimalRequest);
 	GM_setValue('scaleCaptcha', scaleCaptcha);
 	GM_setValue('defaultProfession', defaultProfession);
 	GM_setValue('addSomeShortcutLinks', addSomeShortcutLinks);
@@ -576,6 +581,7 @@ function loadConfig() { // load current script configuration ..
 	displayHeatWarning = GM_getValue('displayHeatWarning', displayHeatWarning);
 	displayCityfightWarning = GM_getValue('displayCityfightWarning', displayCityfightWarning);
 	displayAnimalWarning = GM_getValue('displayAnimalWarning', displayAnimalWarning);
+	takeLastAnimalRequest = GM_getValue('takeLastAnimalRequest', takeLastAnimalRequest);
 	scaleCaptcha = GM_getValue('scaleCaptcha', scaleCaptcha);
 	defaultProfession = GM_getValue('defaultProfession', defaultProfession);
 	addSomeShortcutLinks = GM_getValue('addSomeShortcutLinks', addSomeShortcutLinks);
@@ -1943,6 +1949,29 @@ function getDateOfDeath(ageInformation) { // returns the date of death ..
 	return (day + '.' + month + '.' + dateOfDeath.getFullYear());
 }
 
+function takeLastAnimal() { // add Option to take last animal out of the stable ..
+	if(takeLastAnimalRequest) {
+		if(hasAnimal()) {
+			var currentAnimal = whichAnimal("PlusName");
+			GM_setValue('lastAnimal', currentAnimal);
+		} else {
+			if(document.URL.includes('site=stall') && !getContent().getElementsByTagName('table')[0].textContent.includes("INFORMATION")) {
+				var lastAnimal = GM_getValue('lastAnimal', '')
+				var animalTable = getContent().getElementsByTagName('table')[0];
+				for(var i = 1; i < animalTable.rows.length; i++) {
+					if(animalTable.rows[i].getElementsByTagName('td')[1].textContent == lastAnimal.split(',')[0] && animalTable.rows[i].getElementsByTagName('td')[2].textContent == lastAnimal.split(',')[1]) {
+						var getAnimal = confirm('++ Tier aus dem Stall nehmen? ++\n\n' + lastAnimal.split(',')[0] + ' -> ' + lastAnimal.split(',')[1]);
+						if(getAnimal) {
+							window.location.href = animalTable.rows[i].getElementsByTagName('a')[0].getAttribute('href');
+						}
+						break;
+					}
+				}
+			}
+		}
+	}
+}
+
 function feedAnimal() { // "Tier füttern" page ..
 	if(document.URL.includes('site=tierverwaltung') && document.URL.includes('&food=')) { // add input options for numbers
 		var amountInput = getContent().getElementsByTagName('input')[0];
@@ -2652,7 +2681,7 @@ function hasAnimal() { // has animal ..
 	return (document.getElementById('right').innerHTML.includes('Tier</td>'));
 }
 
-function whichAnimal() { // which animal
+function whichAnimal(opt = "justAnimal") { // which animal
 	var animal = "";
 	if(hasAnimal()) {
 		var i = 0;
@@ -2661,6 +2690,9 @@ function whichAnimal() { // which animal
 		}
 		var animalTable = document.getElementById('right').getElementsByTagName('table')[i];
 		animal = getTableElement(animalTable, 0, 1).textContent;
+		if(opt == "PlusName") {
+			animal += "," + getTableElement(animalTable, 1, 1).textContent;
+		}
 	}
 	return animal;
 }
