@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name				Game Of Elements
 // @namespace			GameOfElements
-// @version				4.3.0
+// @version				4.3.1
 // @updateURL			https://github.com/Chaos-ThoR/GoE/raw/master/Game%20Of%20Elements.user.js
 // @encoding			utf-8
 // @description			try to take over the world!
@@ -171,6 +171,7 @@ var quickLinkDeleter = [];
 			// job dependend functions ..
 			addHealedInfo(); // additional information for alchemists ..
 			defaultSelectionsForAlchemist();
+			addInformationToSpellPage(); // add additional information to the  alchemist spell page
 			addRemainingWorkCyclesInfo(); // additional information for stonecutters ..
 			preselectPrimaryEngineerItem(); // preselect the primary item for engineers ..
 			preselectionCreateAnimalFood(); // preselect the create animal food defaults ..
@@ -2309,7 +2310,7 @@ function defaultSelectionsForAlchemist() { // spell default
 		userSelection.setAttribute('style', 'width:auto; max-width:100%');
 	}
 
-	// spell default
+	// potion default
 	if(document.getElementById('form1') && document.getElementById('form1').textContent.indexOf('Als Alchemist kannst du hier Pillen mixen.') != -1) {
 		var options1 = document.getElementsByName('R1');
 		var alchemistPotionDefault = GM_getValue('alchemistPotionDefault', 0);
@@ -2320,6 +2321,41 @@ function defaultSelectionsForAlchemist() { // spell default
 		options1[3].addEventListener("click", function(){ alchemistPotionDefault = 3; GM_setValue('alchemistPotionDefault', alchemistPotionDefault); });
 		options1[4].addEventListener("click", function(){ alchemistPotionDefault = 4; GM_setValue('alchemistPotionDefault', alchemistPotionDefault); });
 		options1[5].addEventListener("click", function(){ alchemistPotionDefault = 5; GM_setValue('alchemistPotionDefault', alchemistPotionDefault); });
+	}
+}
+
+// add additional information to the  alchemist spell page
+function addInformationToSpellPage() {
+	if((document.URL.includes("site=arbeiten&show=21") || document.URL.includes("site=arbeiten&do=21")) && checkHash(getUserName())) {
+		var options = document.getElementsByName('user2')[0].getElementsByTagName('option');
+		for(var i = 1; i < options.length; i++) {
+			if(options[i].textContent.indexOf('Buff der Arbeit,') == -1) {
+				options[i].setAttribute('id', options[i].value);
+			} else {
+				break;
+			}
+		}
+		setTimeout(function() {
+			GM_xmlhttpRequest({
+				method: "GET",
+				url: "https://www.game-of-elements.de/index.php?site=gruppe&do=uebersicht&whowhat=1",
+				onload: function(response) {
+					var htmlDoc = new DOMParser().parseFromString(response.responseText, "text/html");
+					var table1 = htmlDoc.getElementById('content').getElementsByTagName('table')[0];
+					var table2 = htmlDoc.getElementById('content').getElementsByTagName('table')[1];
+					for(var i = 1; i < table1.rows.length; i++) {
+						var username = table1.rows[i].getElementsByTagName('td')[1].textContent;
+						if(document.getElementById(username)) {
+							var text = ' | EP: ' + table2.rows[i].getElementsByTagName('td')[4].textContent + ' | ' + table1.rows[i].getElementsByTagName('td')[4].textContent;
+							if(table1.rows[i].getElementsByTagName('td')[4].textContent != 'nichts') {
+								text += ' (' + table1.rows[i].getElementsByTagName('td')[5].textContent + ')';
+							}
+							document.getElementById(username).innerHTML += text;
+						}
+					}
+				}
+			});
+		}, rand(1500, 2500));
 	}
 }
 
@@ -2719,4 +2755,8 @@ function isMobile(what = "any") {
 			return (isMobile("Android") || isMobile("BlackBerry") || isMobile("iOS") || isMobile("Opera") || isMobile("Windows"));
 	}
 	return false;
+}
+
+function rand(min, max) {
+	return Math.floor(Math.random() * (max-min+1)) + min;
 }

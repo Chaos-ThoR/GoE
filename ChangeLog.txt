@@ -1,3 +1,6 @@
+-> v4.3.1:
+	- Zusätzliche Informationen unter "Zauber wirken"
+
 -> v4.3.0:
 	- Option zum einfacheren letzten Tier aus dem Stall nehmen hinzugefügt
 
