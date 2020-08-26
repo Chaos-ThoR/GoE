@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name				Game Of Elements
 // @namespace			GameOfElements
-// @version				4.2.4
+// @version				4.3.2
 // @updateURL			https://github.com/Chaos-ThoR/GoE/raw/master/Game%20Of%20Elements.user.js
 // @encoding			utf-8
 // @description			try to take over the world!
@@ -38,6 +38,8 @@ var defaultWorkDo3 = 'Pillen herstellen';
 var displayHeatWarning = true; // display a heat / cold warning
 var displayCityfightWarning = true; // display a warning if there is an upcoming cityfight
 var displayAnimalWarning = true; // display a warning if you will work without or with the wrong animal
+var buffCheck = true; // check if there is an active "Buff der Arbeit" or you get a new one
+var takeLastAnimalRequest = false; // get a request on stable page to take last animal out
 var scaleCaptcha = true; // scales up the captcha to easy click on mobile devices
 var defaultProfession = 'Bauer';
 var moveServerTime = true; // move the server time to the first headline of each page
@@ -45,6 +47,7 @@ var addBBCodes = false; // add a BBCODE toolbar to the "Stadtforum", "Forum" & "
 var doKnapsackCalc = false; // knpsack calculation for "ausgeglichener Kampf"
 var addDateOfDeath = true; // add the date of death for the animal(s)
 var addExternalStats = false; // add external statistics in profils
+var cityStorageCategoriesEnabled = true; // enables categories for the city storage table
 var cityStorageLimitsEnabled = true; // enables limit markup settings for the city storage
 var enableReminder = false; // play a sound when time is up + options
 var reminderVolume = 1.0;
@@ -124,7 +127,7 @@ var professions = {'Sammler' : {'' : 'Falke', '4' : 'Falke', '32' : 'Falke'},
                    'Waldarbeiter' : {'' : 'Kamel', '6' : 'Kamel', '13' : ''},
                    'Versorger' : {'' : 'Jagdhund', 'jagen' : 'Jagdhund', 'wasserholen' : 'Esel', '31' : '', '34' : ''},
                    'Alchemist' : {'' : 'Eule', '1' : 'Eule', '10' : '', '30' : 'Eule', '21' : ''},
-                   'Bauer' : {'' : 'Esel', '8' : 'Esel', '24' : 'Esel', '22' : '', '23' : 'Esel', '28' : ''},
+                   'Bauer' : {'' : 'Esel', '8' : 'Esel', '24' : '', '22' : '', '23' : 'Esel', '28' : ''},
                    'Minenarbeiter' : {'' : 'Ochse', '7' : 'Ochse', '11' : 'Ochse', '12' : 'Ochse'},
                    'Schmied' : {'' : 'Pferd', '14' : 'Pferd', '15' : 'Pferd', '16' : 'Pferd', '17' : 'Pferd', '18' : 'Pferd', '19' : '', '35' : ''},
                    'Ingenieur' : {'' : '', '25' : '', '9' : '', '33' : 'Affe', '26' : '', '29' : ''}};
@@ -158,17 +161,18 @@ var quickLinkDeleter = [];
 			workShortLinks(); // Add some shortcuts to the "Arbeiten" page ..
 			userRanking(); // add some additional information on the 'Usertop' page ..
 			extendAnimalInformation(); // add the date of death ..
+			takeLastAnimal(); // add Option to take last animal out of the stable ..
 			feedAnimal(); // "Tier füttern" page ..
 			transfer(); // "Übertragen" page ..
 			marketplace(); // "Marktplatz" page ..
 			character(); // "Charakter" page ..
 			competition(); // "Gewinnspiel" page ..
 			colosseum(); // "Kolosseum" page ..
-			reorgPageElems();
 
 			// job dependend functions ..
 			addHealedInfo(); // additional information for alchemists ..
 			defaultSelectionsForAlchemist();
+			addInformationToSpellPage(); // add additional information to the  alchemist spell page
 			addRemainingWorkCyclesInfo(); // additional information for stonecutters ..
 			preselectPrimaryEngineerItem(); // preselect the primary item for engineers ..
 			preselectionCreateAnimalFood(); // preselect the create animal food defaults ..
@@ -227,24 +231,27 @@ function addScriptOptions() { // add a script configuration UI ..
 /*11*/ createConfigTableRow(configTable, 'Warnung bei \u00DCberhitzung / Unterk\u00FChlung', createSwitch('heatWarning', displayHeatWarning));
 /*12*/ createConfigTableRow(configTable, 'Warnung bei anstehendem SK', createSwitch('cityfightWarning', displayCityfightWarning));
 /*13*/ createConfigTableRow(configTable, 'Warnung bei fehlendem oder falschem Tier', createSwitch('animalWarning', displayAnimalWarning));
-/*14*/ createConfigTableRow(configTable, 'Größere Captchas zum einfacheren Klicken', createSwitch('scaleCaptcha', scaleCaptcha));
-/*15*/ createConfigTableRow(configTable, 'Zus\u00E4tzliche hilfreiche Links ("unten links" und bei "Arbeiten")', createSwitch('shortcutsOption', addSomeShortcutLinks));
-/*16*/ createConfigTableRow(configTable, 'Zus\u00E4tzlicher Arbeitslink: ', createSwitch('defaultWorkSwitch', addDefaultWorkLink));
-/*17*/ createConfigTableRow(configTable, 'Weiterer zus\u00E4tzlicher Arbeitslink: ', createSwitch('defaultWorkSwitch2', addDefaultWorkLink2));
-/*18*/ createConfigTableRow(configTable, 'Weiterer zus\u00E4tzlicher Arbeitslink: ', createSwitch('defaultWorkSwitch3', addDefaultWorkLink3));
-/*19*/ createConfigTableRow(configTable, 'Links: ', 'span');
-/*20*/ createConfigTableRow(configTable, 'BB Codes Leiste f\u00FCr Foren & Nachrichten', createSwitch('bbCodes', addBBCodes));
-/*21*/ createConfigTableRow(configTable, 'Sterbedatum der Tiere (f\u00FCr alle Tiere beim Stall)', createSwitch('deathCounter', addDateOfDeath));
-/*22*/ createConfigTableRow(configTable, 'Externe Statistiken einbinden', createSwitch('externalStats', addExternalStats));
-/*23*/ createConfigTableRow(configTable, 'Anzeigegrenzen vom Stadtlager f\u00FCr: ', createSwitch('cityStorageLimitsSwitch', cityStorageLimitsEnabled));
-/*24*/ createConfigTableRow(configTable, 'Sound abspielen wenn Arbeitsgang beendet', createSwitch('remind', enableReminder));
-/*25*/ createConfigTableRow(configTable, 'Sound', createSelection('remindSound', audioFiles, reminderSelection, updateConfig));
-/*26*/ createConfigTableRow(configTable, 'Sound wiederholen', createInputNumber('soundRepeat', '1', '999', '1', '60', reminderRepetitions));
-/*27*/ createConfigTableRow(configTable, 'Zeit bis der Sound wiederholt wird in [ms] (1000 = 1s)', createInputNumber('soundDelay', '0', '10000', '100', '60', reminderDelay));
-/*28*/ createConfigTableRow(configTable, 'Sound Lautst\u00E4rke', createSlider('soundVolume', 0, 1, 0.1, 60, reminderVolume, updateConfig));
-/*29*/ createConfigTableRow(configTable, 'min. Deben im Inventar', createInputNumber('minDeben', '0', '9999999', '50', '60', minDebenValue));
+/*14*/ createConfigTableRow(configTable, 'Zeige "Buff der Arbeit" Zeit bei der "Arbeit" an', createSwitch('buffCheckTime', buffCheck));
+/*15*/ createConfigTableRow(configTable, 'Anfrage, ob letztes Tier aus dem Stall genommen werden soll', createSwitch('lastAnimalRequest', takeLastAnimalRequest));
+/*16*/ createConfigTableRow(configTable, 'Größere Captchas zum einfacheren Klicken', createSwitch('scaleCaptcha', scaleCaptcha));
+/*17*/ createConfigTableRow(configTable, 'Zus\u00E4tzliche hilfreiche Links ("unten links" und bei "Arbeiten")', createSwitch('shortcutsOption', addSomeShortcutLinks));
+/*18*/ createConfigTableRow(configTable, 'Zus\u00E4tzlicher Arbeitslink: ', createSwitch('defaultWorkSwitch', addDefaultWorkLink));
+/*19*/ createConfigTableRow(configTable, 'Weiterer zus\u00E4tzlicher Arbeitslink: ', createSwitch('defaultWorkSwitch2', addDefaultWorkLink2));
+/*20*/ createConfigTableRow(configTable, 'Weiterer zus\u00E4tzlicher Arbeitslink: ', createSwitch('defaultWorkSwitch3', addDefaultWorkLink3));
+/*21*/ createConfigTableRow(configTable, 'Links: ', 'span');
+/*22*/ createConfigTableRow(configTable, 'BB Codes Leiste f\u00FCr Foren & Nachrichten', createSwitch('bbCodes', addBBCodes));
+/*23*/ createConfigTableRow(configTable, 'Sterbedatum der Tiere (f\u00FCr alle Tiere beim Stall)', createSwitch('deathCounter', addDateOfDeath));
+/*24*/ createConfigTableRow(configTable, 'Externe Statistiken einbinden', createSwitch('externalStats', addExternalStats));
+/*25*/ createConfigTableRow(configTable, 'Stadtlager nach Kategorien sortieren', createSwitch('cityStorageCategories', cityStorageCategoriesEnabled));
+/*26*/ createConfigTableRow(configTable, 'Anzeigegrenzen vom Stadtlager f\u00FCr: ', createSwitch('cityStorageLimitsSwitch', cityStorageLimitsEnabled));
+/*27*/ createConfigTableRow(configTable, 'Sound abspielen wenn Arbeitsgang beendet', createSwitch('remind', enableReminder));
+/*28*/ createConfigTableRow(configTable, 'Sound', createSelection('remindSound', audioFiles, reminderSelection, updateConfig));
+/*29*/ createConfigTableRow(configTable, 'Sound wiederholen', createInputNumber('soundRepeat', '1', '999', '1', '60', reminderRepetitions));
+/*30*/ createConfigTableRow(configTable, 'Zeit bis der Sound wiederholt wird in [ms] (1000 = 1s)', createInputNumber('soundDelay', '0', '10000', '100', '60', reminderDelay));
+/*31*/ createConfigTableRow(configTable, 'Sound Lautst\u00E4rke', createSlider('soundVolume', 0, 1, 0.1, 60, reminderVolume, updateConfig));
+/*32*/ createConfigTableRow(configTable, 'min. Deben im Inventar', createInputNumber('minDeben', '0', '9999999', '50', '60', minDebenValue));
 		if(checkHash(getUserName())) {
-/*30*/ createConfigTableRow(configTable, 'Knapsack Optimierung bei "ausgeglichener Kampf" (Stadtprofil)', createSwitch('doKnapsack', doKnapsackCalc));
+/*33*/ createConfigTableRow(configTable, 'Knapsack Optimierung bei "ausgeglichener Kampf" (Stadtprofil)', createSwitch('doKnapsack', doKnapsackCalc));
 		}
 
 		// special selections for the default work things ..
@@ -253,13 +260,13 @@ function addScriptOptions() { // add a script configuration UI ..
 
 		var workSelection = createSelection('jobSelectionCombo', jobLinkMap, String(defaultWorkDo), updateConfig);
 		workSelection.style.marginLeft = '48px';
-		getTableElement(configTable, 16, 0).appendChild(workSelection);
+		getTableElement(configTable, 18, 0).appendChild(workSelection);
 		var workSelection2 = createSelection('jobSelectionCombo2', jobLinkMap, String(defaultWorkDo2), updateConfig);
 		workSelection2.style.marginLeft = '5px';
-		getTableElement(configTable, 17, 0).appendChild(workSelection2);
+		getTableElement(configTable, 19, 0).appendChild(workSelection2);
 		var workSelection3 = createSelection('jobSelectionCombo3', jobLinkMap, String( defaultWorkDo3), updateConfig);
 		workSelection3.style.marginLeft = '5px';
-		getTableElement(configTable, 18, 0).appendChild(workSelection3);
+		getTableElement(configTable, 20, 0).appendChild(workSelection3);
 
 		// special link settings
 		var quickLinksCombo = createElementA('input', 'id', 'quickLinksCombo');
@@ -271,30 +278,30 @@ function addScriptOptions() { // add a script configuration UI ..
 		for(var link in quickLinks) {
 			quickLinksDataList.appendChild(createElementAT('option', 'value', link, link));
 		}
-		getTableElement(configTable, 19, 0).appendChild(quickLinksCombo);
-		getTableElement(configTable, 19, 0).appendChild(document.createTextNode(' '));
+		getTableElement(configTable, 21, 0).appendChild(quickLinksCombo);
+		getTableElement(configTable, 21, 0).appendChild(document.createTextNode(' '));
 		var quickLinksText = createInputText('quickLinksText', '305', '');
 		quickLinksText.addEventListener('input', updateView, false);
-		getTableElement(configTable, 19, 0).appendChild(quickLinksText);
+		getTableElement(configTable, 21, 0).appendChild(quickLinksText);
 
-		getTableElement(configTable, 19, 0).appendChild(createButton('addLinkBtn', 'Link hinzuf\u00FCgen', '10', '18', '32', addLinkEntry));
-		getTableElement(configTable, 19, 0).appendChild(createButton('removeLinkBtn', 'Link entfernen', '10', '18', '20', removeLinkEntry));
-		getTableElement(configTable, 19, 0).appendChild(createButton('addDefaultsLinkBtn', 'Standard Links anlegen', '10', '18', '20', addDefaultLinkEntries));
+		getTableElement(configTable, 21, 0).appendChild(createButton('addLinkBtn', 'Link hinzuf\u00FCgen', '10', '18', '32', addLinkEntry));
+		getTableElement(configTable, 21, 0).appendChild(createButton('removeLinkBtn', 'Link entfernen', '10', '18', '20', removeLinkEntry));
+		getTableElement(configTable, 21, 0).appendChild(createButton('addDefaultsLinkBtn', 'Standard Links anlegen', '10', '18', '20', addDefaultLinkEntries));
 
 		// special city storage settings
-		getTableElement(configTable, 23, 0).appendChild(createSelectionCityStorage('cityStorageCombo', storageLimitsArray, 'Bretter', updateView));
-		getTableElement(configTable, 23, 0).appendChild(document.createElement('br'));
-		getTableElement(configTable, 23, 0).appendChild(document.createTextNode(' ROT < '));
-		getTableElement(configTable, 23, 0).appendChild(createInputNumber('scYellow', '-1', '9999999', '1', '66', getObjectFromCityStorageArray(storageLimitsArray, document.getElementById('cityStorageCombo').value).y));
-		getTableElement(configTable, 23, 0).appendChild(document.createTextNode(' GELB < '));
-		getTableElement(configTable, 23, 0).appendChild(createInputNumber('scGreen', '-1', '9999999', '1', '66', getObjectFromCityStorageArray(storageLimitsArray, document.getElementById('cityStorageCombo').value).g));
-		getTableElement(configTable, 23, 0).appendChild(document.createTextNode(' ansonsten GR\u00DCN'));
-		getTableElement(configTable, 23, 0).appendChild(document.createElement('br'));
-		getTableElement(configTable, 23, 0).appendChild(document.createTextNode('* -1 = KEINE Hervorhebung'));
+		getTableElement(configTable, 26, 0).appendChild(createSelectionCityStorage('cityStorageCombo', storageLimitsArray, 'Bretter', updateView));
+		getTableElement(configTable, 26, 0).appendChild(document.createElement('br'));
+		getTableElement(configTable, 26, 0).appendChild(document.createTextNode(' ROT < '));
+		getTableElement(configTable, 26, 0).appendChild(createInputNumber('scYellow', '-1', '9999999', '1', '66', getObjectFromCityStorageArray(storageLimitsArray, document.getElementById('cityStorageCombo').value).y));
+		getTableElement(configTable, 26, 0).appendChild(document.createTextNode(' GELB < '));
+		getTableElement(configTable, 26, 0).appendChild(createInputNumber('scGreen', '-1', '9999999', '1', '66', getObjectFromCityStorageArray(storageLimitsArray, document.getElementById('cityStorageCombo').value).g));
+		getTableElement(configTable, 26, 0).appendChild(document.createTextNode(' ansonsten GR\u00DCN'));
+		getTableElement(configTable, 26, 0).appendChild(document.createElement('br'));
+		getTableElement(configTable, 26, 0).appendChild(document.createTextNode('* -1 = KEINE Hervorhebung'));
 
 		// special test sound button for the reminder ..
 		var testSoundBtn = createButton('testSound', 'Sound Test', '10', '18', '298', playSoundWrap);
-		getTableElement(configTable, 25, 0).appendChild(testSoundBtn);
+		getTableElement(configTable, 28, 0).appendChild(testSoundBtn);
 
 		// job options table
 		getContent().appendChild( document.createElement('br'));
@@ -455,7 +462,9 @@ function updateConfig() { // update the settings
 	addAdditionalHealthInformation = document.getElementById('addAdditionalHealthInformationSwitch').checked;
 	displayHeatWarning = document.getElementById('heatWarning').checked;
 	displayCityfightWarning = document.getElementById('cityfightWarning').checked;
+    buffCheck = document.getElementById('buffCheckTime').checked;
 	displayAnimalWarning = document.getElementById('animalWarning').checked;
+	takeLastAnimalRequest = document.getElementById('lastAnimalRequest').checked;
 	scaleCaptcha = document.getElementById('scaleCaptcha').checked;
 	defaultProfession = document.getElementById('professionSelectionCombo').value;
 	addSomeShortcutLinks = document.getElementById('shortcutsOption').checked;
@@ -474,6 +483,7 @@ function updateConfig() { // update the settings
 	}
 	addDateOfDeath = document.getElementById('deathCounter').checked;
 	addExternalStats = document.getElementById('externalStats').checked;
+	cityStorageCategoriesEnabled = document.getElementById('cityStorageCategories').checked;
 	cityStorageLimitsEnabled = document.getElementById('cityStorageLimitsSwitch').checked;
 	enableReminder = document.getElementById('remind').checked;
 	reminderSelection = document.getElementById('remindSound').value;
@@ -512,6 +522,8 @@ function saveConfig() { // save current script configuration ..
 	GM_setValue('displayHeatWarning', displayHeatWarning);
 	GM_setValue('displayCityfightWarning', displayCityfightWarning);
 	GM_setValue('displayAnimalWarning', displayAnimalWarning);
+    GM_setValue('buffCheck', buffCheck);
+	GM_setValue('takeLastAnimalRequest', takeLastAnimalRequest);
 	GM_setValue('scaleCaptcha', scaleCaptcha);
 	GM_setValue('defaultProfession', defaultProfession);
 	GM_setValue('addSomeShortcutLinks', addSomeShortcutLinks);
@@ -525,6 +537,7 @@ function saveConfig() { // save current script configuration ..
 	GM_setValue('doKnapsackCalc', doKnapsackCalc);
 	GM_setValue('addDateOfDeath', addDateOfDeath);
 	GM_setValue('addExternalStats', addExternalStats);
+	GM_setValue('cityStorageCategoriesEnabled', cityStorageCategoriesEnabled);
 	GM_setValue('cityStorageLimitsEnabled', cityStorageLimitsEnabled);
 	GM_setValue('enableReminder', enableReminder);
 	GM_setValue('reminderSelection', reminderSelection);
@@ -538,7 +551,6 @@ function saveConfig() { // save current script configuration ..
 	}
 	quickLinkDeleter = [];
 
-	var qlKeys = Object.keys(quickLinks);
 	GM_setValue('quickLinks', JSON.stringify(quickLinks));
 	for(var link in quickLinks) {
 		GM_setValue(link, quickLinks[link]);
@@ -573,6 +585,8 @@ function loadConfig() { // load current script configuration ..
 	displayHeatWarning = GM_getValue('displayHeatWarning', displayHeatWarning);
 	displayCityfightWarning = GM_getValue('displayCityfightWarning', displayCityfightWarning);
 	displayAnimalWarning = GM_getValue('displayAnimalWarning', displayAnimalWarning);
+    buffCheck = GM_getValue('buffCheck', buffCheck);
+	takeLastAnimalRequest = GM_getValue('takeLastAnimalRequest', takeLastAnimalRequest);
 	scaleCaptcha = GM_getValue('scaleCaptcha', scaleCaptcha);
 	defaultProfession = GM_getValue('defaultProfession', defaultProfession);
 	addSomeShortcutLinks = GM_getValue('addSomeShortcutLinks', addSomeShortcutLinks);
@@ -586,6 +600,7 @@ function loadConfig() { // load current script configuration ..
 	doKnapsackCalc = GM_getValue('doKnapsackCalc', doKnapsackCalc);
 	addDateOfDeath = GM_getValue('addDateOfDeath', addDateOfDeath);
 	addExternalStats = GM_getValue('addExternalStats', addExternalStats);
+	cityStorageCategoriesEnabled = GM_getValue('cityStorageCategoriesEnabled', cityStorageCategoriesEnabled);
 	cityStorageLimitsEnabled = GM_getValue('cityStorageLimitsEnabled', cityStorageLimitsEnabled);
 	enableReminder = GM_getValue('enableReminder', enableReminder);
 	reminderSelection = GM_getValue('reminderSelection', reminderSelection);
@@ -617,6 +632,7 @@ function global() { // changes for the whole page ..
 		defalutWorkLink();
 		extraSectionForSpecialItems();
 		addHealthInformation();
+		reorgPageElems();
 	}
 
 	if(!isLoggedIn() && removeSomeElements) {
@@ -672,9 +688,16 @@ function reorgPageElems() { // move some page elements
 		var leftMenu = document.getElementById('left');
 		var mainBlock = leftMenu.getElementsByTagName('div')[1].getElementsByTagName('ul')[0];
 		var actionsBlock = leftMenu.getElementsByTagName('div')[3].getElementsByTagName('ul')[0];
+		var cityBlock = leftMenu.getElementsByTagName('div')[5].getElementsByTagName('ul')[0];
 		var diverseBlock = leftMenu.getElementsByTagName('div')[11].getElementsByTagName('ul')[0];
 		var rightMenu = document.getElementById('right');
 		var userBlock = rightMenu.lastChild.getElementsByTagName('ul')[0].getElementsByTagName('li')[0];
+
+		// add "Aktionen" (Stadt)
+		var cityActivity = document.createElement('li');
+		cityActivity.innerHTML = '<a href="index.php?site=gruppe&do=uebersicht&whowhat=1">Aktionen</a>';
+		var cityMessage = cityBlock.getElementsByTagName('li')[1];
+		cityBlock.insertBefore(cityActivity, cityMessage);
 
 		// move "Gerüchte"
 		var rumors = diverseBlock.getElementsByTagName('li')[3];
@@ -825,7 +848,7 @@ function showCityfightWarning() { // display a warning if there is an upcoming c
 			}
 			document.getElementById('globalTopWarning').appendChild(document.createTextNode("Stadtkampf in weniger als 30 Minuten (" + nextCityfightTimestamp.getHours() + ":" + format2(nextCityfightTimestamp.getMinutes()) + " Uhr)"));
 			globalTopWarningActive = true;
-			return
+			return;
 		}
 	}
 	globalTopWarningActive = false;
@@ -834,7 +857,7 @@ function showCityfightWarning() { // display a warning if there is an upcoming c
 function showAnimalWarning() {
 	if(displayAnimalWarning) {
 		var currentAnimal = whichAnimal();
-		var msg = new Array();
+		var msg = [];
 		if(document.URL.includes('site=geruechte') && currentAnimal != "") {
 			msg.push("F\u00fcr Ger\u00fcchte ist kein(e) " + currentAnimal + " notwendig!");
 		}
@@ -877,6 +900,9 @@ function showAnimalWarning() {
 						msg.push("F\u00fcr diese Arbeit wird ein Esel ben\u00f6tigt! Hast du ihn dabei?!");
 				}
 			}
+            if(buffCheck) {
+                hasActiveBuff();
+            }
 		}
 
 		// food/age warning
@@ -913,7 +939,7 @@ function showAnimalWarning() {
 
 function scaleUpCaptcha() { // scales up the captcha to easy click on mobile devices
 	if(scaleCaptcha) {
-		if(document.getElementById( 'button' ) && document.getElementById('content').textContent.indexOf('Du machst dich auf') == -1) {
+		if(document.getElementById('button') && document.getElementById('content').textContent.indexOf('Du machst dich auf') == -1) {
 			var captcha = document.getElementById( 'button' );
 			captcha.style.position = 'relative';
 
@@ -1154,20 +1180,20 @@ function addHealthInformation() {
 							var calcHealPercentage = calcHP / maxHP * 100;
 							text += '-> Gesundheit: ' + calcHP + '/' + maxHP + ' HP, ' + calcHealPercentage.toFixed(1) + '% (-' + (maxHP - calcHP) + ' HP)\n\n';
 							text += 'Möglichkeiten:\n';
-							text += '- ca. ' + Math.ceil((maxHP - calcHP) / GM_getValue('healValue', 600)) + 'x heilen durch Alchi\n';
+							text += '- ca. ' + Math.ceil((maxHP - calcHP) / GM_getValue('healValue', 600)) + 'x Heilen durch Alchi\n';
 							if(calcHealPercentage >= 75) {
-								text += '- kleine Vitaminpille (25%)\n';
+								text += '- kl. Vitaminpille (25%)\n';
 							} else if(calcHealPercentage >= 50 && calcHealPercentage < 75) {
-								text += '- ca. ' + Math.ceil((maxHP - calcHP - maxHP * 0.25) / GM_getValue('healValue', 600)) + 'x heilen durch Alchi + kleine Vitaminpille (25%)\n';
-								text += '- mittlere Vitaminpille (50%)\n';
+								text += '- ca. ' + Math.ceil((maxHP - calcHP - maxHP * 0.25) / GM_getValue('healValue', 600)) + 'x Heilen durch Alchi + kl. Vitaminpille (25%)\n';
+								text += '- mi. Vitaminpille (50%)\n';
 							} else if(calcHealPercentage >= 25 && calcHealPercentage < 50) {
-								text += '- ca. ' + Math.ceil((maxHP - calcHP - maxHP * 0.25) / GM_getValue('healValue', 600)) + 'x heilen durch Alchi + kleine Vitaminpille (25%)\n';
-								text += '- ca. ' + Math.ceil((maxHP - calcHP - maxHP * 0.5) / GM_getValue('healValue', 600)) + 'x heilen durch Alchi + mittlere Vitaminpille (50%)\n';
-								text += '- starke Vitaminpille (75%)\n';
+								text += '- ca. ' + Math.ceil((maxHP - calcHP - maxHP * 0.25) / GM_getValue('healValue', 600)) + 'x Heilen durch Alchi + kl. Vitaminpille (25%)\n';
+								text += '- ca. ' + Math.ceil((maxHP - calcHP - maxHP * 0.5) / GM_getValue('healValue', 600)) + 'x Heilen durch Alchi + mi. Vitaminpille (50%)\n';
+								text += '- st. Vitaminpille (75%)\n';
 							} else {
-								text += '- ca. ' + Math.ceil((maxHP - calcHP - maxHP * 0.25) / GM_getValue('healValue', 600)) + 'x heilen durch Alchi + kleine Vitaminpille (25%)\n';
-								text += '- ca. ' + Math.ceil((maxHP - calcHP - maxHP * 0.5) / GM_getValue('healValue', 600)) + 'x heilen durch Alchi + mittlere Vitaminpille (50%)\n';
-								text += '- ca. ' + Math.ceil((maxHP - calcHP - maxHP * 0.75) / GM_getValue('healValue', 600)) + 'x heilen durch Alchi + starke Vitaminpille (75%)\n';
+								text += '- ca. ' + Math.ceil((maxHP - calcHP - maxHP * 0.25) / GM_getValue('healValue', 600)) + 'x Heilen durch Alchi + kl. Vitaminpille (25%)\n';
+								text += '- ca. ' + Math.ceil((maxHP - calcHP - maxHP * 0.5) / GM_getValue('healValue', 600)) + 'x Heilen durch Alchi + mi. Vitaminpille (50%)\n';
+								text += '- ca. ' + Math.ceil((maxHP - calcHP - maxHP * 0.75) / GM_getValue('healValue', 600)) + 'x Heilen durch Alchi + st. Vitaminpille (75%)\n';
 							}
 						}
 					} else {
@@ -1184,13 +1210,22 @@ function overview() { // changes for the "Übersicht" page ..
 	if(removeSomeElements && ((document.URL == "https://game-of-elements.de/index.php") || (document.URL == "https://www.game-of-elements.de/index.php"))) {
 		// remove some entries ..
 		var infoTable = getContent().getElementsByTagName('table')[0].getElementsByTagName('tbody')[0];
+		var activityTable = getContent().getElementsByTagName('table')[1];
 		if(infoTable.textContent.indexOf('INFORMATION') != -1) {
 			infoTable = getContent().getElementsByTagName('table')[1].getElementsByTagName('tbody')[0];
+			activityTable = getContent().getElementsByTagName('table')[2];
 		}
 		infoTable.removeChild(infoTable.lastElementChild);
 		infoTable.removeChild(infoTable.lastElementChild);
 		infoTable.removeChild(infoTable.rows[2]);
 		infoTable.removeChild(infoTable.rows[1]);
+		if(getContent().textContent.indexOf('Aktuelle Aktionen') != -1) {
+			var newAbortLink = document.createElement('a');
+			newAbortLink.setAttribute('href', getTableElement(activityTable, 1, 2).getElementsByTagName('a')[1].getAttribute('href')+ '&ok=1');
+			newAbortLink.setAttribute('style', 'margin-left: 20px; font-weight: bold;');
+			newAbortLink.innerHTML = 'Direktabbruch';
+			getTableElement(activityTable, 1, 2).appendChild(newAbortLink);
+		}
 	}
 }
 
@@ -1298,7 +1333,7 @@ function cityEvents() { // "Stadt -> Ereignisse" page ..
 }
 
 function hash(s) {
-	return s.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);
+	return s.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a;},0);
 }
 
 function checkHash(val) {
@@ -1483,7 +1518,7 @@ function cityfight() { // changes for the "Stadtkampf" part ..
 		var nextFightValue = getTableElement(fightTable, 1, 3).textContent;
 
 		// save cityfight timestamps
-		var cityfightTimestamps = new Array();
+		var cityfightTimestamps = [];
 		for(var i = 1; i <= fightTable.rows.length-1; i++) {
 			var timestamp = getTableElement(fightTable, i, 2).textContent;
 			timestamp = new Date(timestamp.substr(6, 4), timestamp.substr(3, 2)-1, timestamp.substr(0, 2), timestamp.substr(13, 2), timestamp.substr(16, 2), 0);
@@ -1524,11 +1559,11 @@ function cityfight() { // changes for the "Stadtkampf" part ..
 		}
 
 		// sum of all user EP ..
-		for(var i = 1; i < (currentFightTable.rows.length - correction); i++) {
-			allEP += parseInt(getTableElement(currentFightTable, i, 1).textContent);
-			allHP += parseInt(getTableElement(currentFightTable, i, 2).textContent.split('/')[0]);
-			var currentHP = parseInt(getTableElement(currentFightTable, i, 2).textContent.split('%')[0]);
-			var fullHP = parseInt(getTableElement(currentFightTable, i, 1).textContent / 3);
+		for(var k = 1; k < (currentFightTable.rows.length - correction); k++) {
+			allEP += parseInt(getTableElement(currentFightTable, k, 1).textContent);
+			allHP += parseInt(getTableElement(currentFightTable, k, 2).textContent.split('/')[0]);
+			var currentHP = parseInt(getTableElement(currentFightTable, k, 2).textContent.split('%')[0]);
+			var fullHP = parseInt(getTableElement(currentFightTable, k, 1).textContent / 3);
 			var color = "#C00000";
 			if(currentHP / fullHP < 0.5) {
 				color = "#C91B15";
@@ -1537,9 +1572,9 @@ function cityfight() { // changes for the "Stadtkampf" part ..
 			} else {
 				color = "#266f26";
 			}
-			getTableElement(currentFightTable, i, 1).setAttribute("align", "right");
-			getTableElement(currentFightTable, i, 2).setAttribute("align", "right");
-			getTableElement(currentFightTable, i, 2).innerHTML = "<font color=\"" + color + "\">" + currentHP + "</font>/" + fullHP;
+			getTableElement(currentFightTable, k, 1).setAttribute("align", "right");
+			getTableElement(currentFightTable, k, 2).setAttribute("align", "right");
+			getTableElement(currentFightTable, k, 2).innerHTML = "<font color=\"" + color + "\">" + currentHP + "</font>/" + fullHP;
 		}
 		var currentFightCol = getTableElement(currentFightTable, 0, 3);
 		currentFightCol.style.color = 'white';
@@ -1581,6 +1616,43 @@ function cityStorage() { // changes for the "Stadtlager" page ..
 			amountInput.setAttribute('step', '1');
 			amountInput.setAttribute('style', 'width:60px; text-align:right;');
 			amountInput.setAttribute('placeholder', 'Menge');
+
+			// sort storage table by categories
+			if(cityStorageCategoriesEnabled) {
+				var storageRows = getContent().getElementsByTagName('table')[0].getElementsByTagName('tr');
+				var storageTableNum = 0;
+				if(storageRows[0].textContent.includes('INFORMATION') || storageRows[0].textContent.includes('Lagerpunktkosten')) {
+					storageRows = getContent().getElementsByTagName('table')[1].getElementsByTagName('tr');
+					storageTableNum = 1;
+				}
+				var storageList = [];
+				storageList.Ressourcen = new Array("<tr><td colspan=\"4\" background=\"img/revolution/footer_bg.jpg\" style=\"color: #FFFFFF; font-size: 1.5em; text-align: center;\">Ressourcen</td></tr>");
+				storageList.Gegenstände = new Array("<tr><td colspan=\"4\" background=\"img/revolution/footer_bg.jpg\" style=\"color: #FFFFFF; font-size: 1.5em; text-align: center;\">Gegenstände</td></tr>");
+				storageList.Waffen = new Array("<tr><td colspan=\"4\" background=\"img/revolution/footer_bg.jpg\" style=\"color: #FFFFFF; font-size: 1.5em; text-align: center;\">Waffen</td></tr>");
+				storageList.Rüstungen = new Array("<tr><td colspan=\"4\" background=\"img/revolution/footer_bg.jpg\" style=\"color: #FFFFFF; font-size: 1.5em; text-align: center;\">Rüstungen</td></tr>");
+				storageList.Elixiere = new Array("<tr><td colspan=\"4\" background=\"img/revolution/footer_bg.jpg\" style=\"color: #FFFFFF; font-size: 1.5em; text-align: center;\">Elixiere</td></tr>");
+				storageList.push(storageRows[0].outerHTML);
+				var equalItemCounter = 1;
+				for(var i=1; i<storageRows.length; i++) {
+					var name = storageRows[i].getElementsByTagName('td')[0].textContent.split('(')[0].trim();
+					var category = storageRows[i].getElementsByTagName('td')[1].textContent;
+					if((category == "Waffen" || category == "Rüstungen") && storageRows[i-1].textContent.indexOf(name) != -1) {
+						equalItemCounter++;
+						storageList[category].pop();
+						storageRows[i].getElementsByTagName('td')[0].innerHTML = name;
+						storageRows[i].getElementsByTagName('td')[2].innerHTML = equalItemCounter;
+					} else {
+						equalItemCounter = 1;
+					}
+					if(name.indexOf('legierung') != -1 || name.indexOf('Smaragd') != -1) {
+						storageList.Ressourcen.push(storageRows[i].outerHTML);
+					} else {
+						storageList[category].push(storageRows[i].outerHTML);
+					}
+				}
+				storageList = storageList.concat(storageList.Ressourcen, storageList.Waffen, storageList.Rüstungen, storageList.Gegenstände, storageList.Elixiere);
+				getContent().getElementsByTagName('table')[storageTableNum].innerHTML = storageList.join("");
+			}
 		}
 		if(document.URL.indexOf("do=auszahlen") == -1 && document.URL.indexOf('do=informationen') == -1) { // "einzahlen"
 			getContent().getElementsByTagName('select')[0].addEventListener('change', putIntoStorage);
@@ -1621,9 +1693,6 @@ function cityStorageFunc() {
 
 			if(storrageObj) {
 				if((storrageObj.y >= 0) && (storrageObj.g >= 0)) {
-					var valueGreen = storrageObj.g;
-					var valueYellow = storrageObj.y;
-
 					if(value >= storrageObj.g) {
 						getTableElement(storage, i, 2).style.backgroundColor = 'lightgreen';
 					} else if(value >= storrageObj.y) {
@@ -1681,7 +1750,7 @@ if(document.URL.includes("site=profil&id=") && !document.URL.includes("&do=stati
 			var newTableRow = document.createElement('tr');
 			newTableRow.innerHTML = "<td valign=\"top\"><b>EP-Daten</b></td><td id=\"xpdaten\" colspan=\"2\"><br></td>";
 			userInfoTable.getElementsByTagName('tbody')[0].appendChild(newTableRow);
-			var ret = GM_xmlhttpRequest( {
+			GM_xmlhttpRequest( {
 				method: "POST",
 				url: "http://goe.klaxi.de/external/external.php",
 				data: "x=userprofilxp&userid="+userid+"&xp="+ep,
@@ -1780,6 +1849,42 @@ function bbCodeBar(codeBarElem, textElem, bbCodes = ['b', 'u', 'i', 'center', 'b
 		}, false);
 		codeBarElem.appendChild(newNode);
 	}
+}
+
+function hasActiveBuff() {
+    var title = document.getElementById('content').getElementsByTagName('h1')[0];
+	var frame = createElementA('iframe', 'id', 'Übersicht');
+	frame.onload = function() {
+        // look if there is a 'Buff der Arbeit'..
+        var tableEntries = frame.contentDocument.getElementById('content').getElementsByTagName('td');
+         for(var j = 0; j < tableEntries.length; j++) {
+            if(tableEntries[j].textContent == 'Buff der Arbeit') {
+                title.textContent += " - Buff der Arbeit " + tableEntries[j].parentElement.children[1].textContent + "!";
+                return;
+            }
+        }
+        // look if you get a new "Buff der Arbeit"..
+        var frame2 = createElementA('iframe', 'id', 'Buffs');
+        frame2.onload = function() {
+            var username = getUserName();
+            var users = frame2.contentDocument.getElementById('content').getElementsByTagName('select')[0].getElementsByTagName('option');
+            for(var i = 0; i < users.length; i++) {
+                if(users[i].textContent.includes(username)) {
+                    if(users[i].textContent.includes('erhält Buff der Arbeit')) {
+                        title.textContent += " - Du erhälst gerade einen Buff der Arbeit!";
+                        return;
+                    }
+                }
+            }
+            title.textContent += "Kein Buff der Arbeit vorhanden!";
+        };
+        frame2.src = 'index.php?site=arbeiten&show=21';
+        frame2.style.display = "none";
+        document.body.appendChild(frame2);
+	};
+    frame.src = 'index.php';
+	frame.style.display = "none";
+	document.body.appendChild(frame);
 }
 
 function retrieveAnimalDatesOfDeath() {
@@ -1885,6 +1990,29 @@ function getDateOfDeath(ageInformation) { // returns the date of death ..
 	return (day + '.' + month + '.' + dateOfDeath.getFullYear());
 }
 
+function takeLastAnimal() { // add Option to take last animal out of the stable ..
+	if(takeLastAnimalRequest) {
+		if(hasAnimal()) {
+			var currentAnimal = whichAnimal("PlusName");
+			GM_setValue('lastAnimal', currentAnimal);
+		} else {
+			if(document.URL.includes('site=stall') && !getContent().getElementsByTagName('table')[0].textContent.includes("INFORMATION")) {
+				var lastAnimal = GM_getValue('lastAnimal', '');
+				var animalTable = getContent().getElementsByTagName('table')[0];
+				for(var i = 1; i < animalTable.rows.length; i++) {
+					if(animalTable.rows[i].getElementsByTagName('td')[1].textContent == lastAnimal.split(',')[0] && animalTable.rows[i].getElementsByTagName('td')[2].textContent == lastAnimal.split(',')[1]) {
+						var getAnimal = confirm('++ Tier aus dem Stall nehmen? ++\n\n' + lastAnimal.split(',')[0] + ' -> ' + lastAnimal.split(',')[1]);
+						if(getAnimal) {
+							window.location.href = animalTable.rows[i].getElementsByTagName('a')[0].getAttribute('href');
+						}
+						break;
+					}
+				}
+			}
+		}
+	}
+}
+
 function feedAnimal() { // "Tier füttern" page ..
 	if(document.URL.includes('site=tierverwaltung') && document.URL.includes('&food=')) { // add input options for numbers
 		var amountInput = getContent().getElementsByTagName('input')[0];
@@ -1969,7 +2097,7 @@ function character() { // "Charakter" page ..
 }
 
 function competition() { // "Gewinnspiel" page ..
-	if(document.URL.includes('site=gewinnspiel') && checkHash(getUserName())) {
+	if(document.URL.includes('site=gewinnspiel')) {
 		if(getContent().getElementsByTagName('input')[0]) {
 			var amountInput = getContent().getElementsByTagName('input')[0];
 			amountInput.setAttribute('type', 'number');
@@ -1982,13 +2110,14 @@ function competition() { // "Gewinnspiel" page ..
 		}
 
 		// add answers from database to the page ..
-		if(addExternalStats) {
-			var question = getContent().getElementsByTagName('table')[0].getElementsByTagName('i')[0].textContent.trim();
+		if(addExternalStats && checkHash(getUserName())) {
+			var i = (getContent().textContent.includes('Du nimmst am Gewinnspiel teil, viel Glück.'))? 1 : 0;
+			var question = getContent().getElementsByTagName('table')[i].getElementsByTagName('i')[0].textContent.trim();
 			question = question.substring(1, question.length - 1);
 			var newCenter = document.createElement('center');
 			newCenter.setAttribute('id', 'competitionanswers');
 			document.getElementById('content').appendChild(newCenter);
-			var ret = GM_xmlhttpRequest( {
+			GM_xmlhttpRequest( {
 				method: "POST",
 				url: "http://goe.klaxi.de/external/external.php",
 				data: "x=competitionanswers&q="+question,
@@ -2019,6 +2148,12 @@ function colosseum() { // "Kolosseum" page ..
 		prizeInput.setAttribute('min', '0');
 		prizeInput.setAttribute('step', '1');
 		prizeInput.setAttribute('placeholder', 'Einsatz in Deben');
+		var timeOptions = getContent().getElementsByTagName('option');
+		for(var i = 1; i < timeOptions.length; i++) {
+			var timestamp = new Date();
+			timestamp.setHours(timestamp.getHours() + i + 4);
+			timeOptions[i].textContent += ' (' + timestamp.getHours() + ':' + timestamp.getMinutes() + ' Uhr)';
+		}
 	}
 }
 
@@ -2068,38 +2203,135 @@ function addHealedInfo() {
 		var healValue = GM_getValue('healValue', 600);
 		var userSelection = getContent().getElementsByTagName('select')[0];
 		var options = userSelection.getElementsByTagName('option');
-		var totalTimesToHeal = 0;
-		var woundedUsers = 0;
-		var preselectIndex = 1;
-		for(var i = 1; i < (options.length - 1); i++) {
-			var optValue = options[i].textContent;
-			var currentHp = optValue.split('/')[0].split(' - ')[1];
-			var maxHp = optValue.split('/')[1].split(' HP')[0];
-			var hpDiff = parseInt(maxHp) - parseInt(currentHp);
-			var hpPerHour = parseInt(parseFloat(maxHp) * 0.002 + 1.0) * 6;
-			var timesToHeal = parseInt((hpDiff / healValue) + 1);
-			var timeToMaxHp = hpDiff / hpPerHour;
-			if(hpDiff > 1) { // wounded (exception: 1 hp difference through 3 more ep)
-				options[i].textContent = optValue + " | " + hpDiff + "HP = ~" + timeToMaxHp.toFixed(1) + " Std. / ~" + timesToHeal + "x heilen.";
-				totalTimesToHeal += timesToHeal;
-				woundedUsers++;
-				if(options[i].value == GM_getValue('alchemistLastHealing', 0)) {
-					preselectIndex = i;
+		if(checkHash(getUserName())) {
+			var healingTable = document.createElement('table');
+			var currentTime = new Date();
+			currentTime.setSeconds(0, 0);
+			var cityfightTimestamps = GM_getValue('cityfightTimestamps', 0);
+			while(cityfightTimestamps[0] < currentTime.getTime()) {
+				cityfightTimestamps.shift();
+			}
+			GM_setValue('cityfightTimestamps', cityfightTimestamps);
+			var nextCityfightTimestamp = new Date(cityfightTimestamps[0]);
+			healingTable.setAttribute('cellpadding', '2');
+			healingTable.setAttribute('border', '0');
+			healingTable.setAttribute('width', '100%');
+			var healingTableInner = '<tbody><tr class="color_tabelle"><td background="img/revolution/footer_bg.jpg">#</td>';
+			healingTableInner += '<td background="img/revolution/footer_bg.jpg">Name<br>HP</td>';
+			healingTableInner += '<td background="img/revolution/footer_bg.jpg">Allgemein<br>Selbstheilung</td>';
+			if(!isNaN(nextCityfightTimestamp)) {
+				healingTableInner += '<td background="img/revolution/footer_bg.jpg">Stadtkampf + 1,5h<br>(' + format2(nextCityfightTimestamp.getDate()) + '.' + format2(nextCityfightTimestamp.getMonth()+1) + '. - ' + format2(nextCityfightTimestamp.getHours()) + ':' + format2(nextCityfightTimestamp.getMinutes()) + ' Uhr)</td>';
+			} else {
+				healingTableInner += '<td background="img/revolution/footer_bg.jpg">Stadtkampf + 1,5h</td>';
+			}
+			healingTableInner += '<td background="img/revolution/footer_bg.jpg">Turnierende<br>(10:30 Uhr)</td></tr>';
+			// Elixier der Genesung
+			var remainingElixirRecoveryTime = new Date(GM_getValue('remainingElixirRecoveryTimestamp', 0));
+			remainingElixirRecoveryTime = Math.floor((remainingElixirRecoveryTime.getTime() - currentTime.getTime()) / 1000 / 60);
+			var ticksByRecoveryElixir = 0;
+			healingTableInner += '<tr><td bgcolor="#FFFFFF" colspan="5">Restzeit Elixier der Genesung: <input id="elixier" type="time"';
+			if(remainingElixirRecoveryTime > 0) {
+				ticksByRecoveryElixir = Math.floor((remainingElixirRecoveryTime + (currentTime.getMinutes()%10)) / 10) * 2;
+				healingTableInner += ' value="' + format2(Math.floor(remainingElixirRecoveryTime/60)) + ':' + format2(remainingElixirRecoveryTime%60) + '"';
+			}
+			healingTableInner += '> (Format: hh:mm) <input type="button" value="Reload" onclick="location.reload();"></td></tr>';
+			nextCityfightTimestamp.setMinutes(nextCityfightTimestamp.getMinutes() + 90);
+			for(var i = 1; i< options.length-1; i++) {
+				var optValue = options[i].textContent;
+				var username = optValue.split(' - ')[0];
+				var currentHP = parseInt(optValue.split('/')[0].split(' - ')[1], 10);
+				var maxHP = parseInt(optValue.split('/')[1].split(' HP')[0], 10);
+				var getsHealed = (optValue.includes('wird geheilt'))? true : false;
+				var hpDiff = maxHP - currentHP;
+				if(hpDiff > 0) {
+					var hpPerTick = Math.ceil(maxHP * 0.002); // 1 tick = 10 minutes
+					var ticksToMaxHP = Math.ceil(hpDiff / hpPerTick) - ticksByRecoveryElixir;
+					var timeTo100 = new Date();
+					timeTo100.setMinutes((Math.floor(timeTo100.getMinutes() / 10) + ticksToMaxHP) * 10, 0, 0);
+					// Auswahl/Radiobutton
+					healingTableInner += '<tr onclick="this.getElementsByTagName(\'input\')[0].checked = true;"><td bgcolor="#FFFFFF"><input type="radio" name="aktion2" value="' + username + '"';
+					if(i == 1 || username == GM_getValue('alchemistLastHealing', 0)) {
+						 healingTableInner += ' checked="checked"';
+					}
+					healingTableInner += '></td>';
+					// Usernam, HP
+					healingTableInner += '<td bgcolor="#FFFFFF">' + username + ' (-' + hpDiff + ' HP)<br>' + currentHP + '/' + maxHP + ' HP' + (getsHealed? '<br>(wird geheilt)' : '' ) + '</td>';
+					// Allgemein, Selbstheilung
+					var minutesToMaxHP = ticksToMaxHP * 10;
+					var timesToHeal = parseInt(((hpDiff - ticksByRecoveryElixir * hpPerTick) / healValue) + 1);
+					healingTableInner += '<td bgcolor="#FFFFFF">' + timesToHeal + 'x heilen<br>in ' + ((minutesToMaxHP > 60*24)? Math.floor(minutesToMaxHP/60/24) + 'd ' : '') + (Math.floor(minutesToMaxHP/60)%24) + ':' + format2(minutesToMaxHP%60) + ' h<br>am ' + format2(timeTo100.getDate()) + '.' + format2(timeTo100.getMonth()+1) + '. um ' + format2(timeTo100.getHours()) + ':' + format2(timeTo100.getMinutes()) + ' Uhr</td>';
+					// Stadtkampf
+					if(isNaN(nextCityfightTimestamp)) {
+						healingTableInner += '<td bgcolor="#FFFFFF">kein SK</td>';
+					} else if(nextCityfightTimestamp >= timeTo100) {
+						healingTableInner += '<td bgcolor="#FFFFFF">Selbstheilung</td>';
+					} else {
+						currentTime.setMinutes(currentTime.getMinutes() - currentTime.getMinutes() % 10, 0, 0);
+						var ticksBetweenTimes = nextCityfightTimestamp.getTime() - currentTime.getTime();
+						ticksBetweenTimes = Math.floor(ticksBetweenTimes / 1000 / 60 / 10) + ticksByRecoveryElixir;
+						var calcHP = currentHP + ticksBetweenTimes * hpPerTick;
+						var calcHealPercentage = calcHP / maxHP * 100;
+						healingTableInner += '<td bgcolor="#FFFFFF">' + Math.ceil((maxHP - calcHP) / GM_getValue('healValue', 600)) + 'x heilen';
+						if(calcHealPercentage < 75) {
+							healingTableInner += '<br>' + Math.ceil((maxHP - calcHP - maxHP * 0.25) / GM_getValue('healValue', 600)) +'x + 25%';
+						}
+						if(calcHealPercentage < 50) {
+							healingTableInner += '<br>' + Math.ceil((maxHP - calcHP - maxHP * 0.5) / GM_getValue('healValue', 600)) +'x + 50%';
+						}
+						if(calcHealPercentage < 25) {
+							healingTableInner += '<br>' + Math.ceil((maxHP - calcHP - maxHP * 0.75) / GM_getValue('healValue', 600)) +'x + 75%';
+						}
+						if(calcHealPercentage >= 25) {
+							healingTableInner += '<br>' + Math.min(Math.ceil((100 - calcHealPercentage) / 25) * 25, 75) + '%';
+						}
+						healingTableInner += '</td>';
+					}
+					// Turnier
+					var nexttournamentTimestamp = new Date();
+					nexttournamentTimestamp.setHours(10, 30, 0, 0);
+					if(nexttournamentTimestamp < currentTime.getTime()) {
+						nexttournamentTimestamp.setDate(nexttournamentTimestamp.getDate() + 1);
+					}
+					if(nexttournamentTimestamp >= timeTo100) {
+						healingTableInner += '<td bgcolor="#FFFFFF">Selbstheilung</td>';
+					} else {
+						currentTime.setMinutes(currentTime.getMinutes() - currentTime.getMinutes() % 10, 0, 0);
+						var ticksBetweenTimes = nexttournamentTimestamp.getTime() - currentTime.getTime();
+						ticksBetweenTimes = Math.floor(ticksBetweenTimes / 1000 / 60 / 10) + ticksByRecoveryElixir;
+						var calcHP = currentHP + ticksBetweenTimes * hpPerTick;
+						var calcHealPercentage = calcHP / maxHP * 100;
+						healingTableInner += '<td bgcolor="#FFFFFF">' + Math.ceil((maxHP - calcHP) / GM_getValue('healValue', 600)) + 'x heilen';
+						if(calcHealPercentage < 75) {
+							healingTableInner += '<br>' + Math.ceil((maxHP - calcHP - maxHP * 0.25) / GM_getValue('healValue', 600)) +'x + 25%';
+						}
+						if(calcHealPercentage < 50) {
+							healingTableInner += '<br>' + Math.ceil((maxHP - calcHP - maxHP * 0.5) / GM_getValue('healValue', 600)) +'x + 50%';
+						}
+						if(calcHealPercentage < 25) {
+							healingTableInner += '<br>' + Math.ceil((maxHP - calcHP - maxHP * 0.75) / GM_getValue('healValue', 600)) +'x + 75%';
+						}
+						if(calcHealPercentage >= 25) {
+							healingTableInner += '<br>' + Math.min(Math.ceil((100 - calcHealPercentage) / 25) * 25, 75) + '%';
+						}
+						healingTableInner += '</td>';
+					}
+					healingTableInner += '</tr>';
 				}
 			}
-		}
-		getContent().getElementsByTagName('form')[0].insertBefore(document.createTextNode('Insgesamt ' + totalTimesToHeal + ' Heilungen ausstehend. Bei ' + woundedUsers + ' verletzten Usern.'), userSelection);
-		getContent().getElementsByTagName('form')[0].insertBefore(document.createElement('br'), userSelection);
-		getContent().getElementsByTagName('form')[0].insertBefore(document.createElement('br'), userSelection);
-		userSelection.setAttribute('size' , userSelection.length);
-		userSelection.setAttribute('style' , 'width:auto; max-width:100%');
-		// preselect the last healed person; if it's already healed complete, select first entry
-		options[preselectIndex].selected = true;
-		userSelection.addEventListener("change", function() {
-			GM_setValue('alchemistLastHealing', this.value);
-		}, false);
-		if(isMobile()) {
-			userSelection.focus(); // selected line only visible on mobile firefox if dropdown is focused
+			healingTableInner += '</tbody>';
+			healingTable.innerHTML = healingTableInner;
+			document.getElementById('form1').insertBefore(healingTable, userSelection);
+			document.getElementById('form1').removeChild(userSelection);
+			healingTable.addEventListener("click", function() {
+				GM_setValue('alchemistLastHealing', document.form1.aktion2.value);
+			}, false);
+			// Elixier der Genesung (Event-Listener)
+			document.getElementById('elixier').addEventListener("change", function() {
+				var value = document.getElementById('elixier').value.split(':');
+				var timestamp = new Date();
+				timestamp.setHours(timestamp.getHours() + parseInt(value[0], 10), timestamp.getMinutes() + parseInt(value[1], 10), 0, 0);
+				GM_setValue('remainingElixirRecoveryTimestamp', timestamp.getTime());
+			}, false);
 		}
 	}
 }
@@ -2118,7 +2350,7 @@ function defaultSelectionsForAlchemist() { // spell default
 		userSelection.setAttribute('style', 'width:auto; max-width:100%');
 	}
 
-	// spell default
+	// potion default
 	if(document.getElementById('form1') && document.getElementById('form1').textContent.indexOf('Als Alchemist kannst du hier Pillen mixen.') != -1) {
 		var options1 = document.getElementsByName('R1');
 		var alchemistPotionDefault = GM_getValue('alchemistPotionDefault', 0);
@@ -2129,6 +2361,41 @@ function defaultSelectionsForAlchemist() { // spell default
 		options1[3].addEventListener("click", function(){ alchemistPotionDefault = 3; GM_setValue('alchemistPotionDefault', alchemistPotionDefault); });
 		options1[4].addEventListener("click", function(){ alchemistPotionDefault = 4; GM_setValue('alchemistPotionDefault', alchemistPotionDefault); });
 		options1[5].addEventListener("click", function(){ alchemistPotionDefault = 5; GM_setValue('alchemistPotionDefault', alchemistPotionDefault); });
+	}
+}
+
+// add additional information to the  alchemist spell page
+function addInformationToSpellPage() {
+	if((document.URL.includes("site=arbeiten&show=21") || document.URL.includes("site=arbeiten&do=21")) && checkHash(getUserName())) {
+		var options = document.getElementsByName('user2')[0].getElementsByTagName('option');
+		for(var i = 1; i < options.length; i++) {
+			if(options[i].textContent.indexOf('Buff der Arbeit,') == -1) {
+				options[i].setAttribute('id', options[i].value);
+			} else {
+				break;
+			}
+		}
+		setTimeout(function() {
+			GM_xmlhttpRequest({
+				method: "GET",
+				url: "https://www.game-of-elements.de/index.php?site=gruppe&do=uebersicht&whowhat=1",
+				onload: function(response) {
+					var htmlDoc = new DOMParser().parseFromString(response.responseText, "text/html");
+					var table1 = htmlDoc.getElementById('content').getElementsByTagName('table')[0];
+					var table2 = htmlDoc.getElementById('content').getElementsByTagName('table')[1];
+					for(var i = 1; i < table1.rows.length; i++) {
+						var username = table1.rows[i].getElementsByTagName('td')[1].textContent;
+						if(document.getElementById(username)) {
+							var text = ' | EP: ' + table2.rows[i].getElementsByTagName('td')[4].textContent + ' | ' + table1.rows[i].getElementsByTagName('td')[4].textContent;
+							if(table1.rows[i].getElementsByTagName('td')[4].textContent != 'nichts') {
+								text += ' (' + table1.rows[i].getElementsByTagName('td')[5].textContent + ')';
+							}
+							document.getElementById(username).innerHTML += text;
+						}
+					}
+				}
+			});
+		}, rand(1500, 2500));
 	}
 }
 
@@ -2490,7 +2757,7 @@ function hasAnimal() { // has animal ..
 	return (document.getElementById('right').innerHTML.includes('Tier</td>'));
 }
 
-function whichAnimal() { // which animal
+function whichAnimal(opt = "justAnimal") { // which animal
 	var animal = "";
 	if(hasAnimal()) {
 		var i = 0;
@@ -2499,6 +2766,9 @@ function whichAnimal() { // which animal
 		}
 		var animalTable = document.getElementById('right').getElementsByTagName('table')[i];
 		animal = getTableElement(animalTable, 0, 1).textContent;
+		if(opt == "PlusName") {
+			animal += "," + getTableElement(animalTable, 1, 1).textContent;
+		}
 	}
 	return animal;
 }
@@ -2507,22 +2777,21 @@ function isMobile(what = "any") {
 	switch(what) {
 		case "Android":
 			return (navigator.userAgent.search(/Android/i) != -1);
-			break;
 		case "BlackBerry":
 			return (navigator.userAgent.search(/BlackBerry/i) != -1);
-			break;
 		case "iOS":
 			return (navigator.userAgent.search(/iPhone|iPod|iPad/i) != -1);
-			break;
 		case "Opera":
 			return (navigator.userAgent.search(/Opera Mini/i) != -1);
-			break;
 		case "Windows":
 			return (navigator.userAgent.search(/IEMobile/i) != -1);
-			break;
 		default:
 		case "any":
 			return (isMobile("Android") || isMobile("BlackBerry") || isMobile("iOS") || isMobile("Opera") || isMobile("Windows"));
 	}
 	return false;
+}
+
+function rand(min, max) {
+	return Math.floor(Math.random() * (max-min+1)) + min;
 }
