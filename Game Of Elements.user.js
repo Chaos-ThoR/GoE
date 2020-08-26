@@ -1876,7 +1876,7 @@ function hasActiveBuff() {
                     }
                 }
             }
-            title.textContent += "Kein Buff der Arbeit vorhanden!";
+            title.textContent += " - Kein Buff der Arbeit vorhanden!";
         };
         frame2.src = 'index.php?site=arbeiten&show=21';
         frame2.style.display = "none";
