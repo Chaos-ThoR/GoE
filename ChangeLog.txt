@@ -1,3 +1,6 @@
+-> v4.3.4:
+	- "Zauber wirken": "zuletzt Online"-Status ergänzt
+
 -> v4.3.3:
 	- kleine Änderung bei dem Text von der letzten Änderung und diese Changelog
 	  Einträge.

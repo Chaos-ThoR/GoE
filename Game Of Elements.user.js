@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name				Game Of Elements
 // @namespace			GameOfElements
-// @version				4.3.3
+// @version				4.3.4
 // @updateURL			https://github.com/Chaos-ThoR/GoE/raw/master/Game%20Of%20Elements.user.js
 // @encoding			utf-8
 // @description			try to take over the world!
@@ -2386,9 +2386,15 @@ function addInformationToSpellPage() {
 					for(var i = 1; i < table1.rows.length; i++) {
 						var username = table1.rows[i].getElementsByTagName('td')[1].textContent;
 						if(document.getElementById(username)) {
-							var text = ' | EP: ' + table2.rows[i].getElementsByTagName('td')[4].textContent + ' | ' + table1.rows[i].getElementsByTagName('td')[4].textContent;
-							if(table1.rows[i].getElementsByTagName('td')[4].textContent != 'nichts') {
-								text += ' (' + table1.rows[i].getElementsByTagName('td')[5].textContent + ')';
+							var ep = parseInt(table2.rows[i].getElementsByTagName('td')[4].textContent, 10);
+							var text = ' | EP: ' + ep + ' | ';
+							if(ep == 0 && table1.rows[i].getElementsByTagName('td')[4].textContent == 'nichts') {
+								text += table1.rows[i].getElementsByTagName('td')[2].textContent;
+							} else {
+								text += table1.rows[i].getElementsByTagName('td')[4].textContent;
+								if(table1.rows[i].getElementsByTagName('td')[4].textContent != 'nichts') {
+									text += ' (' + table1.rows[i].getElementsByTagName('td')[5].textContent + ')';
+								}
 							}
 							document.getElementById(username).innerHTML += text;
 						}
