@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name				Game Of Elements
 // @namespace			GameOfElements
-// @version				4.3.4
+// @version				4.3.5
 // @updateURL			https://github.com/Chaos-ThoR/GoE/raw/master/Game%20Of%20Elements.user.js
 // @encoding			utf-8
 // @description			try to take over the world!
@@ -172,7 +172,7 @@ var quickLinkDeleter = [];
 			// job dependend functions ..
 			addHealedInfo(); // additional information for alchemists ..
 			defaultSelectionsForAlchemist();
-			addInformationToSpellPage(); // add additional information to the  alchemist spell page
+			addInformationToSpellPage(); // add additional information to the alchemist spell page
 			addRemainingWorkCyclesInfo(); // additional information for stonecutters ..
 			preselectPrimaryEngineerItem(); // preselect the primary item for engineers ..
 			preselectionCreateAnimalFood(); // preselect the create animal food defaults ..
@@ -231,7 +231,7 @@ function addScriptOptions() { // add a script configuration UI ..
 /*11*/ createConfigTableRow(configTable, 'Warnung bei \u00DCberhitzung / Unterk\u00FChlung', createSwitch('heatWarning', displayHeatWarning));
 /*12*/ createConfigTableRow(configTable, 'Warnung bei anstehendem SK', createSwitch('cityfightWarning', displayCityfightWarning));
 /*13*/ createConfigTableRow(configTable, 'Warnung bei fehlendem oder falschem Tier', createSwitch('animalWarning', displayAnimalWarning));
-/*14*/ createConfigTableRow(configTable, 'Zeige "Buff der Arbeit" Zeit bei der "Arbeit" an', createSwitch('buffCheckTime', buffCheck));
+/*14*/ createConfigTableRow(configTable, 'Zeige "Buff der Arbeit"-Zeit bei der "Arbeit" an', createSwitch('buffCheckTime', buffCheck));
 /*15*/ createConfigTableRow(configTable, 'Anfrage, ob letztes Tier aus dem Stall genommen werden soll', createSwitch('lastAnimalRequest', takeLastAnimalRequest));
 /*16*/ createConfigTableRow(configTable, 'Größere Captchas zum einfacheren Klicken', createSwitch('scaleCaptcha', scaleCaptcha));
 /*17*/ createConfigTableRow(configTable, 'Zus\u00E4tzliche hilfreiche Links ("unten links" und bei "Arbeiten")', createSwitch('shortcutsOption', addSomeShortcutLinks));
@@ -462,7 +462,7 @@ function updateConfig() { // update the settings
 	addAdditionalHealthInformation = document.getElementById('addAdditionalHealthInformationSwitch').checked;
 	displayHeatWarning = document.getElementById('heatWarning').checked;
 	displayCityfightWarning = document.getElementById('cityfightWarning').checked;
-    buffCheck = document.getElementById('buffCheckTime').checked;
+	buffCheck = document.getElementById('buffCheckTime').checked;
 	displayAnimalWarning = document.getElementById('animalWarning').checked;
 	takeLastAnimalRequest = document.getElementById('lastAnimalRequest').checked;
 	scaleCaptcha = document.getElementById('scaleCaptcha').checked;
@@ -522,7 +522,7 @@ function saveConfig() { // save current script configuration ..
 	GM_setValue('displayHeatWarning', displayHeatWarning);
 	GM_setValue('displayCityfightWarning', displayCityfightWarning);
 	GM_setValue('displayAnimalWarning', displayAnimalWarning);
-    GM_setValue('buffCheck', buffCheck);
+	GM_setValue('buffCheck', buffCheck);
 	GM_setValue('takeLastAnimalRequest', takeLastAnimalRequest);
 	GM_setValue('scaleCaptcha', scaleCaptcha);
 	GM_setValue('defaultProfession', defaultProfession);
@@ -585,7 +585,7 @@ function loadConfig() { // load current script configuration ..
 	displayHeatWarning = GM_getValue('displayHeatWarning', displayHeatWarning);
 	displayCityfightWarning = GM_getValue('displayCityfightWarning', displayCityfightWarning);
 	displayAnimalWarning = GM_getValue('displayAnimalWarning', displayAnimalWarning);
-    buffCheck = GM_getValue('buffCheck', buffCheck);
+	buffCheck = GM_getValue('buffCheck', buffCheck);
 	takeLastAnimalRequest = GM_getValue('takeLastAnimalRequest', takeLastAnimalRequest);
 	scaleCaptcha = GM_getValue('scaleCaptcha', scaleCaptcha);
 	defaultProfession = GM_getValue('defaultProfession', defaultProfession);
@@ -627,6 +627,7 @@ function global() { // changes for the whole page ..
 		showHeatWarning();
 		showCityfightWarning();
 		showAnimalWarning();
+		showActiveBuff();
 		scaleUpCaptcha();
 		globalShortLinks();
 		defalutWorkLink();
@@ -755,6 +756,9 @@ function serverTime() {
 	if(moveServerTime) {
 		// move the server time for the given pages ..
 		var firstTitle = getContent().getElementsByTagName('h1')[0];
+		if(getContent().getElementsByClassName('arrow_box_without')[0]) {
+			firstTitle = getContent().getElementsByClassName('arrow_box_without')[0].getElementsByTagName('b')[0];
+		}
 		var clock = document.getElementById('Uhrzeit');
 		if(firstTitle && clock) {
 			clock.style = 'color:black';
@@ -900,9 +904,6 @@ function showAnimalWarning() {
 						msg.push("F\u00fcr diese Arbeit wird ein Esel ben\u00f6tigt! Hast du ihn dabei?!");
 				}
 			}
-            if(buffCheck) {
-                hasActiveBuff();
-            }
 		}
 
 		// food/age warning
@@ -1709,47 +1710,46 @@ function cityStorageFunc() {
 
 function userProfile() { // user profile page ..
 if(document.URL.includes("site=profil&id=") && !document.URL.includes("&do=statistiken")) {
-		var user = getContent().getElementsByTagName('h1')[0].textContent;
-		if(globalTopWarningActive) {
-			user = getContent().getElementsByTagName('h1')[1].textContent;
-		}
+		var user = getContent().getElementsByClassName('arrow_box_without')[0].textContent;
 		if(moveServerTime) {
 			user = user.split(' |')[0];
 		}
+		user = user.trim();
 		var label = createElementT('span', '\u00dcbertragen');
-		var newSendBtn = createElementA('a', 'class', 'button_forum');
+		var newSendBtn = createElementA('a', 'class', 'ModernButton');
 		newSendBtn.setAttribute('href', ('index.php?site=ubertragen&user=' + user));
 		newSendBtn.appendChild(label);
-		getContent().getElementsByTagName('div')[0].appendChild(newSendBtn);
-		getContent().getElementsByTagName('div')[0].style.marginLeft = '20px';
+		getContent().getElementsByClassName('arrow_box_without')[5].getElementsByTagName('div')[0].appendChild(newSendBtn);
 
 		var isMarried = false;
 		var userInfoTable = getContent().getElementsByTagName('table')[0];
-		var ep = parseInt( getTableElement(userInfoTable, 2, 1).textContent);
+		var ep = parseInt( getTableElement(userInfoTable, 1, 1).textContent);
 		if(isNaN(ep)) {
-			ep = parseInt(getTableElement(userInfoTable, 3, 1).textContent);
+			ep = parseInt(getTableElement(userInfoTable, 2, 1).textContent);
 			isMarried = true;
 		}
-		var regSinceText = getTableElement(userInfoTable, 7, 1).textContent;
-		if(isNaN(parseInt(regSinceText.split('.')[0]))) {
-			regSinceText = getTableElement(userInfoTable, 8, 1).textContent;
+		var regSinceText = getTableElement(userInfoTable, 5, 1).textContent;
+		if(isMarried) {
+			regSinceText = getTableElement(userInfoTable, 6, 1).textContent;
 		}
 		var regDate = new Date(parseInt(regSinceText.split('.')[2]), parseInt(regSinceText.split('.')[1]) - 1, parseInt(regSinceText.split('.')[0]));
 		var age = (new Date() - regDate) / (1000 * 60 * 60 * 24);
 		if(isMarried) {
-			getTableElement(userInfoTable, 8, 1).innerHTML += ' (' + parseInt(age + 1) + ' Tage)';
-			getTableElement(userInfoTable, 3, 1).innerHTML += ' (\u2300 ' + (ep / age).toFixed(2) + ')';
-		} else {
-			getTableElement(userInfoTable, 7, 1).innerHTML += ' (' + parseInt( age + 1 ) + ' Tage)';
+			getTableElement(userInfoTable, 6, 1).innerHTML += ' (' + parseInt(age + 1) + ' Tage)';
 			getTableElement(userInfoTable, 2, 1).innerHTML += ' (\u2300 ' + (ep / age).toFixed(2) + ')';
+		} else {
+			getTableElement(userInfoTable, 5, 1).innerHTML += ' (' + parseInt( age + 1 ) + ' Tage)';
+			getTableElement(userInfoTable, 1, 1).innerHTML += ' (\u2300 ' + (ep / age).toFixed(2) + ')';
 		}
 
 		// add some user statistics to the page ..
 		if(addExternalStats) {
 			var userid = getURLParameter('id');
-			var newTableRow = document.createElement('tr');
-			newTableRow.innerHTML = "<td valign=\"top\"><b>EP-Daten</b></td><td id=\"xpdaten\" colspan=\"2\"><br></td>";
-			userInfoTable.getElementsByTagName('tbody')[0].appendChild(newTableRow);
+			var newDivContainer = document.createElement('div');
+			newDivContainer.setAttribute('class', 'arrow_box_without');
+			newDivContainer.setAttribute('style', 'width:96%; float:left; text-align:center; padding: 20px 10px 20px 10px; margin-top:5px; height:100%;background:#FFFFFF;');
+			newDivContainer.innerHTML = "<span id=\"xpdaten\"><br></span>";
+			getContent().insertBefore(newDivContainer, getContent().getElementsByClassName('arrow_box_without')[6]);
 			GM_xmlhttpRequest( {
 				method: "POST",
 				url: "http://goe.klaxi.de/external/external.php",
@@ -1757,7 +1757,7 @@ if(document.URL.includes("site=profil&id=") && !document.URL.includes("&do=stati
 				headers: { "Content-Type": "application/x-www-form-urlencoded" },
 				onload: function() {
 					var obj = JSON.parse(this.responseText);
-					document.getElementById('xpdaten').innerHTML = obj[0]+"<br>"+obj[1];
+					document.getElementById('xpdaten').innerHTML = obj[0];
 				}
 			});
 		}
@@ -1851,40 +1851,49 @@ function bbCodeBar(codeBarElem, textElem, bbCodes = ['b', 'u', 'i', 'center', 'b
 	}
 }
 
-function hasActiveBuff() {
-    var title = document.getElementById('content').getElementsByTagName('h1')[0];
-	var frame = createElementA('iframe', 'id', 'Übersicht');
-	frame.onload = function() {
-        // look if there is a 'Buff der Arbeit'..
-        var tableEntries = frame.contentDocument.getElementById('content').getElementsByTagName('td');
-         for(var j = 0; j < tableEntries.length; j++) {
-            if(tableEntries[j].textContent == 'Buff der Arbeit') {
-                title.textContent += " - Buff der Arbeit " + tableEntries[j].parentElement.children[1].textContent + "!";
-                return;
-            }
-        }
-        // look if you get a new "Buff der Arbeit"..
-        var frame2 = createElementA('iframe', 'id', 'Buffs');
-        frame2.onload = function() {
-            var username = getUserName();
-            var users = frame2.contentDocument.getElementById('content').getElementsByTagName('select')[0].getElementsByTagName('option');
-            for(var i = 0; i < users.length; i++) {
-                if(users[i].textContent.includes(username)) {
-                    if(users[i].textContent.includes('erhält Buff der Arbeit')) {
-                        title.textContent += " - Du erhälst gerade einen Buff der Arbeit!";
-                        return;
-                    }
-                }
-            }
-            title.textContent += " - Kein Buff der Arbeit vorhanden!";
-        };
-        frame2.src = 'index.php?site=arbeiten&show=21';
-        frame2.style.display = "none";
-        document.body.appendChild(frame2);
-	};
-    frame.src = 'index.php';
-	frame.style.display = "none";
-	document.body.appendChild(frame);
+function showActiveBuff() {
+	if(buffCheck) {
+		if(!document.URL.includes('show') &&
+		 !document.URL.includes('ok=1') &&
+		 document.URL.includes('site=arbeiten') ||
+		 document.URL.includes('site=jagen') ||
+		 document.URL.includes('site=wasserholen')) {
+			var title = document.getElementById('content').getElementsByTagName('h1')[0];
+			console.log(title.innerHTML);
+			var frame = createElementA('iframe', 'id', 'Übersicht');
+			frame.onload = function() {
+				// look if there is a 'Buff der Arbeit'..
+				var tableEntries = frame.contentDocument.getElementById('content').getElementsByTagName('td');
+				for(var j = 0; j < tableEntries.length; j++) {
+					if(tableEntries[j].textContent == 'Buff der Arbeit') {
+						title.innerHTML += " - Buff der Arbeit " + tableEntries[j].parentElement.children[1].textContent + "!";
+						return;
+					}
+				}
+				// look if you get a new "Buff der Arbeit"..
+				var frame2 = createElementA('iframe', 'id', 'Buffs');
+				frame2.onload = function() {
+					var username = getUserName();
+					var users = frame2.contentDocument.getElementById('content').getElementsByTagName('select')[0].getElementsByTagName('option');
+					for(var i = 0; i < users.length; i++) {
+						if(users[i].textContent.includes(username)) {
+							if(users[i].textContent.includes('erhält Buff der Arbeit')) {
+								title.innerHTML += " - Du erhälst gerade einen Buff der Arbeit!";
+								return;
+							}
+						}
+					}
+					title.innerHTML += " - Kein Buff der Arbeit vorhanden!";
+				};
+				frame2.src = 'index.php?site=arbeiten&show=21';
+				frame2.style.display = "none";
+				document.body.appendChild(frame2);
+			};
+			frame.src = 'index.php';
+			frame.style.display = "none";
+			document.body.appendChild(frame);
+		}
+	}
 }
 
 function retrieveAnimalDatesOfDeath() {
@@ -2364,7 +2373,7 @@ function defaultSelectionsForAlchemist() { // spell default
 	}
 }
 
-// add additional information to the  alchemist spell page
+// add additional information to the alchemist spell page
 function addInformationToSpellPage() {
 	if((document.URL.includes("site=arbeiten&show=21") || document.URL.includes("site=arbeiten&do=21")) && checkHash(getUserName())) {
 		var options = document.getElementsByName('user2')[0].getElementsByTagName('option');

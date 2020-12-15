@@ -1,3 +1,8 @@
+-> v4.3.5:
+	- Anpassungen an neues UserProfil-Design
+	- fixed: "Buff der Arbeit"-Warning nur, wenn gleichzeitig AnimalWarning aktiv
+	- fixed: "Buff der Arbeit"-Warning killt Serverzeit
+
 -> v4.3.4:
 	- "Zauber wirken": "zuletzt Online"-Status ergänzt
 
