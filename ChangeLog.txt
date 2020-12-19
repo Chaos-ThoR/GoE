@@ -1,3 +1,6 @@
+-> v4.3.6:
+	- fixed: Serverzeit in SN falsch angezeigt
+
 -> v4.3.5:
 	- Anpassungen an neues UserProfil-Design
 	- fixed: "Buff der Arbeit"-Warning nur, wenn gleichzeitig AnimalWarning aktiv

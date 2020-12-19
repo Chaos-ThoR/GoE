@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name				Game Of Elements
 // @namespace			GameOfElements
-// @version				4.3.5
+// @version				4.3.6
 // @updateURL			https://github.com/Chaos-ThoR/GoE/raw/master/Game%20Of%20Elements.user.js
 // @encoding			utf-8
 // @description			try to take over the world!
@@ -756,7 +756,7 @@ function serverTime() {
 	if(moveServerTime) {
 		// move the server time for the given pages ..
 		var firstTitle = getContent().getElementsByTagName('h1')[0];
-		if(getContent().getElementsByClassName('arrow_box_without')[0]) {
+		if(firstTitle == undefined && getContent().getElementsByClassName('arrow_box_without')[0]) {
 			firstTitle = getContent().getElementsByClassName('arrow_box_without')[0].getElementsByTagName('b')[0];
 		}
 		var clock = document.getElementById('Uhrzeit');
@@ -1859,7 +1859,6 @@ function showActiveBuff() {
 		 document.URL.includes('site=jagen') ||
 		 document.URL.includes('site=wasserholen')) {
 			var title = document.getElementById('content').getElementsByTagName('h1')[0];
-			console.log(title.innerHTML);
 			var frame = createElementA('iframe', 'id', 'Übersicht');
 			frame.onload = function() {
 				// look if there is a 'Buff der Arbeit'..
