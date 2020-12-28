@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name				Game Of Elements
 // @namespace			GameOfElements
-// @version				4.3.6
+// @version				4.3.7
 // @updateURL			https://github.com/Chaos-ThoR/GoE/raw/master/Game%20Of%20Elements.user.js
 // @encoding			utf-8
 // @description			try to take over the world!
@@ -653,23 +653,11 @@ function global() { // changes for the whole page ..
 		}
 
 		if(getPageStyle() != 'handy') {
-			removeElementById('header');
-			removeElementById('footer');
-
 			// add new header and footer images ..
-			var newHeaderDiv = document.createElement('div');
-			var newHeader = document.createElement('img');
-			newHeader.setAttribute('src', 'https://github.com/Chaos-ThoR/GoE/raw/master/res/' + getPageStyle() + '/newHeader.png');
-			newHeader.setAttribute('style', 'width : 900px; display : block; text-align : center; background-position : center; margin-top : 0px; margin-left : auto; margin-right : auto; margin-bottom : 0px; padding-top : 0px; padding-left : auto; padding-right : auto; padding-bottom : 0px;');
-			newHeaderDiv.appendChild(newHeader);
-			document.body.insertBefore(newHeaderDiv, document.body.firstChild);
+			document.getElementById('header').setAttribute('style', 'height: 16px; background-image: url(\'https://github.com/Chaos-ThoR/GoE/raw/master/res/' + getPageStyle() + '/newHeader.png\');');
 
-			var newFooterDiv = document.createElement('div');
-			var newFooter = document.createElement('img');
-			newFooter.setAttribute('src', 'https://github.com/Chaos-ThoR/GoE/raw/master/res/' + getPageStyle() + '/newFooter.png');
-			newFooter.setAttribute('style', 'width : 900px; display : block; text-align : center; background-position : center; margin-top : 0px; margin-left : auto; margin-right : auto; margin-bottom : 0px; padding-top : 0px; padding-left : auto; padding-right : auto; padding-bottom : 0px;');
-			newFooterDiv.appendChild(newFooter);
-			document.body.appendChild(newFooterDiv);
+			document.getElementById('footer').setAttribute('style', 'height: 18px; background-image: url(\'https://github.com/Chaos-ThoR/GoE/raw/master/res/' + getPageStyle() + '/newFooter.png\'); padding: 0px;');
+			document.getElementById('footer').innerHTML = '';
 		}
 	}
 
