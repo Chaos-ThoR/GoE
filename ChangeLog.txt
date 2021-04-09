@@ -1,3 +1,10 @@
+-> v4.3.8:
+	- Optionen für Standardtätigkeit (mit und ohne Buff) hinzugefügt
+	- "Buff der Arbeit"-Check auf "Arbeiten"-Seiten überarbeitet
+	- Job-Auswahl um "Jagen" und "Wasser holen" erweitert
+	- Gewinnspiel: Lösung/richtige Antwort wird an externe Seite übertragen
+	- Bugfix: Übersicht -> Fehler behoben, wenn aktuelle Aktion 'Stadtkampf' oder 'Turnier' ist
+
 -> v4.3.7:
 	- Änderung am Ladeverhalten des neuen Header/Footer -> weniger Inhaltsverschiebungen
 
@@ -17,7 +24,7 @@
 	  Einträge.
 
 -> v4.3.2:
-	- Check auf den "Arbeiten" Seiten ob ein Buff der Arbeit aktiv ist oder
+	- Check auf den "Arbeiten" Seiten, ob ein Buff der Arbeit aktiv ist oder
 	  gerade ein neuer gezaubert wird.
 
 -> v4.3.1:

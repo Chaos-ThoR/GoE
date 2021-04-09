@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name				Game Of Elements
 // @namespace			GameOfElements
-// @version				4.3.7
+// @version				4.3.8
 // @updateURL			https://github.com/Chaos-ThoR/GoE/raw/master/Game%20Of%20Elements.user.js
 // @encoding			utf-8
 // @description			try to take over the world!
@@ -50,6 +50,9 @@ var addExternalStats = false; // add external statistics in profils
 var cityStorageCategoriesEnabled = true; // enables categories for the city storage table
 var cityStorageLimitsEnabled = true; // enables limit markup settings for the city storage
 var enableReminder = false; // play a sound when time is up + options
+var enableStandardActivity = false; // go to selected standard buff or no buff activity page when time is up
+var standardActivityBuff = '';
+var standardActivityNoBuff = '';
 var reminderVolume = 1.0;
 var reminderDelay = 250;
 var reminderRepetitions = 1;
@@ -96,30 +99,32 @@ var itemsToMove = ['Angel des Donners', 'Angel des Schweigens', 'Bier', 'blaue A
                    'verschlossene Truhe (Stufe 2)', 'W\u00e4rmebot 3562', 'Wintermarke', 'Zeitbot 3000', 'Zeitstopbot 5321'];
 
 // jobs and the possible work they can do ..
-var jobLinkMap = {'Pillen herstellen' : '10',
-                  'Selbstheilung' : '30',
-                  'Zauber wirken' : '21',
-                  'Tier z\u00FCchten' : '22',
-                  'spielen (Tier)' : '23',
-                  'Futter herstellen' : '24',
-                  'Fell abziehen' : '28',
-                  'Waffen herstellen' : '9',
-                  'Item reparieren' : '33',
-                  'R\u00FCst. herstellen' : '26',
-                  'Schlossknacken' : '29',
-                  'Kupferschiefer abbauen' : '11',
-                  'Zinnerz abbauen' : '12',
-                  'hochwertige Ressis sammeln' : '32',
-                  'Kupfer herstellen' : '16',
-                  'Zinn herstellen' : '15',
-                  'Silber herstellen' : '18',
-                  'Bronze herstellen' : '17',
-                  'Gold herstellen' : '19',
-                  'Platin herstellen' : '35',
-                  'Geb\u00E4ude reparieren' : '20',
-                  'Leder herstellen' : '31',
-                  'Elixier herstellen' : '34',
-                  'Holz zu Bretter verarbeiten' : '13'};
+var jobLinkMap = {'Pillen herstellen' : 'arbeiten&do=10',
+                  'Selbstheilung' : 'arbeiten&do=30',
+                  'Zauber wirken' : 'arbeiten&do=21',
+                  'Tier z\u00FCchten' : 'arbeiten&do=22',
+                  'spielen (Tier)' : 'arbeiten&do=23',
+                  'Futter herstellen' : 'arbeiten&do=24',
+                  'Fell abziehen' : 'arbeiten&do=28',
+                  'Waffen herstellen' : 'arbeiten&do=9',
+                  'Item reparieren' : 'arbeiten&do=33',
+                  'R\u00FCst. herstellen' : 'arbeiten&do=26',
+                  'Schlossknacken' : 'arbeiten&do=29',
+                  'Kupferschiefer abbauen' : 'arbeiten&do=11',
+                  'Zinnerz abbauen' : 'arbeiten&do=12',
+                  'hochwertige Ressis sammeln' : 'arbeiten&do=32',
+                  'Kupfer herstellen' : 'arbeiten&do=16',
+                  'Zinn herstellen' : 'arbeiten&do=15',
+                  'Silber herstellen' : 'arbeiten&do=18',
+                  'Bronze herstellen' : 'arbeiten&do=17',
+                  'Gold herstellen' : 'arbeiten&do=19',
+                  'Platin herstellen' : 'arbeiten&do=35',
+                  'Geb\u00E4ude reparieren' : 'arbeiten&do=20',
+                  'Leder herstellen' : 'arbeiten&do=31',
+                  'Elixier herstellen' : 'arbeiten&do=34',
+                  'Holz zu Bretter verarbeiten' : 'arbeiten&do=13',
+                  'Jagen' : 'jagen',
+                  'Wasser holen' : 'wasserholen'};
 
 // animal dependency ..
 var professions = {'Sammler' : {'' : 'Falke', '4' : 'Falke', '32' : 'Falke'},
@@ -150,6 +155,7 @@ var quickLinkDeleter = [];
 		global(); // whole page ..
 		if(isLoggedIn()) {
 			overview(); // "Übersicht" page ..
+			events(); // "Ereignisse" page ..
 			cityoverview(); // "Stadt -> Übersicht" page ..
 			cityEvents(); // "Stadt -> Ereignisse" page ..
 			cityfight(); // "Stadtkampf" page ..
@@ -249,9 +255,10 @@ function addScriptOptions() { // add a script configuration UI ..
 /*29*/ createConfigTableRow(configTable, 'Sound wiederholen', createInputNumber('soundRepeat', '1', '999', '1', '60', reminderRepetitions));
 /*30*/ createConfigTableRow(configTable, 'Zeit bis der Sound wiederholt wird in [ms] (1000 = 1s)', createInputNumber('soundDelay', '0', '10000', '100', '60', reminderDelay));
 /*31*/ createConfigTableRow(configTable, 'Sound Lautst\u00E4rke', createSlider('soundVolume', 0, 1, 0.1, 60, reminderVolume, updateConfig));
-/*32*/ createConfigTableRow(configTable, 'min. Deben im Inventar', createInputNumber('minDeben', '0', '9999999', '50', '60', minDebenValue));
+/*32*/ createConfigTableRow(configTable, 'Standardtätigkeit aufrufen?', createSwitch('standardActivity', enableStandardActivity));
+/*33*/ createConfigTableRow(configTable, 'min. Deben im Inventar', createInputNumber('minDeben', '0', '9999999', '50', '60', minDebenValue));
 		if(checkHash(getUserName())) {
-/*33*/ createConfigTableRow(configTable, 'Knapsack Optimierung bei "ausgeglichener Kampf" (Stadtprofil)', createSwitch('doKnapsack', doKnapsackCalc));
+/*34*/ createConfigTableRow(configTable, 'Knapsack Optimierung bei "ausgeglichener Kampf" (Stadtprofil)', createSwitch('doKnapsack', doKnapsackCalc));
 		}
 
 		// special selections for the default work things ..
@@ -302,6 +309,18 @@ function addScriptOptions() { // add a script configuration UI ..
 		// special test sound button for the reminder ..
 		var testSoundBtn = createButton('testSound', 'Sound Test', '10', '18', '298', playSoundWrap);
 		getTableElement(configTable, 28, 0).appendChild(testSoundBtn);
+
+		// special selections for the standard activity ..
+		var standardActivityBuffSelection = createSelection('standardActivityBuffSelection', jobLinkMap, String(standardActivityBuff), updateConfig);
+		standardActivityBuffSelection.style.marginLeft = '20px';
+		getTableElement(configTable, 32, 0).appendChild(document.createElement('br'));
+		getTableElement(configTable, 32, 0).appendChild(standardActivityBuffSelection);
+		getTableElement(configTable, 32, 0).appendChild(document.createTextNode(' (mit Buff)'));
+		getTableElement(configTable, 32, 0).appendChild(document.createElement('br'));
+		var standardActivityNoBuffSelection = createSelection('standardActivityNoBuffSelection', jobLinkMap, String(standardActivityNoBuff), updateConfig);
+		standardActivityNoBuffSelection.style.marginLeft = '20px';
+		getTableElement(configTable, 32, 0).appendChild(standardActivityNoBuffSelection);
+		getTableElement(configTable, 32, 0).appendChild(document.createTextNode(' (ohne Buff)'));
 
 		// job options table
 		getContent().appendChild( document.createElement('br'));
@@ -490,6 +509,9 @@ function updateConfig() { // update the settings
 	reminderRepetitions = parseInt(document.getElementById('soundRepeat').value);
 	reminderDelay = parseInt(document.getElementById('soundDelay').value);
 	reminderVolume = parseFloat(document.getElementById('soundVolume').value);
+	enableStandardActivity = document.getElementById('standardActivity').checked;
+	standardActivityBuff = document.getElementById('standardActivityBuffSelection').value;
+	standardActivityNoBuff = document.getElementById('standardActivityNoBuffSelection').value;
 	minDebenValue = parseInt(document.getElementById('minDeben').value);
 
 	var cityStorageSselectedValue = document.getElementById('cityStorageCombo').value;
@@ -544,6 +566,9 @@ function saveConfig() { // save current script configuration ..
 	GM_setValue('reminderRepetitions', reminderRepetitions);
 	GM_setValue('reminderDelay', reminderDelay);
 	GM_setValue('reminderVolume', reminderVolume);
+	GM_setValue('enableStandardActivity', enableStandardActivity);
+	GM_setValue('standardActivityBuff', standardActivityBuff);
+	GM_setValue('standardActivityNoBuff', standardActivityNoBuff);
 	GM_setValue('minDebenValue', minDebenValue);
 
 	for(var indexToDelete = 0; indexToDelete < quickLinkDeleter.length; indexToDelete++) {
@@ -607,6 +632,9 @@ function loadConfig() { // load current script configuration ..
 	reminderRepetitions = parseInt(GM_getValue('reminderRepetitions', reminderRepetitions));
 	reminderDelay = parseInt(GM_getValue('reminderDelay', reminderDelay));
 	reminderVolume = parseFloat(GM_getValue('reminderVolume', reminderVolume));
+	enableStandardActivity = GM_getValue('enableStandardActivity', enableStandardActivity);
+	standardActivityBuff = GM_getValue('standardActivityBuff', standardActivityBuff);
+	standardActivityNoBuff = GM_getValue('standardActivityNoBuff', standardActivityNoBuff);
 	minDebenValue = parseInt(GM_getValue('minDebenValue', minDebenValue));
 
 	var qlKeys = JSON.parse(GM_getValue('quickLinks', JSON.stringify(Object.keys(quickLinks))));
@@ -627,6 +655,7 @@ function global() { // changes for the whole page ..
 		showHeatWarning();
 		showCityfightWarning();
 		showAnimalWarning();
+		getActiveBuffData();
 		showActiveBuff();
 		scaleUpCaptcha();
 		globalShortLinks();
@@ -759,17 +788,20 @@ function serverTime() {
 
 // play a sound when time is up ..
 function reminder() {
-	if(enableReminder) {
+	if(enableReminder || enableStandardActivity) {
 		if(document.getElementById('countdown1')) {
 			var timer = document.getElementById('countdown1').textContent;
 			var h = parseInt(timer.split(' Std.')[0]);
 			var m = parseInt(timer.split(' Min.')[0].split('., ')[1]);
 			var s = parseInt(timer.split(' Sek.')[0].split('., ')[2]);
 			var timeToRemind = ((((h * 60) + m) * 60) + s) * 1000;
-			reminderTimerFunc = setTimeout(playSoundWrap, timeToRemind);
+			if(enableReminder) {
+				reminderTimerFunc = setTimeout(playSoundWrap, timeToRemind);
+			} else {
+				reminderTimerFunc = setTimeout(openStandardActivity, timeToRemind);
+			}
 		}
-	}
-	else {
+	} else {
 		clearTimeout(reminderTimerFunc);
 	}
 }
@@ -786,9 +818,26 @@ function playSound(file, volume, delay, repetitions) {
 		repetitions--;
 		if(repetitions > 0) {
 			setTimeout(function() { audio.play(); }, delay);
+		} else {
+			openStandardActivity();
 		}
 	}, false);
 	audio.play();
+}
+
+function openStandardActivity() {
+	if(enableStandardActivity && standardActivityBuff && standardActivityNoBuff) {
+		var now = new Date();
+		var activity = standardActivityBuff;
+		if(GM_getValue('activeBuffTime', 0) < now.getTime() + 25*60*1000) {
+			activity = standardActivityNoBuff;
+		}
+		var linkValue = 'index.php?site=' + jobLinkMap[String(activity)]
+		var check = confirm("Standardtätigkeit aufrufen?\n"+activity);
+		if(check) {
+			window.location.href = linkValue;
+		}
+	}
 }
 
 // show an heat warning on the top of the site ..
@@ -984,7 +1033,7 @@ function defalutWorkLink() {
 function addAdditionalWorkLink(enabled, workValue) { // add a additional work link
 	if(enabled) {
 		// create new link item ..
-		var linkValue = 'index.php?site=arbeiten&do=' + jobLinkMap[String(workValue)];
+		var linkValue = 'index.php?site=' + jobLinkMap[String(workValue)];
 		var textLi = document.createElement('li');
 		var link = createElementA('a', 'href', linkValue);
 		link.textContent = String(workValue);
@@ -1208,12 +1257,41 @@ function overview() { // changes for the "Übersicht" page ..
 		infoTable.removeChild(infoTable.lastElementChild);
 		infoTable.removeChild(infoTable.rows[2]);
 		infoTable.removeChild(infoTable.rows[1]);
-		if(getContent().textContent.indexOf('Aktuelle Aktionen') != -1) {
+		if(getContent().textContent.indexOf('Aktuelle Aktionen') != -1 && getTableElement(activityTable, 1, 2).getElementsByTagName('a')[1]) {
 			var newAbortLink = document.createElement('a');
 			newAbortLink.setAttribute('href', getTableElement(activityTable, 1, 2).getElementsByTagName('a')[1].getAttribute('href')+ '&ok=1');
 			newAbortLink.setAttribute('style', 'margin-left: 20px; font-weight: bold;');
 			newAbortLink.innerHTML = 'Direktabbruch';
 			getTableElement(activityTable, 1, 2).appendChild(newAbortLink);
+		}
+	}
+}
+
+function events() { // "Ereignisse" page ..
+	if(document.URL.includes('site=ereignisse')) {
+		var events = getContent().getElementsByTagName('table');
+		if(events.length > 0) {
+			for(var i = 0; i < events.length; i++) {
+				var type = events[i].getElementsByTagName('td')[0].textContent.trim();
+				var timestamp = events[i].getElementsByTagName('td')[1].textContent.trim();
+				timestamp = timestamp.substr(0, 8)+"\t"+timestamp.substr(11, 5);
+				if(addExternalStats && type == "Gewinnspiel") {
+					if(events[i].getElementsByTagName('td')[2].textContent.search(/Die richtige Antwort war:?\s(\d+)/) != -1) {
+						events[i].getElementsByTagName('td')[2].setAttribute('id', 'competitionresult');
+						var answer = RegExp.$1;
+						GM_xmlhttpRequest({
+							method: "POST",
+							url: "http://goe.klaxi.de/external/external.php",
+							data: "x=competitionresult&t="+timestamp.split('\t')[0]+"&a="+answer,
+							headers: { "Content-Type": "application/x-www-form-urlencoded" },
+							onload: function() {
+								var obj = JSON.parse(this.responseText);
+								document.getElementById('competitionresult').innerHTML += "<br>" + obj[0];
+							}
+						});
+					}
+				}
+			}
 		}
 	}
 }
@@ -1839,6 +1917,48 @@ function bbCodeBar(codeBarElem, textElem, bbCodes = ['b', 'u', 'i', 'center', 'b
 	}
 }
 
+function getActiveBuffData() {
+	var now = new Date();
+	if(document.URL == "https://game-of-elements.de/index.php" || document.URL == "https://www.game-of-elements.de/index.php") {
+		// look if there is a 'Buff der Arbeit'..
+		var tableEntries = document.getElementById('content').getElementsByTagName('td');
+		for(var j = 0; j < tableEntries.length; j++) {
+			if(tableEntries[j].textContent == 'Buff der Arbeit') {
+				var activeBuffText = tableEntries[j].parentElement.children[1].textContent.split(' ');
+				var activeBuffDate = new Date(now.getTime() + ((parseInt(activeBuffText[1], 10) * 60 + parseInt(activeBuffText[3], 10)) * 60 + parseInt(activeBuffText[5], 10)) * 1000);
+				GM_setValue('activeBuffTime', activeBuffDate.getTime());
+				return;
+			}
+		}
+	}
+	if(GM_getValue('activeBuffTime', 0) < now.getTime()) {
+		GM_xmlhttpRequest({
+			method: "GET",
+			url: "https://www.game-of-elements.de/index.php?site=arbeiten&show=21",
+			onload: function(response) {
+				var htmlDoc = new DOMParser().parseFromString(response.responseText, "text/html");
+				var activeBuffDate = new Date(0);
+				var options = htmlDoc.getElementsByName('user2')[0].getElementsByTagName('option');
+				var i = 1;
+				while(options[i].value != getUserName()) {
+					i++;
+				}
+				if(options[i].textContent.includes('| Buff der Arbeit')) {
+					var text = options[i].textContent.split(' ');
+					activeBuffDate.setMonth(parseInt(text[6].split('.')[1], 10)-1, parseInt(text[6].split('.')[0], 10));
+					activeBuffDate.setHours(parseInt(text[8].split(':')[0], 10), parseInt(text[8].split(':')[1], 10), 0, 0);
+					if(activeBuffDate < now) {
+						activeBuffDate.setFullYear(now.getFullYear()+1); // correction if turn of the year ..
+					}
+				} else if(options[i].textContent.includes('erhält Buff der Arbeit')) {
+					setTimeout(getActiveBuffData, 25*60*1000); // check again 25 min later
+				}
+				GM_setValue('activeBuffTime', activeBuffDate.getTime());
+			}
+		});
+	}
+}
+
 function showActiveBuff() {
 	if(buffCheck) {
 		if(!document.URL.includes('show') &&
@@ -1846,39 +1966,38 @@ function showActiveBuff() {
 		 document.URL.includes('site=arbeiten') ||
 		 document.URL.includes('site=jagen') ||
 		 document.URL.includes('site=wasserholen')) {
-			var title = document.getElementById('content').getElementsByTagName('h1')[0];
-			var frame = createElementA('iframe', 'id', 'Übersicht');
-			frame.onload = function() {
-				// look if there is a 'Buff der Arbeit'..
-				var tableEntries = frame.contentDocument.getElementById('content').getElementsByTagName('td');
-				for(var j = 0; j < tableEntries.length; j++) {
-					if(tableEntries[j].textContent == 'Buff der Arbeit') {
-						title.innerHTML += " - Buff der Arbeit " + tableEntries[j].parentElement.children[1].textContent + "!";
-						return;
-					}
-				}
-				// look if you get a new "Buff der Arbeit"..
-				var frame2 = createElementA('iframe', 'id', 'Buffs');
-				frame2.onload = function() {
-					var username = getUserName();
-					var users = frame2.contentDocument.getElementById('content').getElementsByTagName('select')[0].getElementsByTagName('option');
-					for(var i = 0; i < users.length; i++) {
-						if(users[i].textContent.includes(username)) {
-							if(users[i].textContent.includes('erhält Buff der Arbeit')) {
-								title.innerHTML += " - Du erhälst gerade einen Buff der Arbeit!";
-								return;
-							}
+			var now = new Date();
+			var activeBuffDate = new Date(GM_getValue('activeBuffTime', 0));
+			if(activeBuffDate.getTime() > now.getTime() + 25*60*1000) {
+				// 'Buff der Arbeit' activ until activity end (25 min)
+				var title = document.getElementById('content').getElementsByTagName('h1')[0];
+				title.innerHTML += " - Buff der Arbeit noch " + formatCountdown(activeBuffDate.getTime()-now.getTime()) + " gültig!";
+			} else {
+				GM_xmlhttpRequest({
+					method: "GET",
+					url: "https://www.game-of-elements.de/index.php?site=arbeiten&show=21",
+					onload: function(response) {
+						var htmlDoc = new DOMParser().parseFromString(response.responseText, "text/html");
+						var title = document.getElementById('content').getElementsByTagName('h1')[0];
+						var activeBuffDate = new Date(0);
+						var options = htmlDoc.getElementsByName('user2')[0].getElementsByTagName('option');
+						var i = 1;
+						while(options[i].value != getUserName()) {
+							i++;
+						}
+						if(options[i].textContent.includes('| Buff der Arbeit')) {
+							var text = options[i].textContent.split(' ');
+							activeBuffDate.setMonth(parseInt(text[6].split('.')[1], 10)-1, parseInt(text[6].split('.')[0], 10));
+							activeBuffDate.setHours(parseInt(text[8].split(':')[0], 10), parseInt(text[8].split(':')[1], 10), 0, 0);
+							title.innerHTML += " - Buff der Arbeit noch " + formatCountdown(activeBuffDate.getTime()-now.getTime()) + " gültig!";
+						} else if(options[i].textContent.includes('erhält Buff der Arbeit')) {
+							title.innerHTML += " - Du erhältst gerade einen Buff der Arbeit!";
+						} else {
+							title.innerHTML += " - Kein Buff der Arbeit vorhanden!";
 						}
 					}
-					title.innerHTML += " - Kein Buff der Arbeit vorhanden!";
-				};
-				frame2.src = 'index.php?site=arbeiten&show=21';
-				frame2.style.display = "none";
-				document.body.appendChild(frame2);
-			};
-			frame.src = 'index.php';
-			frame.style.display = "none";
-			document.body.appendChild(frame);
+				});
+			}
 		}
 	}
 }
@@ -2753,6 +2872,20 @@ function format2(n) { // add leading zeros
 		n = '0' + n;
 	}
 	return n.toString();
+}
+
+function formatCountdown(time) {
+	// time in milliseconds
+	if(time < 0) time = 0;
+	time = Math.floor(time/1000);
+	var s = time%60;
+	time = Math.floor(time/60);
+	var m = time%60;
+	time = Math.floor(time/60);
+	var h = time%24;
+	if(h > 0) return h + ":" + format2(m) + ":" + format2(s) + " Std.";
+	if(m > 0) return m + ":" + format2(s) + " Min.";
+	return s + " Sek.";
 }
 
 function hasAnimal() { // has animal ..
