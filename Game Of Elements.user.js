@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name				Game Of Elements
 // @namespace			GameOfElements
-// @version				4.3.8
+// @version				4.3.8.1
 // @updateURL			https://github.com/Chaos-ThoR/GoE/raw/master/Game%20Of%20Elements.user.js
 // @encoding			utf-8
 // @description			try to take over the world!
@@ -99,7 +99,8 @@ var itemsToMove = ['Angel des Donners', 'Angel des Schweigens', 'Bier', 'blaue A
                    'verschlossene Truhe (Stufe 2)', 'W\u00e4rmebot 3562', 'Wintermarke', 'Zeitbot 3000', 'Zeitstopbot 5321'];
 
 // jobs and the possible work they can do ..
-var jobLinkMap = {'Pillen herstellen' : 'arbeiten&do=10',
+var jobLinkMap = {'Arbeiten' : 'arbeiten',
+                  'Pillen herstellen' : 'arbeiten&do=10',
                   'Selbstheilung' : 'arbeiten&do=30',
                   'Zauber wirken' : 'arbeiten&do=21',
                   'Tier z\u00FCchten' : 'arbeiten&do=22',

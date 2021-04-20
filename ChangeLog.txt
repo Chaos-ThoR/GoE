@@ -1,3 +1,6 @@
+-> v4.3.8.1:
+	- Job-Auswahl um "Arbeiten" erweitert (1. Aktion je nach Beruf)
+
 -> v4.3.8:
 	- Optionen für Standardtätigkeit (mit und ohne Buff) hinzugefügt
 	- "Buff der Arbeit"-Check auf "Arbeiten"-Seiten überarbeitet
